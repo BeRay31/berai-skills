@@ -33,10 +33,10 @@ new explainer before the user selects an intent.
 Do not print this as a text menu. After the user chooses:
 
 - **Open Studio for existing explainers** — discover only the explainer HTML
-  or source location needed to launch Studio. If an `explainers/` folder exists,
+  or source location needed to launch Studio. If an `.explainers/` folder exists,
   run Studio against that folder so the Gallery is the first useful surface;
   do not start a new build. If the location is ambiguous, ask for it instead of
-  scanning broadly. If `explainers/` does not exist, ask for the location.
+  scanning broadly. If `.explainers/` does not exist, ask for the location.
   Never inspect or fall back to `sketches/`, the current directory, or any
   other folder.
 - **Shape the story in ASCII first** — enter the Storytelling designer below.
@@ -80,9 +80,9 @@ build into story discovery, and never block a user who chooses the first draft.
 
 **Portable by design.** Everything this skill needs lives in
 `.factory/skills/explainer/` — copy that one directory into another repo and
-it works there too. It writes nothing outside `explainers/` in the host repo
-(the assembled output, plus the `explainers/_sources/` content sources you author),
-and holds no project-specific content itself.
+it works there too. Save new pages in `.explainers/` in the host repo and their
+editable sources in `.explainers/_sources/`. Honor an explicit output path.
+Open an existing page or gallery at its supplied path.
 
 ## How this works: assemble, don't regenerate
 
@@ -130,7 +130,7 @@ process ancestry, so in Devin and Droid the flag only overrides detection.
 
 When the request points at an **existing explainer** — an assembled `.html`
 carrying the `assembled by .factory/skills/explainer` stamp, its content source
-under `explainers/_sources/`, or any ask in the family of "browse / edit / tweak /
+under `.explainers/_sources/`, or any ask in the family of "browse / edit / tweak /
 review / present / upgrade this explainer" — do **not** run the new-page
 questionnaire below. Topic, style, and source are already known. If only the
 source is named, use its declared `meta.output` (assemble it first only when the
@@ -146,8 +146,8 @@ page is missing or stale). Then immediately:
    visuals, and unsupported work to the agent.
 
 When the ask is **"open / browse Studio"** with no page named, check only the
-conventional `explainers/` location. If that folder exists, launch it directly:
-`python3 .factory/skills/explainer/studio.py explainers/ --agent <adapter>` —
+conventional `.explainers/` location. If that folder exists, launch it directly:
+`python3 .factory/skills/explainer/studio.py .explainers/ --agent <adapter>` —
 Gallery opens first with previews, status, Open/Upgrade actions, and the
 component-showcase link. If it does not exist or more than one supplied location
 could apply, use `AskUser` to request the location instead of searching the
@@ -268,45 +268,37 @@ request did not answer. For explicit requests, infer audience and outline when
 they are clear, and ask only for missing information. Read approved or explicitly named
 source files before writing, but do not broaden the source set without user
 approval. If the user did not provide an output path, use
-`explainers/<topic>-explainer.html`.
+`.explainers/<topic>-explainer.html`.
 
-## Tone and voice — all styles, no exceptions
+## Plain language
 
-Explainers are educational documents, not marketing pages. Write in plain, direct
-English that a new team member or an external reviewer can follow without context.
+Apply the four principles of ISO 24495-1:2023 when drafting and revising every
+explainer. They apply to the cover, headings, captions, controls, slide text
+and handoff in every visual style. [ISO 24495-1:2023](https://www.iso.org/standard/78907.html)
 
-- **Banned vocabulary** (check these after the initial share or when the user
-  asks for verification; any hit is a defect):
-  "revolutionary", "seamless", "effortless", "powerful", "unlock", "leverage",
-  "transform", "unprecedented", "cutting-edge", "next-generation", "game-changing",
-  "supercharge", "blazing", "magic", "magical", "delightful", "robust". If a sentence
-  could appear on a landing page, rewrite it.
-- **No theatrical narration.** No rhetorical questions as section openers, no "Imagine a
-  world where…", no fake urgency. Start with the fact.
-- **Banned rhetoric** — the AI-writerly register. Readers see it everywhere
-  now and it turns them off a page immediately; any hit is a defect:
-  - dramatic fragment pairs and one-word punch sentences ("Not a projection.
-    Verified.", "The result? Speed.");
-  - headlines that sell instead of state — a title carries the fact:
-    "History restart: 13.4 s day-0 clone" beats "Not a projection. Verified.";
-  - borrowed metaphors: "seam", "load-bearing", "north star", "the bones",
-    "connective tissue", "villain", "superpower", "secret sauce", "unsung
-    hero". A metaphor is allowed only when the visual literally draws it
-    (a `table` dot-spectrum drawing a literal spectrum) or the domain already
-    owns the word (a "floor" for a measured lower bound).
-- **Write for any reader.** Prefer the word a non-native speaker learns first
-  ("use", not "leverage"; "start", not "kick off"). If a sentence sounds like
-  copywriting, replace it with the number it was dressing up. An explainer
-  sells nothing to no one.
-- **Concrete before abstract.** What the system does, then why it matters. Prefer
-  function names and file paths over invented proper nouns. Numbers beat adjectives:
-  "re-runs only the 2 reviewers whose files changed" beats "fast".
-- **The register adapts to the style — accuracy never does:**
-  - *Keynote*: punchy but truthful. Short declaratives. The headline carries the
-    argument; the sub adds one qualifier. If a punchy line overstates, soften the line,
-    not the truth.
-  - *Playful*: vivid palette, plain words. Playful is a look, not a license to hype.
-- When unsure of tone for a sensitive topic (incident, outage, security), ask.
+- **Relevant.** Identify the reader, what they already know, and the question
+  they need to answer. Lead with the answer. Include the evidence and limits
+  that could affect their decision.
+- **Findable.** Use the reader’s terms in headings. Put steps in the order
+  the reader will take them. Place each result beside the claim it supports.
+- **Understandable.** Name who did what. Use familiar words and explain
+  necessary technical terms on first use. Preserve identifiers, units,
+  conditions and uncertainty. Use the same term for the same thing throughout.
+- **Usable.** Give the reader enough information to make the decision or carry
+  out the task. For an instruction, include any prerequisite and how to tell
+  whether it worked. For an explanation, show how the evidence answers the question.
+
+As you edit, remove sales claims, generic praise, rhetorical questions used
+for suspense, and stock transitions such as “let’s dive in.” Replace slogans,
+fragment pairs and “it’s not X, it’s Y” formulas with the specific fact.
+For example, replace “One quote. Zero surprises.” with “Both revisions returned
+the same price. Only the newer revision also returned the carrier’s warning.”
+
+Read the headings alone to check whether someone could find the answer.
+Then read the relevant section as that person and try to answer their question
+or follow their instructions. Revise the passage if you need facts from the
+conversation. When intended readers give feedback, use the places they hesitated
+or misunderstood to guide the next edit.
 
 ## Storytelling designer — ASCII before HTML
 
@@ -372,12 +364,8 @@ component changes, and rebuilds.
 
 ## Authoring the content source
 
-Write `explainers/_sources/<topic>.html` with the four slots (worked examples:
-`reference-sources/hello-kit.html` (next to this file) for the shape). The
-underscore in `_sources/` is deliberate — it's this repo's existing "internal
-input, not a page to open" convention (the same one the skill itself used as
-`explainers/_kit/` before it moved here); see the FAQ in `README.md` for why
-that separation is worth keeping.
+Write the four slots in `.explainers/_sources/<topic>.html`. See
+`reference-sources/hello-kit.html` for a complete example.
 
 **Opening slide contract.** Every new explainer starts with the `section`
 component in `mode:'cover'` and one of its supported background patterns. Add
@@ -397,7 +385,7 @@ adjusting the two file paths in it):
 <p style="font:15px/1.6 -apple-system,sans-serif;max-width:640px;margin:40px auto;padding:18px 22px;border:1px solid #b45309;color:#78350f;background:#fffbeb">
   <strong>Note:</strong> this is an <code>/explainer</code> content source, not a finished page —
   assemble it first (see <code>.factory/skills/explainer/README.md</code>):<br>
-  <code>python3 .factory/skills/explainer/assemble.py explainers/_sources/&lt;topic&gt;.html</code>
+  <code>python3 .factory/skills/explainer/assemble.py .explainers/_sources/&lt;topic&gt;.html</code>
 </p>
 ```
 
@@ -423,7 +411,7 @@ Then the four slots:
 Then assemble and iterate, from the repo root:
 
 ```sh
-python3 .factory/skills/explainer/assemble.py explainers/_sources/<topic>.html
+python3 .factory/skills/explainer/assemble.py .explainers/_sources/<topic>.html
 ```
 
 ### Automatic copy-cap repair
@@ -754,7 +742,7 @@ gate before showing the user is a successful `assemble.py` run.
 3. If Studio cannot start, return the assembled local path as a fallback and
    state the exact launch command.
 4. Add one quiet iteration hint in that same response:
-   **The generated HTML is a first share, not a final artifact.** Say that the
+   Say that the
    user can ask for any change in plain language or leave location-aware Notes
    in Studio; "apply my review" brings those edits back here. The Gallery header
    links to `showcase/components.html` so component names are browsable without
@@ -764,9 +752,6 @@ gate before showing the user is a successful `assemble.py` run.
 5. Do not run browser, screenshot, interaction, rendering, subagent, or
    exhaustive static checks before the initial share. Starting Studio is the
    handoff, not a verification pass.
-
-This preserves the “Aha!” moment. The user must be able to work with the result
-as soon as assembly succeeds, not after minutes of automated inspection.
 
 ## Design variants and the review loop
 
@@ -778,7 +763,7 @@ installed beyond python3 (both are stdlib-only, like the assembler).
 style — the content is identical, only the token layer changes:
 
 ```sh
-python3 .factory/skills/explainer/assemble.py explainers/_sources/<topic>.html --variants keynote,playful
+python3 .factory/skills/explainer/assemble.py .explainers/_sources/<topic>.html --variants keynote,playful
 ```
 
 Each output lands with a `-<style>` suffix, and the command prints the
@@ -789,7 +774,7 @@ alternate look without touching the source.
 disk are never modified — the overlay is injected per request):
 
 ```sh
-python3 .factory/skills/explainer/review.py explainers/<topic>-explainer-keynote.html explainers/<topic>-explainer-playful.html
+python3 .factory/skills/explainer/review.py .explainers/<topic>-explainer-keynote.html .explainers/<topic>-explainer-playful.html
 ```
 
 The reviewer gets, in their browser:
@@ -813,7 +798,7 @@ The reviewer gets, in their browser:
   receives. When handing the loop to a reviewer, point at this button — never
   assume they know what happens after adding notes.
 
-Everything lands in `explainers/_reviews/<name>/review.md` (plus a
+Everything lands in `.explainers/_reviews/<name>/review.md` (plus a
 machine-readable `review.json`). Re-assembling and refreshing shows the new
 version; notes persist across refreshes.
 
@@ -955,9 +940,9 @@ flips and the upgrade need a source. Swapping old devices for new ones
 (a `table` for a `chart`) stays agent work — reviewers can request it in a Note.
 
 **Git hygiene** (teams track explainers in git): the content source in
-`explainers/_sources/` is the asset to commit, plus assembled pages if the
+`.explainers/_sources/` is the asset to commit, plus assembled pages if the
 team wants them shareable from the repo. Everything under
-`explainers/_reviews/` is throwaway (feedback, studio previews) — the tools
+`.explainers/_reviews/` is throwaway (feedback, studio previews) — the tools
 drop a self-ignoring `.gitignore` there automatically, so never commit it and
 never write anything you'd want to keep into it.
 
@@ -997,53 +982,17 @@ do not translate one layout's positions into every layout or patch generated HTM
 5. Re-assemble, tell the user to refresh, and leave the server running for
    the next pass.
 
-**The ideas pass — taste on demand.** Most reviewers can't name what would
-make a page land harder; they can only feel that it doesn't. Never wait for
-them to specify the fix. Run an ideas pass when any of these fire:
+**When a reviewer asks for ideas.** For each slide the reviewer identifies,
+suggest up to three changes and explain how each would help the reader.
+For example, remove a caption that repeats the chart, move the main result
+into the heading, or show a sequence as a diagram. Offer a custom visual if
+the existing components cannot show the evidence clearly. Apply the reviewer’s
+choice to the source, then rebuild the page.
 
-- a review contains **Notes requesting ideas or component changes** (the
-  one-click ideas action can file "propose stronger treatments here" with
-  zero typing);
-- the user says anything in the family of "more wow", "make it pop",
-  "something feels off", "less boring";
-- your own fit test flagged a force-fit while authoring.
-
-For each flagged spot (or the 2-3 weakest beats when the ask is page-wide),
-**propose — do not silently apply — up to three treatments**, each with a
-one-line why:
-
-1. **Cut for cinema** — delete the sub, let the number or visual stand alone.
-   Text is the usual culprit; this is the most common winning move.
-2. **Swap the device** — same data, stronger component: `table` rows →
-   `loop` for a cycle, `table` rows → `chart` for measured numbers, prose →
-   `chart` kind `stat`, a wall of numbers → `chart` kind `dumbbell`, a chart
-   → a `walkthrough` chart when it deserves narration. Name the component, so
-   the user learns the vocabulary.
-3. **Re-rank the hierarchy** — promote the buried number to the claim line,
-   demote the qualifier to a `muted-note`.
-4. **Go bespoke** — when nothing in the kit fits, pitch a bespoke device in
-   one sentence ("a vertical timeline with the outage window shaded") and
-   build it in `page-css`/`page-js` under the design-language rules. The kit
-   saves ~90% of the tokens on routine beats precisely so a page can afford
-   one generated device where it counts — being deterministic by default is
-   an economy, not a cage.
-
-Present the options in plain language ("slide 4: this table is doing a
-loop's job — swap it?"), apply what the user picks, re-assemble, re-serve.
-
-**Register variants — plain-language A/B.** Style is not the only axis worth
-comparing. For a mixed or non-native-English audience, offer a second source
-`explainers/_sources/<topic>-plain.html` written in simplified technical
-English — same sections, same components, same facts:
-
-- short sentences (aim ≤ 18 words), one clause where possible;
-- common words over rare ones ("use", not "utilise"; "start", not "initiate");
-- no idioms, no metaphors; keep every number, unit, and identifier exact;
-- jargon defined at first use via the glossary.
-
-Assemble both sources and serve them as A/B in `review.py`. The banned
-vocabulary and honesty rules bind both registers — "plain" changes rhythm and
-word choice, never accuracy.
+**Versions for different audiences.** If readers have different levels of
+subject knowledge, offer a second source in `.explainers/_sources/`. Keep the
+facts, units and identifiers. Explain unfamiliar terms and give each audience
+the context it needs. Use `review.py` to compare the two pages.
 
 ## Follow-up verification: only after sharing
 
@@ -1074,7 +1023,7 @@ required) and reports comprehension, evidence, interaction, and aesthetic gaps.
 Keep it short and lead with what the user should do next:
 
 - **Open in Studio:** URL first.
-- **Conclusion:** the one sentence this explainer is designed to land.
+- **Conclusion:** the answer to the reader’s question.
 - **Review path:** 2–3 beats to inspect or present.
 - **Source artifact:** assembled path, then the editable source path.
 - **Iteration:** ask in plain language or leave a Note; "apply my review" brings
@@ -1087,7 +1036,7 @@ Studio: http://127.0.0.1:7373/review-evidence
 
 Conclusion: stale evidence must block approval until it is refreshed.
 Review: invariant → failure path → recovery evidence.
-Files: explainers/review-evidence.html · explainers/_sources/review-evidence.html
+Files: .explainers/review-evidence.html · .explainers/_sources/review-evidence.html
 
-This is a first share—edit it in Studio or tell me what to change.
+Edit the page in Studio or tell me what to change.
 ```

@@ -14,16 +14,18 @@ A collection of skills for coding agents. Each directory has a `SKILL.md` with i
 | [build-frontend-feature](build-frontend-feature/SKILL.md) | Build a web feature from its entry point to the rendered outcome, using the host’s framework, data flow, and design system. |
 | [nir-frontend](nir-frontend/SKILL.md) | Extend the frontend baseline for NIR storefront and staff workflows, including app-specific routing, permissions, and shared `nir-ui` components. Requires `build-frontend-feature`. |
 | [build-backend-feature](build-backend-feature/SKILL.md) | Build an endpoint, job, or provider integration in an existing backend. Trace a comparable feature, resolve open decisions, and verify the result through the real entry point and database. |
-| [explainer](harness/SKILL.md) | Turn a technical change or design decision into a standalone interactive HTML presentation. Open Studio to browse and edit existing explainers. |
+| [explainer](explainer/SKILL.md) | Turn a technical change or design decision into a standalone interactive HTML presentation. Open Studio to browse and edit existing explainers. |
 | [capture-review-evidence](capture-review-evidence/SKILL.md) | Capture the same scenario before and after a CLI, terminal UI, web, or architecture change so reviewers can compare the results. |
 | [create-merge-request](create-merge-request/SKILL.md) | Open a GitHub pull request or GitLab merge request with a description based on the diff, review evidence, and verification results. |
 
 ## Getting started
 
-Choose a skill from the table and follow its instructions. When copying a skill into your agent’s skills directory, copy the whole folder so its relative paths still work. The `harness/` folder declares its skill name as `explainer`. The merge request workflow also requires the separate `repo-info` skill and an authenticated `gh` or `glab` CLI.
+Choose a skill from the table and follow its instructions. When copying a skill into your agent’s skills directory, copy the whole folder so its relative paths still work. The merge request workflow also requires the separate `repo-info` skill and an authenticated `gh` or `glab` CLI.
 
-To try the explainer from the repository root, build the bundled example with Python 3.9 or newer, then open the output file in a browser.
+## Build the explainer example from a local checkout
+
+To try the explainer from the repository root, build the bundled example with Python 3.9 or newer, then open `.explainers/hello-kit-explainer.html` in a browser.
 
 ```sh
-python3 harness/assemble.py harness/reference-sources/hello-kit.html --out /tmp/hello-kit-explainer.html
+python3 explainer/assemble.py explainer/reference-sources/hello-kit.html
 ```

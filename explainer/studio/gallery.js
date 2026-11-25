@@ -413,7 +413,7 @@
     const code = el(
       "code",
       "",
-      "python3 .factory/skills/explainer/assemble.py explainers/_sources/<topic>.html",
+      "python3 .factory/skills/explainer/assemble.py .explainers/_sources/<topic>.html",
     );
     state.append(code);
     main.append(state);

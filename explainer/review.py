@@ -15,10 +15,10 @@ are never modified:
 
 Everything lands in ``<dir of first file>/_reviews/<name>/review.json`` plus a
 prompt-ready ``review.md``. When done, the reviewer tells their agent:
-"Apply the review in explainers/_reviews/<name>/review.md".
+"Apply the review in .explainers/_reviews/<name>/review.md".
 
 Usage (run from the repo root):
-    python3 .factory/skills/explainer/review.py explainers/<topic>-explainer.html
+    python3 .factory/skills/explainer/review.py .explainers/<topic>-explainer.html
     python3 .factory/skills/explainer/review.py a.html b.html c.html
     python3 .factory/skills/explainer/review.py a.html --port 7373 --no-open
 

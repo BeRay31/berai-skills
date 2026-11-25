@@ -12,7 +12,7 @@ The pinned PptxGenJS 4.0.1 bundle carries the two serializer fixes from upstream
 not declare phantom slide masters or invalid notes-master placeholders.
 
 **The contract: modular source, monolithic output.** You author one small
-content source in the *target* repo (e.g. `explainers/_sources/<topic>.html`);
+content source in the *target* repo (e.g. `.explainers/_sources/<topic>.html`);
 `assemble.py` splices it together with this skill into a **single
 self-contained `.html`** — inline CSS + JS, vendored animation library, zero
 external runtime dependencies. (Screenshots are embedded as base64 data URIs
@@ -27,8 +27,8 @@ clickable fake-product experience belong to `/sketch`, which owns its own shell,
 components, assembler, and safety contract.
 
 The skill holds no project-specific content: everything it produces goes to
-`explainers/` in the host repo, which stays a plain output directory (plus
-the `explainers/_sources/` content sources you author) — nothing from the
+`.explainers/` in the host repo, which stays a plain output directory (plus
+the `.explainers/_sources/` content sources you author) — nothing from the
 skill itself lives there. Dropping this folder into another repo and pointing
 `assemble.py` at a new content source is the whole port.
 
@@ -55,7 +55,7 @@ A bare `/explainer` reads the adjacent `VERSION`, shows
 `Explainer · v<version>`, then starts an `AskUser` intent choice before any
 other content discovery:
 
-- **Open Studio for existing explainers** — open the `explainers/` Gallery or a
+- **Open Studio for existing explainers** — open the `.explainers/` Gallery or a
   named page immediately; never run a new-page interview first.
 - **Shape the story in ASCII first** — iterate audience, conclusion, evidence,
   and 3–7 beats without creating files until the user chooses to build.
@@ -119,7 +119,7 @@ event description alone does not satisfy the outcome.
 
 ## Authoring workflow (quick reference — SKILL.md has the full version)
 
-1. Write one content source, e.g. `explainers/_sources/<topic>.html`, with a
+1. Write one content source, e.g. `.explainers/_sources/<topic>.html`, with a
    visible banner (so opening it raw in a browser explains itself instead of
    rendering blank) followed by the four slots:
 
@@ -127,7 +127,7 @@ event description alone does not satisfy the outcome.
 <p style="font:15px/1.6 -apple-system,sans-serif;max-width:640px;margin:40px auto;padding:18px 22px;border:1px solid #b45309;color:#78350f;background:#fffbeb">
   <strong>Note:</strong> this is an <code>/explainer</code> content source, not a finished page —
   assemble it first (see <code>.factory/skills/explainer/README.md</code>):<br>
-  <code>python3 .factory/skills/explainer/assemble.py explainers/_sources/&lt;topic&gt;.html</code>
+  <code>python3 .factory/skills/explainer/assemble.py .explainers/_sources/&lt;topic&gt;.html</code>
 </p>
 
 <script type="application/json" data-slot="meta">
@@ -137,7 +137,7 @@ event description alone does not satisfy the outcome.
   "style":  "keynote",
   "theme":  "dark",
   "components": ["section", "flow", "table"],
-  "output": "explainers/example-topic-keynote-explainer.html",
+  "output": ".explainers/example-topic-keynote-explainer.html",
   "thesis": "One-line thesis for the deck",
   "slides": [{"kicker":"01 · The loop", "title":"…", "point":"one-line takeaway"}],
   "facts":  ["key fact"],
@@ -168,7 +168,7 @@ section and the first Present manifest entry with `layout:'cover'`.
 1. Assemble (from the repo root):
 
 ```sh
-python3 .factory/skills/explainer/assemble.py explainers/_sources/<topic>.html
+python3 .factory/skills/explainer/assemble.py .explainers/_sources/<topic>.html
 ```
 
 This writes the self-contained `.html` and prints how much of the page came from the skill vs
@@ -190,18 +190,18 @@ Two flags and one tool turn "which design do you want?" into a browser choice
 
 ```sh
 # Two designs from one source (outputs get a -<style> suffix):
-python3 .factory/skills/explainer/assemble.py explainers/_sources/<topic>.html --variants keynote,playful
+python3 .factory/skills/explainer/assemble.py .explainers/_sources/<topic>.html --variants keynote,playful
 
 # serve them with the review overlay — A/B flip, location-aware Notes,
 # live design tuner (type scale, content spacing, text width, accent, and the
 # Adyen brand preset), winner pick:
-python3 .factory/skills/explainer/review.py explainers/<topic>-explainer-keynote.html explainers/<topic>-explainer-playful.html
+python3 .factory/skills/explainer/review.py .explainers/<topic>-explainer-keynote.html .explainers/<topic>-explainer-playful.html
 ```
 
 `review.py` never modifies the files it serves — the overlay is injected per
-request. Feedback lands in `explainers/_reviews/<name>/review.md`, anchored by
+request. Feedback lands in `.explainers/_reviews/<name>/review.md`, anchored by
 section, selector, and text snippet, so the reviewer can finish with one
-sentence to their agent: *"Apply the review in explainers/_reviews/<name>/review.md"*.
+sentence to their agent: *"Apply the review in .explainers/_reviews/<name>/review.md"*.
 Re-assemble and refresh to see the next iteration; notes persist.
 `--style <name>` assembles a single alternate look without editing the source.
 See SKILL.md's "Design variants and the review loop" for how to apply a review.
@@ -210,7 +210,7 @@ See SKILL.md's "Design variants and the review loop" for how to apply a review.
 things that shouldn't cost a model round-trip:
 
 ```sh
-python3 .factory/skills/explainer/studio.py explainers/<topic>-explainer.html
+python3 .factory/skills/explainer/studio.py .explainers/<topic>-explainer.html
 ```
 
 A left-edge panel adds **look flips** (one click re-assembles the page from
@@ -320,9 +320,9 @@ All paths keep the previous file in `_reviews/`.
 
 For teams tracking explainers in git:
 
-- **Commit** `explainers/_sources/` — the content source is the real asset —
+- **Commit** `.explainers/_sources/` — the content source is the real asset —
   and the assembled `.html` pages if you want them shareable from the repo.
-- **Ignore** `explainers/_reviews/` — review feedback, studio style previews,
+- **Ignore** `.explainers/_reviews/` — review feedback, studio style previews,
   and other throwaway working files live there. The tools handle this for
   you: they drop a self-ignoring `.gitignore` (`*`) into `_reviews/` on first
   run, so nothing in it ever shows up as untracked noise.
@@ -369,14 +369,12 @@ For teams tracking explainers in git:
 - **Both themes, every style.** A fixed theme toggle ships on every page;
   choices persist in localStorage.
 
-## Register (applies to every style)
+## Writing for the reader
 
-Explainers are educational documents, not marketing pages. Never use
-"revolutionary", "seamless", "effortless", "powerful", "unlock", "leverage",
-"transform", "unprecedented", "cutting-edge", "next-generation", "game-changing",
-"supercharge", "blazing", "magic". State facts; let the reader be impressed by
-the content, not the adjectives. Keynote may be punchy, Playful stays plain —
-neither may trade accuracy for effect.
+Use the [plain-language instructions](SKILL.md#plain-language) for every style.
+They apply ISO 24495-1:2023 to the reader’s question, slide order, wording and
+use of evidence. When reviewing a draft, check whether the intended reader can
+find the answer and use it.
 
 ## Versioning
 
@@ -395,7 +393,7 @@ hardcode a version from this README, filenames, generated pages, or prior turns.
 four slots, three components, a flow diagram, and a Present manifest. Assemble it:
 
 ```sh
-python3 .factory/skills/explainer/assemble.py .factory/skills/explainer/reference-sources/hello-kit.html --out /tmp/hello-kit-explainer.html
+python3 .factory/skills/explainer/assemble.py .factory/skills/explainer/reference-sources/hello-kit.html
 ```
 
 ## Component showcase
@@ -427,13 +425,9 @@ churns completely on every `VERSION` bump, even with zero content changes).
 Changing `style`, `components`, or `theme` and re-running `assemble.py` is
 also cheaper than retyping content into a new template by hand.
 
-**Why does the source live in `explainers/_sources/` and not `explainers/src/`?**
-Both say "this is input, not output" to a developer, but `_sources` also says
-it plainly to the ~100 other people who'll browse `explainers/` without
-knowing that convention — and it's not a new pattern here: the skill itself
-was `explainers/_kit/` for months before it became `.factory/skills/explainer/`.
-Reusing an underscore prefix that already means "internal, don't open this
-directly" in this exact repo costs nothing to learn twice.
+**Where are my files?** Open or share the HTML in `.explainers/`. Edit the
+source in `.explainers/_sources/`. For a previously saved page, pass its file
+or folder path to Studio.
 
 **Why can't I open the source and preview it?** By design — it's missing
 the entire runtime (CSS, Present mode, zoom, glossary) that makes it a page,

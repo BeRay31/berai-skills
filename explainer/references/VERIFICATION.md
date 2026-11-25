@@ -46,20 +46,23 @@ If the rendered page shows the fixed **copy issue** alert, dynamic data escaped
 static analysis. Treat the page as failed even though Present remains operable:
 repair the reported source field and reassemble before sharing.
 
-## 2. Register sweep (grep, no exceptions)
+## 2. Review the wording from the reader’s point of view
 
-```sh
-grep -inE "revolutionary|seamless|effortless|powerful|unlock|leverage|transform|unprecedented|cutting-edge|next-generation|game-changing|supercharge|blazing|magic(al)?|delightful|robust" explainers/_sources/<topic>.html
-```
+Use the [plain-language guidance](../SKILL.md#plain-language). Pick the task
+or question the page addresses. Locate the answer using only its headings.
+Explain the result in your own words and use it to make the intended decision
+or follow the steps. Record where you had to guess, revise that passage and
+try again. Use feedback from intended readers when available.
 
-Any hit is a defect — rewrite the sentence. Also scan for emoji outside the
-approved glyph set (`◐ ▶ ✕ ✓ ⤢ ⟲ — · ↑ → ↗`); anything else is decoration
-posing as iconography.
+Read labels and captions as well as body text. Remove promotional claims and
+stock phrases. Keep exact commands, quoted evidence and technical identifiers.
+A word count or vocabulary scan alone cannot establish whether readers can use
+the page.
 
 ## 3. Self-containment (grep)
 
 ```sh
-grep -nE "<link[^>]*href|<script[^>]*\ssrc=" explainers/<topic>-explainer.html
+grep -nE "<link[^>]*href|<script[^>]*\ssrc=" .explainers/<topic>-explainer.html
 ```
 
 Should return nothing except the one vendored Motion `<script>` block the

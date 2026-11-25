@@ -25,8 +25,8 @@ every request — edit them, refresh the browser, see the change. The server
 logic reuses review.py (imported below) rather than duplicating it.
 
 Usage (run from the repo root, same as assemble.py):
-    python3 .factory/skills/explainer/studio.py explainers/<topic>-explainer.html
-    python3 .factory/skills/explainer/studio.py explainers/          # newest page opens, folder list has the rest
+    python3 .factory/skills/explainer/studio.py .explainers/<topic>-explainer.html
+    python3 .factory/skills/explainer/studio.py .explainers/          # newest page opens, folder list has the rest
     python3 .factory/skills/explainer/studio.py a.html b.html --port 7373 --no-open
 
 Style flips re-assemble from the page's content source: the path recorded in
@@ -1997,7 +1997,7 @@ def _parse_args() -> argparse.Namespace:
         metavar="HTML|DIR",
         help="assembled explainer .html files (2-3 for an A/B/C flip), or a"
         " directory — opens the gallery for that folder. Omit entirely to"
-        " open the gallery for explainers/ in the current directory; errors"
+        " open the gallery for .explainers/ in the current directory; errors"
         " when that conventional folder does not exist.",
     )
     ap.add_argument(
@@ -2067,17 +2067,17 @@ def _resolve_files(names: list[str]) -> tuple[list[Path], Path]:
     An empty ``specific_files`` list signals gallery mode — the caller opens
     ``/gallery`` instead of a page route. Three cases:
 
-    - **No args**: gallery mode for ``explainers/``; fail when that
+    - **No args**: gallery mode for ``.explainers/``; fail when that
       conventional folder does not exist rather than scanning elsewhere.
     - **Single directory**: gallery mode for that directory.
     - **One or more .html files**: studio mode for those specific files
       (2-3 for an A/B/C comparison); ``pages_dir`` is their parent.
     """
     if not names:
-        default = Path("explainers")
+        default = Path(".explainers")
         if not default.is_dir():
             review.die(
-                "no explainers/ directory found — pass an explicit explainer HTML file "
+                "no .explainers/ directory found — pass an explicit explainer HTML file "
                 "or directory; Studio will not scan sketches/ or the current directory"
             )
         return [], default

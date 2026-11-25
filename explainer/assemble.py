@@ -6,8 +6,8 @@ output is ONE .html file with zero external runtime dependencies; Motion is
 vendored inline.
 
 Usage (run from the repo root):
-    python3 .factory/skills/explainer/assemble.py explainers/_sources/<topic>.html
-    python3 .factory/skills/explainer/assemble.py <source> --out explainers/<topic>-explainer.html
+    python3 .factory/skills/explainer/assemble.py .explainers/_sources/<topic>.html
+    python3 .factory/skills/explainer/assemble.py <source> --out .explainers/<topic>-explainer.html
 
 Content source format (one file, four required slots plus optional authoring):
     <script type="application/json" data-slot="meta"> {...} </script>
@@ -1406,7 +1406,7 @@ def main() -> None:
     Examples
     --------
     >>> import sys
-    >>> sys.argv = ["assemble.py", "explainers/_sources/<topic>.html"]
+    >>> sys.argv = ["assemble.py", ".explainers/_sources/<topic>.html"]
     >>> main()  # doctest: +SKIP
     """
     args = _parse_args()
@@ -1445,7 +1445,7 @@ def _parse_args() -> argparse.Namespace:
     ap.add_argument("source", help="content source file (see .factory/skills/explainer/README.md)")
     ap.add_argument(
         "--out",
-        help="output .html path (default: from meta.output, else <source-stem>-explainer.html; <source-stem>-sketch.html for app-sketch, next to src/)",
+        help="output HTML path (default for explainers: meta.output or .explainers/<source-stem>-explainer.html)",
     )
     ap.add_argument(
         "--style",
@@ -1759,8 +1759,8 @@ def _candidate_mismatch(candidate: Path, style_name: str, src_path: Path) -> str
 def resolve_out(out_arg: str | None, meta: dict[str, Any], src_path: Path, recipe: str) -> Path:
     """Resolve the output ``.html`` path for one assembly.
 
-    Precedence: CLI ``--out``, else ``meta.output``, else a default next to
-    the source's parent directory (matching the pre-``--variants`` behavior).
+    An explicit CLI or metadata path takes precedence. Explainers default to
+    the project's .explainers directory. App sketches use their source tree.
 
     Parameters
     ----------
@@ -1783,8 +1783,9 @@ def resolve_out(out_arg: str | None, meta: dict[str, Any], src_path: Path, recip
         return Path(out_arg)
     if meta.get("output"):
         return Path(meta["output"])
-    suffix = "sketch" if recipe == "app-sketch" else "explainer"
-    return src_path.parent.parent / f"{src_path.stem}-{suffix}.html"
+    if recipe == "app-sketch":
+        return src_path.parent.parent / f"{src_path.stem}-sketch.html"
+    return Path(".explainers") / f"{src_path.stem}-explainer.html"
 
 
 def _build_app_sketch_page(
@@ -2123,6 +2124,7 @@ def assemble_once(
     # a direct user choice and may target /tmp for disposable verification.
     if not out_is_cli:
         validate_under_cwd(out, "output path")  # `out` itself stays relative/unresolved for display
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
 
     authored = len(source.content) + len(source.page_css) + len(source.page_js)

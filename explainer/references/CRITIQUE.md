@@ -69,8 +69,8 @@ Report:
    themes; diagram legibility; Present pacing (slides crowded or empty on
    arrival, anticlimaxes); anything broken, misaligned, or cheap-looking.
 3. **STORYTELLING & COMPONENT GAPS**: where does the page feel flat or
-   table-heavy? If one or two new reusable device types would raise wow and
-   clarity, name them, say exactly where they'd slot into THIS page, and what
+   table-heavy? If a different visual would help the reader find or interpret
+   the evidence, name it, say where it would go, and describe what
    data they'd take.
 4. **TOP IMPROVEMENTS**: ranked, max 8, must-fix vs nice-to-have, each with an
    exact location.

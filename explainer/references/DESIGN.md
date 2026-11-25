@@ -16,11 +16,9 @@ like default AI output. The tells, and the kit's answer to each:
   8px. Round stays only where the shape *means something*: dots, number
   badges, rings, chips-as-labels, floating chrome pills. A queue node is a
   crisp card with slat glyphs — the glyph carries "buffer," not a 999px pill.
-- **Marketing copy** → banned. No "seamless," "powerful," "effortless,"
-  "unlock," "supercharge," "game-changing," no exclamation-mark enthusiasm,
-  no thesis statements that sell instead of state. We're not selling anything
-  to anyone. Write like a sharp colleague: concrete nouns, real verbs,
-  numbers over adjectives, one idea per slide.
+- **Slide text.** Use a heading the reader can find when scanning. Put a
+  caption beside the evidence it explains. Follow the
+  [plain-language instructions](../SKILL.md#plain-language) for both styles.
 - **Walls of text on slides** → the text diet, enforced as code. Every
   component caps its strings hard and THROWS on violation (labels ~20–36
   chars, notes ~28–40, four code lines max, six walkthrough steps max).
