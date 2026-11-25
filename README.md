@@ -6,6 +6,7 @@ A collection of skills for coding agents. Each directory has a `SKILL.md` with i
 
 | Skill | When to use it |
 | --- | --- |
+| [argus](argus/SKILL.md) | Search code across repositories, trace pull requests and failing pipelines, and look up issues using the read-only `argus` CLI. |
 | [grill-me](grill-me/SKILL.md) | Stress-test a plan one decision at a time. The agent checks the codebase for answers before asking the next question. |
 | [ponytail](ponytail/SKILL.md) | Before writing code, look for an existing implementation, standard library feature, or smaller change that solves the problem. |
 | [frontend-design](frontend-design/SKILL.md) | Build or style a web interface with deliberate choices about typography, layout, color, and motion. |
