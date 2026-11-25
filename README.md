@@ -67,6 +67,7 @@ The agent should ask one question at a time and give its recommended answer.
 | [receiving-code-review](receiving-code-review/SKILL.md) | Evaluate review comments against the current change, verify fixes, and draft evidence-backed replies. |
 | [using-git-worktrees](using-git-worktrees/SKILL.md) | Find or create an isolated checkout for a task and preserve existing branches and local work. |
 | [build-frontend-feature](build-frontend-feature/SKILL.md) | Build a web feature from its entry point to the rendered outcome, using the host’s framework, data flow, and design system. |
+| [nir-release](nir-release/SKILL.md) | Publish a NiR GitHub Release, verify API migrations when applicable, guide staging testing, and promote the approved version to production. |
 | [nir-frontend](nir-frontend/SKILL.md) | Extend the frontend baseline for NIR storefront and staff workflows, including app-specific routing, permissions, and shared `nir-ui` components. Requires `build-frontend-feature`. |
 | [build-backend-feature](build-backend-feature/SKILL.md) | Build an endpoint, job, or provider integration in an existing backend. Trace a comparable feature, resolve open decisions, and verify the result through the real entry point and database. |
 | [explainer](explainer/SKILL.md) | Turn a technical change or design decision into a standalone interactive HTML presentation. Open Studio to browse and edit existing explainers. |
