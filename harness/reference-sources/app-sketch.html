@@ -1,0 +1,344 @@
+<!-- Reference source: app-sketch recipe — simulated fake-app portal with
+     state-machine navigation, tab comparison, live stats, and collapsible
+     evidence panel.
+     Assemble from any writable working directory:
+     python3 /path/to/skills/explainer/assemble.py /path/to/skills/explainer/reference-sources/app-sketch.html --out /tmp/app-sketch.html
+
+     This is a GENERIC example — not tied to any specific product or PRD.
+     The scenario: should expense reports under $500 auto-approve or require
+     manager review? The sketch makes that decision testable by letting a
+     PM click through both paths and compare the outcomes. -->
+
+<p style="font:15px/1.6 -apple-system,sans-serif;max-width:640px;margin:40px auto;padding:18px 22px;border:1px solid #b45309;color:#78350f;background:#fffbeb">
+  <strong>Note:</strong> this is an <code>/explainer</code> content source, not a finished page —
+  assemble it first (see <code>.factory/skills/explainer/README.md</code>):<br>
+  <code>python3 .factory/skills/explainer/assemble.py .factory/skills/explainer/reference-sources/app-sketch.html --out /tmp/app-sketch.html</code>
+</p>
+
+<script type="application/json" data-slot="meta">
+{
+  "title": "Expense auto-approval — app sketch",
+  "recipe": "app-sketch",
+  "theme": "dark",
+  "output": "/tmp/app-sketch.html",
+  "simulation": {
+    "fidelity": "behavioral",
+    "data": "synthetic",
+    "network": "none",
+    "scenario": "An employee submits an expense under $500; should it auto-approve or require manager review?"
+  },
+  "thesis": "Make the auto-approve-vs-manual-review decision testable by clicking through both paths.",
+  "facts": [
+    "All data is synthetic and no requests are sent",
+    "The sketch has an auto-approve path, a flagged-for-review alternative, and reset",
+    "The risky decision: trust auto-approval for expenses under $500, or keep manual review"
+  ],
+  "links": []
+}
+</script>
+
+<template data-slot="content">
+<header class="topbar">
+  <div class="brand">Expense Pilot</div>
+  <nav class="tabs" aria-label="Approval paths">
+    <button class="tab active" data-portal="proposed" type="button">Auto-approve</button>
+    <button class="tab" data-portal="baseline" type="button">Manual review</button>
+  </nav>
+  <div class="time-stats">
+    <div class="ts-card" id="proposedTS"><span class="ts-label">Auto-approve</span><span class="ts-value" id="proposedTime">—</span></div>
+    <div class="ts-card" id="baselineTS"><span class="ts-label">Manual</span><span class="ts-value" id="baselineTime">—</span></div>
+  </div>
+  <button class="theme-toggle" id="themeToggle" type="button" title="Toggle theme">◐</button>
+</header>
+
+<main class="stage">
+  <div class="portal" data-portal="proposed">
+    <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">expenses.app/auto-review</span></div>
+    <div class="body" id="proposedBody"></div>
+    <div class="portal-foot" id="proposedFoot"></div>
+  </div>
+  <div class="portal hidden" data-portal="baseline">
+    <div class="chrome"><span class="dots"><i></i><i></i><i></i></span><span class="url">expenses.app/manual</span></div>
+    <div class="body" id="baselineBody"></div>
+    <div class="portal-foot" id="baselineFoot"></div>
+  </div>
+</main>
+
+<footer class="bottombar">
+  <button class="reset-btn" id="resetBtn" type="button">Reset</button>
+  <button class="info-toggle" id="infoToggle" type="button">Evidence &amp; Decision</button>
+</footer>
+
+<section class="info-panel" id="infoPanel">
+  <div class="info-inner">
+    <h3>Evidence &amp; Decision</h3>
+
+    <div class="match-rate">
+      <strong>Expected auto-approval rate: ~88% (untested)</strong> — If true, ~12% of expenses get flagged for review. If the rate drops below 75%, the time savings over manual review disappear.
+    </div>
+
+    <h4>Illustrative inputs</h4>
+    <div class="info-grid">
+      <ul class="fact-list">
+        <li><span class="big">4.2 days</span>Average manual review turnaround per expense report<span class="src">Synthetic data</span></li>
+        <li><span class="big">$340K</span>Annual cost of manual review staff time<span class="src">Synthetic data</span></li>
+        <li><span class="big">2,800</span>Expense reports processed per month<span class="src">Synthetic data</span></li>
+      </ul>
+      <ul class="assump-list">
+        <li><span class="big">88%</span>Of expenses under $500 are policy-compliant<span class="src">Untested — pilot hypothesis</span></li>
+        <li><span class="big">&lt; 30 sec</span>Target auto-approval time for compliant expenses<span class="src">Untested — pilot target</span></li>
+        <li><span class="big">Trust</span>Will managers trust auto-approval or override it?<span class="src">Testable in-flow: trust question surfaces the override choice</span></li>
+      </ul>
+    </div>
+
+    <h4>Step-by-step comparison</h4>
+    <table class="cmp-table">
+      <thead><tr><th>Step</th><th>Manual review</th><th>Auto-approve</th></tr></thead>
+      <tbody>
+        <tr><td>Submission</td><td>Employee fills form, submits to manager</td><td>Employee fills form, policy engine checks instantly</td></tr>
+        <tr><td>Review</td><td>Manager reviews each line item manually</td><td>Policy engine auto-approves compliant items</td></tr>
+        <tr><td>Exceptions</td><td>All expenses wait in the same queue</td><td>Only flagged items reach the manager</td></tr>
+        <tr><td>Resolution</td><td>Days to approve</td><td>Seconds when compliant; hours for exceptions</td></tr>
+      </tbody>
+    </table>
+
+    <div class="decision">
+      <h4>What to decide now</h4>
+      <p>Confirm the pilot scope if auto-approval feels faster than manual review for compliant expenses. Revise it if the exception rate is so high that the manager queue doesn't shrink. The risky decision: do we trust the policy engine for expenses under $500?</p>
+    </div>
+  </div>
+</section>
+</template>
+
+<style data-slot="page-css">
+/* Domain-specific styles for the expense approval app sketch.
+   The app-shell CSS provides structural styles (topbar, portal, buttons, etc.).
+   These styles add: evidence panel content, match-rate callout, field cards. */
+
+.match-rate{padding:10px 14px;border:1px solid var(--warning);border-radius:var(--radius-sm);background:var(--warning-dim);margin-bottom:16px;font-size:.85rem;color:var(--text-dim)}
+.match-rate strong{color:var(--warning)}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px}
+@media(max-width:600px){.info-grid{grid-template-columns:1fr}}
+.fact-list,.assump-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.fact-list li,.assump-list li{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:.85rem}
+.fact-list li{border-left:3px solid var(--success)}
+.fact-list .big{font-size:1.2rem;font-weight:700;color:var(--success);display:block}
+.assump-list li{border-left:3px solid var(--warning)}
+.assump-list .big{font-size:1.2rem;font-weight:700;color:var(--warning);display:block}
+.fact-list .src,.assump-list .src{font-size:.75rem;color:var(--text-faint);display:block;margin-top:3px}
+
+.cmp-table{width:100%;border-collapse:collapse;font-size:.85rem;margin-bottom:16px}
+.cmp-table th,.cmp-table td{padding:8px 12px;border-bottom:1px solid var(--border);text-align:left}
+.cmp-table th{font-family:var(--mono);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint)}
+.cmp-table td:first-child{color:var(--text-dim);font-weight:500}
+.cmp-table td:nth-child(2){color:var(--text-faint)}
+.cmp-table td:nth-child(3){color:var(--accent)}
+
+.decision{padding:14px 18px;border:1px solid var(--accent);border-radius:var(--radius);background:var(--accent-dim)}
+.decision h4{color:var(--accent);margin-top:0;font-family:var(--sans);font-size:.95rem}
+.decision p{font-size:.88rem;color:var(--text-dim);line-height:1.55}
+
+/* Expense item card */
+.expense-card{padding:14px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);margin-top:4px}
+.expense-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border)}
+.expense-row:last-child{border-bottom:0}
+.expense-name{font-size:.85rem;font-weight:500;min-width:140px;color:var(--text)}
+.expense-amount{font-family:var(--mono);font-size:.82rem;color:var(--text-dim);flex:1}
+.expense-tag{font-family:var(--mono);font-size:.56rem;letter-spacing:.08em;text-transform:uppercase;padding:2px 6px;border-radius:3px}
+.expense-tag.compliant{background:var(--success-dim);color:var(--success)}
+.expense-tag.flagged{background:var(--warning-dim);color:var(--warning)}
+.expense-tag.denied{background:var(--error-dim);color:var(--error)}
+
+/* Trust question */
+.trust-q{padding:12px 16px;border:1px solid var(--border-strong);border-radius:var(--radius-sm);background:var(--surface-2);margin-top:6px}
+.trust-q-label{font-size:.85rem;color:var(--text);margin-bottom:8px}
+.trust-q-hint{font-size:.76rem;color:var(--text-faint);margin-top:6px}
+</style>
+
+<script data-slot="page-js">
+/* State machine for the expense approval app sketch.
+   The app-shell JS handles theme toggle, tab switching, info panel, and reset.
+   This page-js provides: portal data, state machine, render logic, time stats.
+
+   Hooks:
+   - window.onSketchReset: called by the reset button (app-shell.js)
+*/
+(function(){
+  "use strict";
+
+  var stateOrder = ['submit','review','approved','flagged','resolved'];
+  var approvedPath = ['submit','review','approved','resolved'];
+  var flaggedPath = ['submit','review','flagged','resolved'];
+  var current = 'submit';
+  var branch = 'approved';
+
+  var data = {
+    submit: {
+      proposed:{status:'Draft',statusKind:'neutral',title:'Submit expense report',
+        body:'Team lunch with 3 attendees. Total: $87.50. Under the $500 auto-approval threshold.',
+        expenses:[
+          {name:'Restaurant receipt',amount:'$87.50',tag:'compliant',tagText:'Under threshold'}
+        ]},
+      baseline:{status:'Draft',statusKind:'neutral',title:'Submit expense report',
+        body:'Team lunch with 3 attendees. Total: $87.50. Submitted to manager for review.',
+        expenses:[
+          {name:'Restaurant receipt',amount:'$87.50',tag:'compliant',tagText:'Submitted'}
+        ]},
+      actions:[{label:'Submit for review',to:'review',kind:'primary'}],
+      time:{proposed:'—',baseline:'—',proposedSub:'draft',baselineSub:'draft'}
+    },
+    review: {
+      proposed:{status:'Policy check',statusKind:'neutral',title:'Policy engine evaluating',
+        body:'Checking receipt against policy rules: amount limit, category match, duplicate detection.',
+        trustQuestion:'The policy engine approved this expense automatically. Do you want to keep auto-approval enabled?',
+        expenses:[
+          {name:'Restaurant receipt',amount:'$87.50',tag:'compliant',tagText:'Auto-approved'}
+        ]},
+      baseline:{status:'In queue',statusKind:'neutral',title:'Waiting for manager review',
+        body:'Your expense is in the manager review queue. Average wait time: 4.2 days.',
+        aside:'QUEUE POSITION\n3 of 12\n\nESTIMATED WAIT\n4–5 days'},
+      proposedActions:[{label:'Continue',to:'approved',kind:'primary'}],
+      baselineActions:[
+        {label:'Approve',to:'approved',kind:'success'},
+        {label:'Flag for review',to:'flagged',kind:'danger'}
+      ],
+      time:{proposed:'—',baseline:'—',proposedSub:'checking policy',baselineSub:'in queue'},
+    },
+    approved: {
+      proposed:{status:'Approved',statusKind:'success',title:'Expense auto-approved',
+        body:'The policy engine confirmed compliance. Reimbursement scheduled for next pay cycle.',
+        aside:'APPROVED BY\nPolicy engine\n\nTIME\n< 30 seconds\n\nPOLICY CHECKS\nAmount: pass\nCategory: pass\nDuplicate: pass'},
+      baseline:{status:'Approved',statusKind:'success',title:'Expense approved by manager',
+        body:'Your manager reviewed and approved the expense. Reimbursement scheduled for next pay cycle.',
+        aside:'APPROVED BY\nManager\n\nTIME\n4.2 days avg'},
+      actions:[],
+      time:{proposed:'< 30 sec',baseline:'4.2 days',proposedSub:'policy engine',baselineSub:'manager review'}
+    },
+    flagged: {
+      proposed:{status:'Flagged',statusKind:'warning',title:'Flagged for manager review',
+        body:'The policy engine flagged this expense. The manager reviews only the flagged item, not the full report.',
+        aside:'FLAGGED BY\nPolicy engine\n\nREASON\nReceipt image unclear\n\nMANAGER QUEUE\n1 item only'},
+      baseline:{status:'Rejected',statusKind:'error',title:'Expense rejected',
+        body:'Your manager rejected the expense. Correct the issue and resubmit the full report.',
+        aside:'REJECTED BY\nManager\n\nREASON\nReceipt image unclear\n\nRESUBMIT\nFull report again'},
+      actions:[{label:'Manager approves',to:'resolved',kind:'primary'}],
+      time:{proposed:'2–4 hours',baseline:'5–8 days',proposedSub:'exception only',baselineSub:'reject + resubmit'}
+    },
+    resolved: {
+      proposed:{status:'Resolved',statusKind:'success',title:'Flagged item approved',
+        body:'The manager approved the flagged item. Reimbursement scheduled.',
+        aside:'APPROVED BY\nManager\n\nTIME\n2–4 hours'},
+      baseline:{status:'Resubmitted',statusKind:'warning',title:'Expense resubmitted',
+        body:'Corrected expense is back in the review queue.',
+        aside:'TIME\n4–5 more days'},
+      actions:[],
+      time:{proposed:'2–4 hours',baseline:'9–13 days',proposedSub:'resolved',baselineSub:'reject + resubmit + review'}
+    }
+  };
+
+  function el(tag,cls,html){var e=document.createElement(tag);if(cls)e.className=cls;if(html!==undefined)e.innerHTML=html;return e}
+
+  function renderPortal(portalKey,stateKey){
+    var d=data[stateKey][portalKey];
+    var bodyEl=document.getElementById(portalKey+'Body');
+    var footEl=document.getElementById(portalKey+'Foot');
+    bodyEl.innerHTML='';footEl.innerHTML='';
+
+    var main=el('div','body-main');
+    var sr=el('div','status-row');
+    sr.appendChild(el('span','flag '+d.statusKind,d.status));
+    main.appendChild(sr);
+    main.appendChild(el('h2','body-title',d.title));
+    main.appendChild(el('p','body-desc',d.body));
+
+    // Expense items
+    if(d.expenses){
+      var ec=el('div','expense-card');
+      d.expenses.forEach(function(exp){
+        var row=el('div','expense-row');
+        row.appendChild(el('span','expense-name',exp.name));
+        row.appendChild(el('span','expense-amount',exp.amount));
+        row.appendChild(el('span','expense-tag '+exp.tag,exp.tagText));
+        ec.appendChild(row);
+      });
+      main.appendChild(ec);
+    }
+
+    // Trust question
+    if(d.trustQuestion){
+      var tq=el('div','trust-q');
+      tq.appendChild(el('div','trust-q-label',d.trustQuestion));
+      var btns=el('div','status-row');
+      var yesBtn=el('button','btn success','Yes, keep auto-approval');yesBtn.type='button';
+      var noBtn=el('button','btn danger','No, require manual review');noBtn.type='button';
+      yesBtn.addEventListener('click',function(){goTo('approved');});
+      noBtn.addEventListener('click',function(){
+        tq.innerHTML='';
+        tq.appendChild(el('div','trust-q-label','You chose to require manual review. This will be logged as a trust signal.'));
+        tq.appendChild(el('div','trust-q-hint','In the pilot, this data point answers: do managers trust the policy engine?'));
+        goTo('flagged');
+      });
+      btns.appendChild(yesBtn);
+      btns.appendChild(noBtn);
+      tq.appendChild(btns);
+      tq.appendChild(el('div','trust-q-hint','In the pilot, your choice here answers: do managers trust the policy engine?'));
+      main.appendChild(tq);
+    }
+
+    // Aside
+    if(d.aside){
+      var grid=el('div','body-grid');
+      grid.appendChild(main);
+      grid.appendChild(el('div','aside',d.aside));
+      bodyEl.appendChild(grid);
+    } else {
+      bodyEl.appendChild(main);
+    }
+
+    // Footer actions
+    var actions = data[stateKey][portalKey+'Actions'] || data[stateKey].actions;
+    var path = branch === 'flagged' ? flaggedPath : approvedPath;
+    var stepIdx = path.indexOf(stateKey) + 1;
+    var stepTotal = path.length;
+    if(actions.length>0){
+      footEl.appendChild(el('span','foot-label','Next step'));
+      actions.forEach(function(a){
+        var b=el('button','btn '+a.kind,a.label);b.type='button';
+        b.addEventListener('click',function(){goTo(a.to);});
+        footEl.appendChild(b);
+      });
+    } else {
+      footEl.appendChild(el('span','foot-label','Flow complete'));
+      var done=el('button','btn done','Reset');done.type='button';
+      done.addEventListener('click',function(){goTo('submit');});
+      footEl.appendChild(done);
+    }
+    footEl.appendChild(el('span','step-ind','Step '+stepIdx+' of '+stepTotal));
+  }
+
+  function updateTime(stateKey){
+    var t=data[stateKey].time;
+    document.getElementById('proposedTime').textContent=t.proposed;
+    document.getElementById('baselineTime').textContent=t.baseline;
+    var pts=document.getElementById('proposedTS'),bts=document.getElementById('baselineTS');
+    pts.classList.toggle('accent',t.proposed!=='—');
+    bts.classList.toggle('warn',t.baseline!=='—');
+  }
+
+  function goTo(stateKey){
+    if(stateKey==='approved') branch='approved';
+    if(stateKey==='flagged') branch='flagged';
+    current=stateKey;
+    renderPortal('proposed',stateKey);
+    renderPortal('baseline',stateKey);
+    updateTime(stateKey);
+  }
+
+  // Reset hook — called by app-shell.js when the reset button is clicked
+  window.onSketchReset=function(){goTo('submit');};
+
+  // Initialize
+  goTo('submit');
+})();
+</script>

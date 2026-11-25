@@ -1,0 +1,101 @@
+/* component: geo-world — styles for chart kind "map" (chart.js renders it;
+   the geometry itself lives in geo-world.js). Same emphasis grammar as every
+   chart: context countries recede, data wears a tone, minimal opts out of
+   the light show. */
+.kch .kch-map-sphere {
+  fill: color-mix(in srgb, var(--text-faint) 4%, transparent);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.kch .kch-map-grat {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 0.5;
+  opacity: 0.5;
+}
+
+.kch .kch-map-land {
+  fill: color-mix(in srgb, var(--text-faint) 16%, var(--bg));
+  stroke: var(--bg);
+  stroke-width: 0.6;
+}
+
+.kch .kch-map-region {
+  fill: var(--kch-c);
+  fill-opacity: 0.78;
+  stroke: var(--bg);
+  stroke-width: 0.8;
+  filter: drop-shadow(0 0 14px var(--kch-g, transparent));
+  outline: none;
+  cursor: pointer;
+  transition: fill-opacity 0.25s ease;
+}
+
+/* context regions must recede from the accent yet stay clearly apart from
+   the no-data land beneath them — a lighter gray than the base fill */
+.kch .kch-tone-context .kch-map-region {
+  fill: color-mix(in srgb, var(--text-faint) 44%, var(--bg));
+}
+.kch .kch-lift .kch-map-region,
+.kch .kch-map-region:focus-visible {
+  fill-opacity: 1;
+}
+.kch .kch-map-region:focus-visible {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+
+/* the small-country assist: a ring saying "here", drawn when the fill
+   alone could not be seen at world scale */
+.kch .kch-map-mark {
+  fill: var(--kch-c);
+  fill-opacity: 0.14;
+  stroke: var(--kch-c);
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 8px var(--kch-g, transparent));
+  pointer-events: none;
+}
+
+/* point markers: a lit dot with a slow radar ring — the lavish layer */
+.kch .kch-map-ring {
+  fill: none;
+  stroke: var(--kch-c);
+  stroke-width: 1.5;
+  opacity: 0;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.kch-live .kch-map-ring {
+  animation: kch-radar 2.6s ease-out infinite;
+}
+
+@keyframes kch-radar {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.9;
+  }
+  70% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+/* map labels sit on top of geometry — a paint-order halo keeps them readable */
+.kch .kch-map-halo {
+  paint-order: stroke;
+  stroke: var(--bg);
+  stroke-width: 4;
+  stroke-linejoin: round;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kch .kch-map-ring {
+    animation: none;
+    display: none;
+  }
+}

@@ -1,0 +1,1217 @@
+/* component: chart — one contract, eleven kinds (see chart.js header).
+   Emphasis grammar: the subject wears the accent, context wears a recessive
+   gray; text always wears text tokens, never the series color. Marks stay
+   thin; grid/axes are solid hairlines, recessive. */
+.kch {
+  margin-top: calc(8px * var(--content-space-scale));
+  position: relative;
+  max-width: 1010px;
+}
+
+.kch figure {
+  margin: 0;
+  outline: none;
+}
+.kch figure:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+.kch svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+/* tones set two custom properties — the mark color and its glow;
+   every mark reads them. Context (the de-emphasis gray) never glows. */
+.kch .kch-tone-accent {
+  --kch-c: var(--accent);
+  --kch-g: var(--accent-dim);
+}
+.kch .kch-tone-context {
+  --kch-c: color-mix(in srgb, var(--text-faint) 62%, var(--bg));
+}
+.kch .kch-tone-success {
+  --kch-c: var(--success);
+  --kch-g: var(--success-dim);
+}
+.kch .kch-tone-warning {
+  --kch-c: var(--warning);
+  --kch-g: var(--warning-dim);
+}
+.kch .kch-tone-error {
+  --kch-c: var(--error);
+  --kch-g: var(--error-dim);
+}
+.kch .kch-tone-violet {
+  --kch-c: var(--violet);
+  --kch-g: var(--violet-dim);
+}
+
+/* marks — thin geometry, lavish light: subject marks carry a soft glow */
+.kch .kch-line {
+  fill: none;
+  stroke: var(--kch-c);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 9px var(--kch-g, transparent));
+}
+.kch .kch-area-g {
+  stroke: none;
+}
+
+/* area fill: one-shot left-to-right wipe when the series is revealed — the
+   whole volume fills in a single Present step, not one point per keypress */
+@keyframes kch-area-fill {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.kch .kch-area-wipe {
+  animation: kch-area-fill 1s var(--ease-out-expo) both;
+}
+.kch .kch-dot {
+  fill: var(--kch-c);
+  stroke: var(--bg);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 8px var(--kch-g, transparent));
+}
+.kch .kch-bar {
+  fill: var(--kch-c);
+  filter: drop-shadow(0 0 12px var(--kch-g, transparent));
+}
+.kch .kch-link {
+  stroke: var(--border-strong);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.kch .kch-cell {
+  fill: var(--kch-c);
+  transition:
+    fill-opacity 0.3s ease,
+    stroke 0.2s ease;
+  outline: none;
+}
+.kch .kch-cell:hover {
+  stroke: var(--text-dim);
+  stroke-width: 1;
+}
+.kch .kch-cell:focus-visible {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+.kch .kch-leader {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+
+@keyframes kch-pop {
+  0% {
+    transform: scale(0.2);
+  }
+  60% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.kch .kch-pop {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kch-pop 0.5s var(--ease-out-expo);
+}
+
+/* chrome: recessive solid hairlines, mono microtype, text tokens only */
+.kch .kch-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.kch .kch-base {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+.kch .kch-tick {
+  font-family: var(--mono);
+  font-size: 15px;
+  fill: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+.kch .kch-cat {
+  font-family: var(--sans);
+  font-size: 16px;
+  fill: var(--text);
+}
+.kch .kch-val {
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 800;
+  fill: var(--text);
+  letter-spacing: -0.02em;
+}
+.kch .kch-big {
+  font-size: 26px;
+}
+.kch .kch-name {
+  font-family: var(--sans);
+  font-size: 15px;
+  fill: var(--text-dim);
+}
+
+/* hover layer */
+.kch .kch-zone {
+  fill: transparent;
+  pointer-events: all;
+}
+.kch .kch-hit {
+  fill: transparent;
+  pointer-events: all;
+  outline: none;
+}
+.kch .kch-hit:focus-visible {
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+}
+.kch .kch-cross {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  opacity: 0;
+  pointer-events: none;
+}
+.kch .kch-cross.on {
+  opacity: 1;
+}
+.kch .kch-hoverdot {
+  opacity: 0;
+  pointer-events: none;
+}
+.kch .kch-hoverdot.on {
+  opacity: 1;
+}
+.kch .kch-lift .kch-bar,
+.kch .kch-lift .kch-dot {
+  filter: brightness(1.18);
+}
+
+.kch-tip {
+  position: absolute;
+  z-index: 30;
+  min-width: 120px;
+  max-width: 280px;
+  padding: calc(10px * var(--content-space-scale)) calc(12px * var(--content-space-scale));
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 10px 32px rgb(0 0 0 / 30%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.kch-tip.on {
+  opacity: 1;
+}
+.kch-tip-title {
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: calc(4px * var(--content-space-scale));
+}
+.kch-tip-row {
+  display: flex;
+  align-items: baseline;
+  gap: calc(8px * var(--content-space-scale));
+}
+.kch-tip-row b {
+  color: var(--text);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.kch-tip-row span {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+.kch-key {
+  width: 12px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--kch-c);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* legend — present at ≥2 series, keys mirror the mark */
+.kch-legend {
+  display: flex;
+  gap: calc(22px * var(--content-space-scale));
+  flex-wrap: wrap;
+  margin-bottom: calc(14px * var(--content-space-scale));
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.kch-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8px * var(--content-space-scale));
+}
+.kch-legend .kch-key {
+  width: 14px;
+}
+.kch-legend .kch-key:not(.kch-key-line) {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+/* table twin — the no-hover, screen-reader-clean equivalent */
+.kch-data {
+  margin-top: calc(10px * var(--content-space-scale));
+}
+
+.kch-data summary {
+  list-style: none;
+  cursor: pointer;
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  border-bottom: 1px dotted var(--border-strong);
+  padding-bottom: 2px;
+}
+.kch-data summary::-webkit-details-marker {
+  display: none;
+}
+.kch-data summary:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.kch-data table {
+  margin-top: calc(10px * var(--content-space-scale));
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.kch-data th {
+  text-align: left;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  font-weight: 600;
+  padding: 4px 22px 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.kch-data td {
+  padding: 5px 22px 5px 0;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+/* walkthrough: focus band + dimming + the caption strip */
+.kch .kch-band {
+  fill: var(--accent-dim);
+  opacity: 0;
+  transition:
+    opacity 0.4s ease,
+    x 0.4s var(--ease-out-expo),
+    width 0.4s var(--ease-out-expo);
+  pointer-events: none;
+}
+.kch .kch-band.on {
+  opacity: 0.35;
+}
+.kch .kch-dim {
+  opacity: 0.15;
+}
+.kch .kch-focus {
+  opacity: 1;
+}
+.kch svg .kch-focus {
+  filter: drop-shadow(0 0 7px var(--accent-dim));
+}
+.kch .kch-focus .kch-name,
+.kch .kch-focus .kch-cat {
+  fill: var(--text);
+}
+.kch-walk {
+  display: flex;
+  align-items: center;
+  gap: calc(8px * var(--content-space-scale));
+  margin-top: calc(16px * var(--content-space-scale));
+  flex-wrap: wrap;
+}
+
+.kch-walk-dot {
+  appearance: none;
+  background: none;
+  border: 1px solid var(--border-strong);
+  color: var(--text-dim);
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  font: 700 12px/1 var(--mono);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+}
+.kch-walk-dot:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.kch-walk-dot.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.kch-walk-cap {
+  margin-left: 8px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  min-height: 1em;
+}
+.kch-walk-cap.on {
+  opacity: 1;
+}
+.kch-walk-guided {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.kch-walk-dots {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+.kch-walk-guided .kch-walk-dot {
+  position: relative;
+  width: 27px;
+  height: 27px;
+  border: 0;
+  background: transparent;
+  color: transparent;
+  font-size: 0;
+}
+.kch-walk-guided .kch-walk-dot::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border-strong);
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.kch-walk-guided .kch-walk-dot:hover::before {
+  background: color-mix(in srgb, var(--accent) 65%, var(--border-strong));
+}
+.kch-walk-guided .kch-walk-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 0;
+}
+.kch-walk-guided .kch-walk-dot.current::before {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.kch-walk-guided .kch-walk-dot.done::before {
+  background: var(--success);
+}
+.kch-walk-annotation {
+  min-width: 0;
+  min-height: 66px;
+}
+.kch-walk-annotation strong {
+  display: block;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.3;
+}
+.kch-walk-annotation p {
+  margin: 6px 0 0;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.kch-walk-annotation p:empty {
+  display: none;
+}
+.kch-walk-controls {
+  display: flex;
+  gap: 10px;
+  justify-self: end;
+}
+.kch-walk-controls button {
+  padding: 9px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font: 650 0.75rem/1 var(--mono);
+  cursor: pointer;
+}
+.kch-walk-controls button:hover:not(:disabled),
+.kch-walk-controls button:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+.kch-walk-controls button:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+.kch-walk-complete .kch-walk-annotation strong {
+  color: var(--success);
+}
+.kch-walk-complete .kch-walk-dot.current::before {
+  background: var(--success);
+  box-shadow: 0 0 0 3px var(--success-dim);
+}
+
+/* reveal states: Present steps + first-view stagger */
+.kch .kch-item,
+.kch .kch-series {
+  transition:
+    opacity 0.5s ease,
+    transform 0.6s var(--ease-out-expo);
+}
+.kch .kch-off {
+  opacity: 0;
+  visibility: hidden;
+}
+.kch .kch-pre {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kch .kch-item,
+  .kch .kch-series {
+    transition: none;
+  }
+}
+
+/* Present mode: keep desktop geometry under deck zoom; the table twin is a
+   read-view affordance — the room gets the chart, the reader gets the data */
+.pr-stage .kch {
+  max-width: none;
+}
+.pr-stage .kch-data {
+  display: none !important;
+}
+.pr-stage .kch-walk-guided {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.pr-stage .kch-walk-guided .kch-walk-controls {
+  display: none;
+}
+
+/* kind: stat — folded in from the retired stat component; own big-numeral
+   markup (no SVG mark to carry a kch-tone-*, so tone is its own vocabulary:
+   accent | success | warn | error, ported verbatim from that component's
+   stylesheet). */
+.kch-stat-row {
+  display: flex;
+  gap: calc(clamp(28px, 5vw, 72px) * var(--content-space-scale));
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: 8px;
+}
+.kch-stat-item {
+  min-width: 150px;
+}
+.kch-stat-item.kch-focus {
+  border-radius: 6px;
+  outline: 1px solid color-mix(in srgb, var(--accent) 65%, var(--border-strong));
+  outline-offset: 8px;
+  box-shadow: 0 0 24px var(--accent-dim);
+}
+.kch-stat-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0;
+  white-space: nowrap;
+}
+.kch-stat-n {
+  display: inline-grid;
+  font-family: var(--mono);
+  font-size: clamp(2.8rem, 6vw, 4.6rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+.kch-stat-n-sizer,
+.kch-stat-n-live {
+  grid-area: 1/1;
+  text-align: right;
+}
+.kch-stat-n-sizer {
+  visibility: hidden;
+}
+.kch-stat-unit {
+  font: 800 clamp(2.8rem, 6vw, 4.6rem)/1 var(--mono);
+  color: var(--text);
+  letter-spacing: -0.03em;
+}
+.kch-stat-item.accent .kch-stat-n {
+  color: var(--accent);
+}
+.kch-stat-item.accent .kch-stat-unit {
+  color: var(--accent);
+}
+.kch-stat-item.success .kch-stat-n {
+  color: var(--success);
+}
+.kch-stat-item.success .kch-stat-unit {
+  color: var(--success);
+}
+.kch-stat-item.warn .kch-stat-n {
+  color: var(--warning);
+}
+.kch-stat-item.warn .kch-stat-unit {
+  color: var(--warning);
+}
+.kch-stat-item.error .kch-stat-n {
+  color: var(--error);
+}
+.kch-stat-item.error .kch-stat-unit {
+  color: var(--error);
+}
+.kch-stat-label {
+  margin-top: calc(10px * var(--content-space-scale));
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.35;
+}
+.kch-stat-sub {
+  margin-top: calc(4px * var(--content-space-scale));
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  max-width: 24ch;
+}
+.kch-stat-ticks {
+  margin-top: 12px;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.kch-stat-ticks i {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border-strong);
+  transition: background 0.3s ease;
+}
+.kch-stat-ticks i.on {
+  background: var(--accent);
+}
+.kch-stat-item.success .kch-stat-ticks i.on {
+  background: var(--success);
+}
+.kch-stat-item.warn .kch-stat-ticks i.on {
+  background: var(--warning);
+}
+
+@media (width <= 720px) {
+  .kch-walk-guided {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 14px;
+  }
+  .kch-walk-controls {
+    justify-self: start;
+  }
+  .kch-stat-row {
+    gap: 24px;
+  }
+}
+
+/* v3 cinematic layer — toned marks cast their own light; minimal drops the glow */
+.kch-stat-item.accent .kch-stat-n {
+  text-shadow: 0 0 26px var(--accent-dim);
+}
+.kch-stat-item.accent .kch-stat-unit {
+  text-shadow: 0 0 26px var(--accent-dim);
+}
+.kch-stat-item.success .kch-stat-n {
+  text-shadow: 0 0 26px var(--success-dim);
+}
+.kch-stat-item.success .kch-stat-unit {
+  text-shadow: 0 0 26px var(--success-dim);
+}
+.kch-stat-item.warn .kch-stat-n {
+  text-shadow: 0 0 26px var(--warning-dim);
+}
+.kch-stat-item.warn .kch-stat-unit {
+  text-shadow: 0 0 26px var(--warning-dim);
+}
+.kch-stat-item.error .kch-stat-n {
+  text-shadow: 0 0 26px var(--error-dim);
+}
+.kch-stat-item.error .kch-stat-unit {
+  text-shadow: 0 0 26px var(--error-dim);
+}
+.kch-stat-ticks i.on {
+  box-shadow: 0 0 8px var(--accent-dim);
+}
+.kch-stat-item.success .kch-stat-ticks i.on {
+  box-shadow: 0 0 8px var(--success-dim);
+}
+.kch-stat-item.warn .kch-stat-ticks i.on {
+  box-shadow: 0 0 8px var(--warning-dim);
+}
+.kch-stat-item.error .kch-stat-ticks i.on {
+  box-shadow: 0 0 8px var(--error-dim);
+}
+
+.kch[data-motion-preset="calm"] .kch-stat-n,
+.kch[data-motion-preset="calm"] .kch-stat-unit {
+  text-shadow: 0 0 6px color-mix(in srgb, currentcolor 10%, transparent);
+}
+.kch[data-motion-preset="calm"] .kch-stat-ticks i {
+  transition: background 0.65s ease;
+}
+.kch[data-motion-preset="calm"] .kch-stat-ticks i.on {
+  box-shadow: none;
+}
+
+.kch[data-motion-preset="off"] .kch-stat-n,
+.kch[data-motion-preset="off"] .kch-stat-unit {
+  text-shadow: none;
+}
+.kch[data-motion-preset="off"] .kch-stat-ticks i {
+  transition: none;
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kch-stat-n,
+  .kch-stat-unit {
+    text-shadow: none !important;
+  }
+  .kch-stat-ticks i {
+    transition: none;
+    box-shadow: none !important;
+  }
+}
+
+/* kind: trace — a request's time made visible. Own chrome (TOTAL
+   headline(s), replay affordance, delta badge) sits above the shared .kch
+   svg/tip/data-table machinery, which trace reuses as-is. */
+
+/* padding-right reserves the zoom-open corner (base/zoom.css: 34px + 10px
+   inset, shown on host hover) — without it the right-most TOTAL collides
+   with the expand button the moment a reader hovers the chart to replay it */
+.kch-trace-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 28px;
+  margin: 0 0 10px 44px;
+  min-height: 30px;
+  padding-right: 46px;
+}
+.kch-trace-head:not(.kch-trace-race-head) {
+  justify-content: flex-end;
+}
+.kch-trace-race-head {
+  justify-content: space-between;
+  align-items: center;
+}
+.kch-trace-race-head .kch-trace-total:last-child {
+  text-align: right;
+}
+.kch-trace-total-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+}
+.kch-trace-total .kch-stat-value {
+  gap: 0;
+}
+.kch-trace-total .kch-stat-n {
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  letter-spacing: -0.02em;
+}
+.kch-trace-total .kch-stat-unit {
+  font: 800 clamp(1.4rem, 2.4vw, 2rem)/1 var(--mono);
+}
+
+.kch-trace-total.kch-trace-done .kch-stat-n,
+.kch-trace-total.kch-trace-done .kch-stat-unit {
+  color: var(--success);
+  text-shadow: 0 0 20px var(--success-dim);
+  transition:
+    color 0.3s ease,
+    text-shadow 0.3s ease;
+}
+
+.kch-trace-delta {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--success);
+  opacity: 0;
+  transform: scale(0.85);
+  transition:
+    opacity 0.4s var(--ease-out-expo),
+    transform 0.4s var(--ease-out-expo);
+  white-space: nowrap;
+}
+.kch-trace-delta.on {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.kch-trace-replay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  appearance: none;
+  background: none;
+  border: 1px solid var(--border-strong);
+  color: var(--text-dim);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 11px;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  transition: all 0.25s ease;
+  padding: 0 0 0 2px;
+}
+.kch-trace-replay:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.kch .kch-trace-side-cap {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  fill: var(--text-faint);
+}
+.kch .kch-trace-lane {
+  font-family: var(--mono);
+  font-size: 14px;
+  fill: var(--text-dim);
+}
+.kch .kch-trace-label {
+  font-family: var(--sans);
+  font-size: 14px;
+  fill: var(--text);
+}
+.kch .kch-trace-dur {
+  font-family: var(--mono);
+  font-size: 12px;
+  fill: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+.kch .kch-trace-track {
+  fill: color-mix(in srgb, var(--text-faint) 12%, transparent);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.kch .kch-trace-fill {
+  fill: var(--kch-c);
+  filter: drop-shadow(0 0 8px var(--kch-g, transparent));
+}
+
+/* hatch reads off --text-dim, not the span's own tone — a context-toned wait
+   span's --kch-c already sits close to --bg, which would make a tone-tinted
+   hatch nearly invisible right when it needs to read as "contention" */
+.kch .kch-trace-hatch-bg {
+  fill: var(--text-dim);
+  fill-opacity: 0.24;
+}
+.kch .kch-trace-hatch-line {
+  stroke: var(--text-dim);
+  stroke-width: 3;
+  stroke-opacity: 0.85;
+}
+.kch .kch-trace-wait {
+  opacity: 0.82;
+}
+.kch .kch-trace-wait .kch-trace-track {
+  stroke: var(--text-faint);
+}
+.kch .kch-trace-wait .kch-trace-label {
+  font-style: italic;
+  fill: var(--text-dim);
+}
+.kch .kch-trace-cursor {
+  stroke: var(--accent);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 6px var(--accent-dim));
+  transition: opacity 0.3s ease;
+}
+.kch .kch-trace-cursor-done {
+  opacity: 0.35;
+}
+
+/* a walkthrough step MARKS its spans, it does not only fade the others:
+   an accent ring around each focused bar, that bar's duration spelled out
+   on it, and a translucent band across the step's own time range on both
+   traces. All three are built with the chart and revealed by class, so a
+   step costs no relayout — and none of it exists outside a focused step. */
+.kch .kch-trace-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.kch .kch-trace-focus .kch-trace-ring {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px var(--accent-dim));
+}
+.kch .kch-trace-focus .kch-trace-label {
+  fill: var(--text);
+  font-weight: 700;
+}
+.kch .kch-trace-focus .kch-trace-track {
+  stroke: color-mix(in srgb, var(--accent) 55%, var(--border));
+}
+
+.kch .kch-trace-focus-dur {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+/* inside a solid work bar the number sits on the tone, so it reads in the
+   page background colour; inside a WAIT bar there is no solid fill under
+   it — only the hatch — so it keeps the normal text colour instead */
+.kch .kch-trace-focus-dur.inside {
+  fill: var(--bg);
+}
+.kch .kch-trace-wait .kch-trace-focus-dur.inside {
+  fill: var(--text);
+}
+.kch .kch-trace-focus .kch-trace-focus-dur {
+  opacity: 1;
+}
+
+.kch .kch-trace-band {
+  fill: color-mix(in srgb, var(--accent) 10%, transparent);
+  stroke: color-mix(in srgb, var(--accent) 30%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.kch .kch-trace-band.on {
+  opacity: 1;
+}
+
+/* dots — exact units, evenly counted; color distinguishes the emphasized
+   share while direct labels keep the encoding readable without color. */
+.kch .kch-dots {
+  margin-inline: auto;
+  max-width: 1040px;
+}
+.kch .kch-dot-part {
+  transition:
+    opacity 0.3s ease,
+    filter 0.3s ease;
+}
+.kch .kch-dot-mark {
+  fill: var(--kch-c);
+  stroke: color-mix(in srgb, var(--bg) 82%, transparent);
+  stroke-width: 2;
+  outline: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition:
+    transform 0.2s ease,
+    opacity 0.3s ease;
+}
+.kch .kch-dot-mark:hover,
+.kch .kch-dot-mark:focus-visible {
+  stroke: var(--text);
+  stroke-width: 2.5;
+  transform: scale(1.25);
+}
+.kch .kch-dot-part.kch-focus {
+  filter: drop-shadow(0 0 9px var(--kch-g, transparent));
+}
+.kch .kch-dot-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 24px;
+  margin: 14px auto 0;
+}
+.kch .kch-dot-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+.kch .kch-dot-legend-item b {
+  color: var(--text);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.kch .kch-dot-key {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--kch-c);
+  box-shadow: 0 0 8px var(--kch-g, transparent);
+}
+.kch .kch-dot-unit {
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+/* Present sizing for this kind only (the marker class is set in chart.js's
+   own trace branch): the waterfall is the slide, so its chrome gives up the
+   gaps that were pushing the stage past what fit() can show at full size. */
+.pr-stage .kch-trace .kch-trace-head {
+  margin-bottom: 2px;
+}
+.pr-stage .kch-trace .kch-walk {
+  margin-top: 8px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kch .kch-trace-fill {
+    transition: none;
+  }
+  .kch .kch-trace-ring,
+  .kch .kch-trace-band,
+  .kch .kch-trace-focus-dur {
+    transition: none;
+  }
+}
+
+/* scale floor: below the breakout (base.css), a fluid width:100% SVG keeps
+   shrinking — axis/tick text is set in viewBox units, so its effective
+   on-screen size shrinks with the container (measured: 15px ticks render at
+   ~5px effective at 390px width). Below 900px, stop shrinking the chart and
+   let it scroll horizontally instead, matching the kdf/kf/table convention. */
+@media (width <= 900px) {
+  .kch {
+    overflow-x: auto;
+  }
+  .kch svg {
+    min-width: 920px;
+  }
+}
+
+.kch[data-labels="key"] .kch-label-muted .kch-name,
+.kch[data-labels="key"] .kch-label-muted .kch-cat,
+.kch[data-labels="key"] .kch-label-muted .kch-stat-label,
+.kch[data-labels="key"] .kch-label-muted .kch-stat-sub {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Same measurements, a reading order led by each item rather than the axis. */
+.kch-magnitude-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(28px * var(--content-space-scale)) calc(48px * var(--content-space-scale));
+}
+.kch-magnitude-scale {
+  margin-bottom: calc(24px * var(--content-space-scale));
+  color: var(--text-dim);
+  font: 500 0.8rem/1.4 var(--mono);
+}
+.kch-magnitude {
+  min-width: 0;
+}
+.kch-magnitude-label {
+  display: block;
+  margin-bottom: calc(10px * var(--content-space-scale));
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+.kch-magnitude-reading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(12px * var(--content-space-scale));
+  margin-bottom: calc(6px * var(--content-space-scale));
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+.kch-magnitude-reading b {
+  color: var(--text);
+  font: 600 1.4rem/1.2 var(--mono);
+}
+.kch-magnitude-track {
+  height: 6px;
+  margin-bottom: calc(12px * var(--content-space-scale));
+  background: var(--border);
+}
+.kch-magnitude-track i {
+  display: block;
+  height: 100%;
+  background: var(--kch-c, var(--accent));
+}
+.kch-magnitude-track .kch-magnitude-before {
+  background: var(--text-dim);
+}
+.kch-magnitude-note {
+  margin: calc(8px * var(--content-space-scale)) 0 0;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+.kch-inspect {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(220px, 1fr);
+  gap: calc(36px * var(--content-space-scale));
+  align-items: start;
+}
+.kch-inspect > figure {
+  min-width: 0;
+}
+.kch-inspect-panel {
+  min-width: 0;
+  padding-left: calc(24px * var(--content-space-scale));
+  border-left: 1px solid var(--border-strong);
+}
+.kch-inspect-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text-dim);
+  font: 500 0.8rem/1.4 var(--mono);
+}
+.kch-inspect-nav button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+.kch-inspect-nav button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.kch-inspect-nav button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.kch-inspect-panel h3 {
+  margin: calc(20px * var(--content-space-scale)) 0;
+  color: var(--text);
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+.kch-inspect-readings {
+  margin: 0;
+}
+.kch-inspect-readings > div {
+  display: flex;
+  justify-content: space-between;
+  gap: calc(16px * var(--content-space-scale));
+  padding: calc(8px * var(--content-space-scale)) 0;
+  border-top: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+.kch-inspect-readings dt {
+  color: var(--text-dim);
+}
+.kch-inspect-readings dd {
+  margin: 0;
+  color: var(--text);
+  text-align: right;
+}
+.kch-inspect-selected :is(.kch-dot, .kch-map-ring) {
+  stroke: var(--text);
+  stroke-width: 2px;
+}
+.kch[data-layout="briefing"][data-chart-kind="stat"] .kch-stat-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: calc(24px * var(--content-space-scale)) calc(48px * var(--content-space-scale));
+  align-items: center;
+}
+.kch[data-layout="briefing"][data-chart-kind="stat"] .kch-stat-item:first-child {
+  grid-row: span 3;
+}
+.kch[data-layout="briefing"][data-chart-kind="stat"] .kch-stat-item:not(:first-child) {
+  padding-top: calc(16px * var(--content-space-scale));
+  border-top: 1px solid var(--border);
+}
+.kch[data-layout="briefing"][data-chart-kind="stat"]
+  .kch-stat-item:not(:first-child)
+  :is(.kch-stat-n, .kch-stat-unit) {
+  font-size: 2rem;
+}
+
+@media (width <= 700px) {
+  .kch-magnitude-grid,
+  .kch-inspect {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.kch-strip-value {
+  fill: var(--text);
+  font: 500 14px/1 var(--mono);
+}
+.kch[data-layout="briefing"][data-chart-kind="stat"] .kch-stat-item:only-child {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: calc(12px * var(--content-space-scale)) calc(32px * var(--content-space-scale));
+  align-items: center;
+}
+.kch[data-layout="briefing"][data-chart-kind="stat"] .kch-stat-item:only-child .kch-stat-value {
+  grid-row: span 3;
+}

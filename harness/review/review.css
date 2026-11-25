@@ -1,0 +1,1182 @@
+#rv-root {
+  position: fixed;
+  z-index: 450;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #f2f4f8;
+  bottom: 0;
+  right: 0;
+  pointer-events: none;
+  -webkit-font-smoothing: antialiased;
+}
+#rv-root * {
+  box-sizing: border-box;
+}
+
+/* :where() keeps the reset at zero specificity so .rv-* state classes
+   (rv-on, rv-cur) can restyle buttons without fighting the ID selector */
+:where(#rv-root) button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.rv-bar {
+  pointer-events: auto;
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 7px 9px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 100px;
+  background: rgb(13 17 23 / 94%);
+  box-shadow: 0 10px 32px rgb(0 0 0 / 45%);
+  backdrop-filter: blur(10px);
+  z-index: 2;
+}
+
+.rv-bar .rv-btn {
+  padding: 6px 13px;
+  border-radius: 100px;
+  letter-spacing: 0.01em;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #c7cdd6;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.rv-bar .rv-btn:hover {
+  color: #e6edf3;
+  background: rgb(255 255 255 / 8%);
+}
+.rv-bar .rv-grip {
+  padding-right: 7px;
+  padding-left: 7px;
+  color: #98a0ab;
+  cursor: grab;
+  touch-action: none;
+}
+.rv-bar .rv-btn.rv-on {
+  color: #0d1117;
+  background: #4da3ff;
+}
+
+.rv-bar .rv-tab {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #9aa7b4;
+  position: relative;
+  border: 1px solid transparent;
+}
+.rv-bar .rv-tab:hover {
+  color: #e6edf3;
+  border-color: rgb(255 255 255 / 25%);
+}
+.rv-bar .rv-tab.rv-cur {
+  color: #0d1117;
+  background: #e6edf3;
+}
+
+.rv-bar .rv-tab.rv-win::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3fb950;
+  border: 1.5px solid #0d1117;
+}
+.rv-sep {
+  width: 1px;
+  height: 18px;
+  background: rgb(255 255 255 / 14%);
+}
+
+.rv-badge {
+  pointer-events: auto;
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  padding: 6px 12px;
+  border-radius: 100px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  background: rgb(13 17 23 / 94%);
+  color: #a2adba;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.rv-badge b {
+  color: #4da3ff;
+  font-weight: 700;
+}
+
+.rv-drawer {
+  pointer-events: auto;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(360px, 92vw);
+  background: rgb(13 17 23 / 97%);
+  border-left: 1px solid rgb(255 255 255 / 14%);
+  padding: 18px 18px 120px;
+  overflow-y: auto;
+  transform: translateX(105%);
+  transition: transform 0.25s ease;
+  backdrop-filter: blur(10px);
+  z-index: 1;
+}
+.rv-drawer.rv-open {
+  transform: none;
+}
+
+.rv-close {
+  float: right;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin: -2px -4px 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  color: #98a0ab;
+  background: rgb(255 255 255 / 7%);
+  transition: all 0.2s ease;
+}
+.rv-close:hover {
+  color: #fff;
+  background: rgb(255 255 255 / 14%);
+}
+.rv-close:focus-visible {
+  outline: 2px solid #4da3ff;
+  outline-offset: 2px;
+}
+
+/* one consistent focus ring across the overlay's interactive surfaces so
+   keyboard users always see where they are on the dark review bar. .rv-close
+   keeps its own rule above; this covers the rest. */
+.rv-bar .rv-btn:focus-visible,
+.rv-bar .rv-tab:focus-visible,
+.rv-fresh-go:focus-visible,
+.rv-pop .rv-acts button:focus-visible,
+.rv-copybtn:focus-visible {
+  outline: 2px solid #4da3ff;
+  outline-offset: 2px;
+}
+
+/* edit-text mode: a visible cue on every text element so non-technical
+   reviewers know what they can click and change — subtle outline always,
+   stronger on hover. Without this, "click to edit" is invisible. */
+body.rv-editing {
+  caret-color: #4da3ff;
+}
+
+body.rv-editing :where(h1, h2, h3, h4, p, li, blockquote, figcaption, td, th) {
+  outline: 1px dashed rgb(77 163 255 / 18%);
+  outline-offset: 2px;
+  border-radius: 2px;
+  cursor: text;
+  transition:
+    outline-color 0.2s ease,
+    background 0.2s ease;
+}
+
+body.rv-editing :where(h1, h2, h3, h4, p, li, blockquote, figcaption, td, th):hover {
+  outline: 1.5px solid rgb(77 163 255 / 50%);
+  outline-offset: 3px;
+  background: rgb(77 163 255 / 5%);
+}
+
+/* a floating banner so the reviewer always knows they're in editing mode
+   and how to get out — removes the "am I still editing?" anxiety */
+.rv-edit-banner {
+  pointer-events: none;
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 460;
+  padding: 8px 18px;
+  border-radius: 100px;
+  border: 1px solid rgb(77 163 255 / 40%);
+  background: rgb(13 17 23 / 95%);
+  color: #c7cdd6;
+  font:
+    600 12.5px -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  box-shadow: 0 8px 30px rgb(0 0 0 / 40%);
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+}
+.rv-edit-banner b {
+  color: #4da3ff;
+}
+
+/* the rebuilt-page banner: confirmation + one-click clean slate */
+.rv-fresh {
+  pointer-events: auto;
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 460;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 100px;
+  border: 1px solid rgb(48 209 88 / 40%);
+  background: rgb(13 20 15 / 97%);
+  color: #c9d4cd;
+  font-size: 12.5px;
+  box-shadow: 0 8px 30px rgb(0 0 0 / 45%);
+  backdrop-filter: blur(12px);
+}
+.rv-fresh b {
+  color: #3fe067;
+}
+.rv-fresh-go {
+  padding: 6px 13px;
+  border-radius: 100px;
+  background: #30d158;
+  color: #0d1117;
+  font-weight: 700;
+  font-size: 12px;
+}
+.rv-fresh-go:hover {
+  background: #3fe067;
+}
+.rv-fresh-keep {
+  padding: 6px 8px;
+  color: #8b968f;
+  font-size: 12px;
+}
+.rv-fresh-keep:hover {
+  color: #e6edf3;
+}
+
+.rv-h {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #98a0ab;
+  margin: 20px 0 8px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+.rv-h:first-child {
+  margin-top: 0;
+}
+
+.rv-drawer textarea {
+  width: 100%;
+  min-height: 74px;
+  background: rgb(255 255 255 / 5%);
+  color: #e6edf3;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+  resize: vertical;
+}
+.rv-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid rgb(255 255 255 / 7%);
+}
+
+.rv-row .rv-n {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #4da3ff;
+  color: #0d1117;
+  font-weight: 700;
+  font-size: 10.5px;
+  display: grid;
+  place-items: center;
+  align-self: flex-start;
+}
+.rv-row .rv-n.rv-remix {
+  background: #c4b5fd;
+}
+.rv-row .rv-body {
+  min-width: 0;
+  flex: 1;
+}
+.rv-row .rv-where {
+  color: #98a0ab;
+  font-size: 11.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rv-row .rv-text {
+  color: #f2f4f8;
+  margin-top: 2px;
+  overflow-wrap: break-word;
+}
+.rv-row .rv-acts {
+  flex-shrink: 0;
+  display: flex;
+  gap: 2px;
+}
+.rv-row .rv-acts button {
+  color: #98a0ab;
+  padding: 3px 7px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.rv-row .rv-acts button:hover {
+  color: #e6edf3;
+  background: rgb(255 255 255 / 8%);
+}
+.rv-slider {
+  display: grid;
+  grid-template-columns: 1fr 96px 44px;
+  gap: 8px;
+  align-items: center;
+  padding: 5px 0;
+  color: #9aa7b4;
+}
+.rv-slider input[type="range"] {
+  width: 96px;
+  accent-color: #4da3ff;
+}
+.rv-slider input[type="color"] {
+  width: 40px;
+  height: 22px;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+.rv-slider .rv-val {
+  text-align: right;
+  color: #f2f4f8;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.rv-slider.rv-accent-row {
+  grid-template-columns: 1fr 30px 96px 44px;
+}
+.rv-accent-row .rv-accent-input {
+  grid-column: 3;
+  justify-self: start;
+}
+.rv-accent-row .rv-reset-color {
+  grid-column: 4;
+}
+.rv-tuner-block {
+  padding-bottom: 5px;
+}
+.rv-tuner-help {
+  margin: -1px 0 4px;
+  color: #7f8996;
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+.rv-slider.rv-type-slider,
+.rv-slider.rv-density-slider {
+  grid-template-columns: minmax(70px, 1fr) 30px 96px 44px;
+}
+
+.rv-type-preview {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 18px;
+  overflow: hidden;
+  border-radius: 3px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  background: rgb(255 255 255 / 2.5%);
+  color: #9aa7b4;
+  font:
+    700 9px/1 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+}
+
+.rv-density-preview {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--rv-density-gap);
+  width: 30px;
+  height: 18px;
+  padding: 2px 4px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 3px;
+  background: rgb(255 255 255 / 2.5%);
+}
+.rv-density-preview i {
+  display: block;
+  height: 1px;
+  border-radius: 2px;
+  background: #7f8996;
+}
+.rv-density-preview i:nth-child(2) {
+  width: 82%;
+}
+.rv-density-preview i:nth-child(3) {
+  width: 64%;
+}
+.rv-slider.rv-measure-slider {
+  grid-template-columns: minmax(70px, 1fr) 30px 96px 44px;
+}
+
+.rv-measure-preview {
+  width: 30px;
+  padding: 2px 3px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 3px;
+  background: rgb(255 255 255 / 2.5%);
+}
+
+.rv-measure-preview i {
+  display: block;
+  width: var(--rv-preview-width);
+  height: 1px;
+  margin: 1px 0;
+  border-radius: 2px;
+  background: #7f8996;
+  transition: width 0.08s linear;
+}
+.rv-measure-preview i:nth-child(2) {
+  width: calc(var(--rv-preview-width) - 8%);
+}
+.rv-measure-preview i:nth-child(3) {
+  width: calc(var(--rv-preview-width) - 22%);
+}
+
+@media (width <= 380px) {
+  .rv-slider.rv-type-slider,
+  .rv-slider.rv-density-slider,
+  .rv-slider.rv-measure-slider {
+    grid-template-columns: 1fr 96px 44px;
+  }
+
+  .rv-type-slider .rv-type-preview,
+  .rv-density-slider .rv-density-preview,
+  .rv-measure-slider .rv-measure-preview {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: start;
+  }
+
+  .rv-type-slider input[type="range"],
+  .rv-density-slider input[type="range"],
+  .rv-measure-slider input[type="range"] {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .rv-type-slider .rv-val,
+  .rv-density-slider .rv-val,
+  .rv-measure-slider .rv-val {
+    grid-column: 3;
+    grid-row: 1 / span 2;
+  }
+}
+.rv-tuner-unavailable {
+  display: grid;
+  grid-template-columns: 1fr 148px;
+  gap: 8px;
+  padding: 7px 0;
+  color: #9aa7b4;
+}
+.rv-tuner-label {
+  color: #9aa7b4;
+}
+.rv-tuner-message {
+  color: #7f8996;
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+.rv-slider .rv-reset-color {
+  justify-self: start;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+.rv-hint {
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px dashed rgb(255 255 255 / 20%);
+  border-radius: 8px;
+  color: #9aa7b4;
+}
+.rv-hint code {
+  display: block;
+  margin-top: 6px;
+  color: #7ee787;
+  word-break: break-all;
+  font-size: 11px;
+}
+.rv-link {
+  color: #4da3ff;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.rv-count-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  margin-left: 7px;
+  border-radius: 100px;
+  background: #4da3ff;
+  color: #0d1117;
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.rv-bar .rv-btn.rv-finish {
+  color: #0d1117;
+  background: #30d158;
+  font-weight: 700;
+}
+.rv-bar .rv-btn.rv-finish[hidden] {
+  display: none;
+}
+.rv-bar .rv-btn.rv-finish:hover {
+  background: #3fe067;
+  color: #0d1117;
+}
+.rv-hand-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #7ee787;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.rv-pending-list {
+  display: grid;
+  gap: 7px;
+  margin: 2px 0 12px;
+}
+
+.rv-pending-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 9px 10px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 3.5%);
+}
+.rv-pending-copy {
+  min-width: 0;
+}
+.rv-pending-label {
+  color: #e6edf3;
+  font-size: 11.5px;
+  font-weight: 650;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.rv-pending-detail {
+  margin-top: 2px;
+  color: #8f9aa7;
+  font-size: 10.5px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.rv-pending-discard {
+  padding: 5px 8px;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 6px;
+  color: #c7cdd6;
+  background: transparent;
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+.rv-pending-discard:hover {
+  color: #ff9b93;
+  border-color: rgb(255 107 97 / 50%);
+  background: rgb(255 107 97 / 8%);
+}
+.rv-hand-list {
+  margin-bottom: 8px;
+}
+
+.rv-discard-all {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid rgb(255 107 97 / 35%);
+  border-radius: 8px;
+  color: #ff9b93;
+  background: rgb(255 107 97 / 6%);
+  font-size: 11px;
+  font-weight: 650;
+}
+.rv-discard-all:hover {
+  background: rgb(255 107 97 / 13%);
+  border-color: rgb(255 107 97 / 55%);
+}
+.rv-hand-step {
+  color: #9aa7b4;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 14px 0 6px;
+}
+
+.rv-copybox {
+  padding: 12px;
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 5%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11.5px;
+  color: #7ee787;
+  word-break: break-all;
+  line-height: 1.55;
+}
+
+.rv-copybtn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #4da3ff;
+  color: #0d1117;
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.rv-copybtn:hover {
+  filter: brightness(1.1);
+}
+.rv-hand-note {
+  margin-top: 16px;
+  color: #9aa7b4;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.rv-return-step h3 {
+  margin: 7px 0 6px;
+  color: #e6edf3;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.rv-result-step {
+  padding-top: 16px;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+.rv-check-result {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 4px;
+  color: #e6edf3;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 650;
+}
+.rv-check-result:hover {
+  border-color: #7b8680;
+  background: rgb(255 255 255 / 5%);
+}
+.rv-check-result:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+.rv-check-result.rv-result-ready {
+  border-color: #b9d6c2;
+  background: #b9d6c2;
+  color: #17231c;
+}
+.rv-pins {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 0;
+  z-index: 150;
+  pointer-events: none;
+}
+
+.rv-pin {
+  pointer-events: auto;
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #4da3ff;
+  color: #0d1117;
+  font:
+    700 11.5px/22px -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  text-align: center;
+  border: 2px solid #0d1117;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 50%);
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+}
+.rv-pin.rv-remix {
+  background: #c4b5fd;
+}
+.rv-pop .rv-acts .rv-remixbtn {
+  color: #0d1117;
+  background: #c4b5fd;
+  border-color: #c4b5fd;
+  font-weight: 700;
+}
+
+.rv-pop {
+  pointer-events: auto;
+  position: absolute;
+  z-index: 470;
+  width: min(320px, 86vw);
+  background: rgb(13 17 23 / 98%);
+  border: 1px solid rgb(255 255 255 / 20%);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 16px 48px rgb(0 0 0 / 55%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13px;
+  color: #f2f4f8;
+  -webkit-font-smoothing: antialiased;
+}
+
+.rv-pop textarea {
+  width: 100%;
+  min-height: 64px;
+  background: rgb(255 255 255 / 5%);
+  color: #e6edf3;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 7px;
+  padding: 7px 9px;
+  font: inherit;
+  resize: vertical;
+}
+
+.rv-pop .rv-where {
+  color: #98a0ab;
+  font-size: 11.5px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rv-pop .rv-acts {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.rv-pop .rv-acts button {
+  padding: 5px 13px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #c7cdd6;
+  border: 1px solid rgb(255 255 255 / 16%);
+  cursor: pointer;
+  background: none;
+  font-family: inherit;
+}
+.rv-pop .rv-acts .rv-save {
+  color: #0d1117;
+  background: #4da3ff;
+  border-color: #4da3ff;
+  font-weight: 700;
+}
+
+.rv-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 64px;
+  transform: translateX(-50%) translateY(6px);
+  z-index: 480;
+  padding: 10px 14px 10px 34px;
+  border-radius: 8px;
+  background: #202328;
+  border: 1px solid #3b4047;
+  color: #e9e9e5;
+  font:
+    500 12px -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  transition: all 0.25s ease;
+  pointer-events: none;
+}
+.rv-toast::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 15px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #b9d6c2;
+  transform: translateY(-50%);
+}
+.rv-toast.rv-show {
+  opacity: 1;
+  transform: translateX(-50%);
+}
+html.rv-commenting,
+html.rv-commenting * {
+  cursor: crosshair !important;
+}
+html.rv-commenting body.presenting,
+html.rv-commenting body.presenting * {
+  cursor: auto !important;
+}
+.rv-target-hl {
+  outline: 2px dashed #4da3ff !important;
+  outline-offset: 3px !important;
+}
+
+body.presenting #rv-root,
+body.presenting .rv-pins,
+body.presenting .rv-pop,
+body.presenting .rv-toast {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+@media print {
+  #rv-root,
+  .rv-pins {
+    display: none;
+  }
+}
+
+.rv-area {
+  position: absolute;
+  z-index: 460;
+  pointer-events: none;
+  border: 2px solid #7fb7ff;
+  background: rgb(127 183 255 / 12%);
+}
+.rv-area[hidden] {
+  display: none;
+}
+html.rv-commenting body {
+  user-select: none;
+  touch-action: none;
+}
+html.rv-commenting .rv-pop {
+  user-select: text;
+  touch-action: auto;
+}
+
+/* Selection belongs to the canvas; review and editing controls keep their
+   normal affordances even while area selection is armed. */
+html.rv-commenting
+  :is(
+    #st-root,
+    #rv-root,
+    .rv-pop,
+    .st-swap,
+    .st-insert-section,
+    .st-adjust,
+    [id="themeToggle"],
+    [id="presentToggle"]
+  ),
+html.rv-commenting
+  :is(
+    #st-root,
+    #rv-root,
+    .rv-pop,
+    .st-swap,
+    .st-insert-section,
+    .st-adjust,
+    [id="themeToggle"],
+    [id="presentToggle"]
+  )
+  * {
+  cursor: auto !important;
+  touch-action: auto;
+}
+html.rv-commenting
+  :is(#st-root, #rv-root, .rv-pop, .st-swap, .st-insert-section, .st-adjust)
+  :is(button, a, summary, input[type="radio"], input[type="range"], input[type="color"]) {
+  cursor: pointer !important;
+}
+html.rv-commenting :is(#st-root, #rv-root, .rv-pop) :is(textarea, input[type="text"]) {
+  cursor: text !important;
+}
+
+/* Review-only and Studio reading views use the same calm workspace header.
+   Studio's open state supplies its own three-column layout below. */
+body.rv-reviewing:not(.st-studio-open, .presenting) {
+  padding-top: 64px !important;
+}
+body.rv-reviewing:not(.st-studio-open, .presenting) .rv-bar {
+  inset: 0 0 auto !important;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  height: 64px;
+  padding: 0 20px;
+  border: 0;
+  border-bottom: 1px solid #35383f;
+  border-radius: 0;
+  background: #1b1d21;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+body.rv-reviewing:not(.st-studio-open, .presenting) .rv-bar::before {
+  content: "Review";
+  margin-right: auto;
+  color: #e9e9e5;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.5px;
+}
+body.rv-reviewing.st-studio-available:not(.st-studio-open, .presenting) .rv-bar {
+  padding-left: 132px;
+}
+body.rv-reviewing.st-studio-available:not(.st-studio-open, .presenting) .rv-bar::before {
+  content: "";
+}
+body.rv-reviewing:not(.st-studio-open) .rv-bar .rv-grip {
+  display: none;
+}
+body.rv-reviewing:not(.st-studio-open) .rv-bar .rv-btn {
+  padding: 7px 10px;
+  border-radius: 4px;
+  color: #c2c5cb;
+  font-size: 12px;
+  font-weight: 500;
+}
+body.rv-reviewing:not(.st-studio-open) .rv-bar .rv-btn.rv-on,
+body.rv-reviewing:not(.st-studio-open) .rv-bar .rv-btn.rv-finish {
+  background: #b9d6c2;
+  color: #17231c;
+}
+body.rv-reviewing:not(.st-studio-open) .rv-drawer {
+  top: 64px;
+  padding-bottom: 32px;
+  border-color: #35383f;
+  background: #1b1d21;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+body.rv-reviewing:not(.st-studio-open) :is(.rv-edit-banner, .rv-fresh) {
+  top: 76px;
+  border: 1px solid #56695d;
+  border-radius: 5px;
+  background: #1b1d21;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 22%);
+  backdrop-filter: none;
+}
+body.rv-reviewing:not(.st-studio-open) .rv-fresh-go {
+  border-radius: 4px;
+  background: #b9d6c2;
+  color: #17231c;
+}
+body.rv-reviewing:not(.st-studio-open) .rv-fresh b {
+  color: #b9d6c2;
+}
+body.rv-reviewing:not(.st-studio-open) .rv-count-badge,
+body.rv-reviewing:not(.st-studio-open) .rv-pin,
+body.rv-reviewing:not(.st-studio-open) .rv-copybtn {
+  background: #b9d6c2;
+  color: #17231c;
+}
+body.rv-reviewing:not(.st-studio-open) .rv-copybtn {
+  border-radius: 4px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+body.rv-reviewing:not(.st-studio-open) .rv-drawer textarea,
+body.rv-reviewing:not(.st-studio-open) .rv-pop,
+body.rv-reviewing:not(.st-studio-open) .rv-pop textarea {
+  border-color: #3b4047;
+  border-radius: 4px;
+  background: #15171a;
+}
+body.rv-reviewing:not(.st-studio-open).rv-editing {
+  caret-color: #b9d6c2;
+}
+body.rv-reviewing:not(.st-studio-open).rv-editing
+  :where(h1, h2, h3, h4, p, li, blockquote, figcaption, td, th) {
+  outline-color: rgb(185 214 194 / 24%);
+}
+body.rv-reviewing:not(.st-studio-open).rv-editing
+  :where(h1, h2, h3, h4, p, li, blockquote, figcaption, td, th):hover {
+  outline-color: rgb(185 214 194 / 62%);
+  background: rgb(185 214 194 / 5%);
+}
+
+@media (width < 700px) {
+  body.rv-reviewing:not(.st-studio-open, .presenting) {
+    padding-top: 112px !important;
+  }
+  body.rv-reviewing:not(.st-studio-open, .presenting) .rv-bar {
+    height: 112px;
+    padding: 50px 10px 8px;
+    overflow-x: auto;
+  }
+  body.rv-reviewing:not(.st-studio-open, .presenting) .rv-bar::before {
+    position: absolute;
+    top: 14px;
+    left: 16px;
+  }
+  body.rv-reviewing.st-studio-available:not(.st-studio-open, .presenting) .rv-bar::before {
+    content: "";
+  }
+  body.rv-reviewing:not(.st-studio-open) .rv-drawer {
+    top: 112px;
+  }
+  body.rv-reviewing:not(.st-studio-open) :is(.rv-edit-banner, .rv-fresh) {
+    top: 124px;
+  }
+  body.rv-reviewing:not(.st-studio-open) .rv-fresh {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    transform: none;
+  }
+}
+.rv-drawer:not(.rv-open) {
+  visibility: hidden;
+  pointer-events: none;
+}
+.rv-drawer.rv-open {
+  visibility: visible;
+}
+
+/* Review-only pages share the new handoff structure too. */
+.rv-review-heading {
+  position: relative;
+  margin-bottom: 24px;
+  padding-right: 28px;
+}
+.rv-review-heading h2 {
+  font:
+    600 22px/1.3 -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  margin: 0 0 8px;
+}
+.rv-review-heading p,
+.rv-delivery p,
+.rv-return-step p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.rv-review-heading .rv-close {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.rv-delivery h3 {
+  font-size: 17px;
+  line-height: 1.4;
+}
+.rv-step-label {
+  display: block;
+  font-size: 11px;
+  margin-top: 24px;
+}
+
+/* A handoff is a server-backed edit lock, reflected across refreshed tabs.
+   Editing controls dim and explain themselves on click (review.js
+   intercepts and toasts); reading surfaces — the page content, Present
+   mode, the theme toggle, the gallery — stay live. */
+body.rv-agent-waiting :is(.rv-mutate, .st-swap, .st-insert-section, .st-adjust),
+body.rv-agent-waiting .st-panel :is(button, input, select, textarea, summary) {
+  cursor: not-allowed !important;
+  opacity: 0.45;
+}
+.rv-handoff-recovery .rv-copybtn {
+  margin-top: 12px;
+}
+
+/* Live wait feedback: spinner, elapsed clock, and the three-step rail. */
+.rv-handoff-live {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 2px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+.rv-spinner {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: rv-spin 0.9s linear infinite;
+}
+
+@keyframes rv-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+.rv-ho-steps {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+.rv-ho-step {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+}
+.rv-ho-step .rv-ho-note {
+  opacity: 0.75;
+}
+.rv-ho-step.rv-ho-todo {
+  opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rv-spinner {
+    animation: none;
+    border-right-color: currentcolor;
+    opacity: 0.5;
+  }
+}

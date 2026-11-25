@@ -1,0 +1,465 @@
+.ktrace {
+  width: 100%;
+  max-width: none;
+}
+
+/* Single-trace briefing: every authored span remains a row, while each rail
+   keeps its start and duration on the waterfall's shared total-time scale. */
+.ktrace-briefing {
+  display: grid;
+  gap: calc(14px * var(--content-space-scale));
+}
+.ktrace-briefing-head {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.72fr) minmax(320px, 1.28fr);
+  gap: calc(24px * var(--content-space-scale));
+  align-items: end;
+  padding-bottom: calc(12px * var(--content-space-scale));
+  border-bottom: 1px solid var(--border-strong);
+}
+.ktrace-briefing-context {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(12px * var(--content-space-scale));
+}
+.ktrace-briefing-context span,
+.ktrace-briefing-scale {
+  color: var(--text-faint);
+  font: 0.62rem/1.3 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ktrace-briefing-context strong {
+  color: var(--accent);
+  font: 700 1rem/1.2 var(--mono);
+  white-space: nowrap;
+}
+.ktrace-briefing-scale {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+.ktrace-briefing-list {
+  display: grid;
+}
+.ktrace-briefing-row {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.72fr) minmax(320px, 1.28fr);
+  gap: calc(24px * var(--content-space-scale));
+  align-items: center;
+  min-height: calc(76px * var(--content-space-scale));
+  padding: calc(12px * var(--content-space-scale)) 0;
+  border-bottom: 1px solid var(--border);
+  transition:
+    opacity 0.25s ease,
+    background 0.25s ease;
+}
+.ktrace-briefing-row.is-dim {
+  opacity: 0.32;
+}
+.ktrace-briefing-row.is-focus {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+.ktrace-briefing-identity {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: calc(4px * var(--content-space-scale)) calc(10px * var(--content-space-scale));
+  min-width: 0;
+}
+.ktrace-briefing-num {
+  grid-row: 1 / 4;
+  color: var(--accent);
+  font: 700 0.62rem/1.5 var(--mono);
+}
+.ktrace-briefing-lane {
+  color: var(--text-faint);
+  font: 0.6rem/1.25 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ktrace-briefing-label {
+  min-width: 0;
+  color: var(--text);
+  font-size: 0.96rem;
+  line-height: 1.3;
+}
+.ktrace-briefing-note {
+  color: var(--text-dim);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+.ktrace-briefing-timing {
+  display: grid;
+  gap: calc(8px * var(--content-space-scale));
+  min-width: 0;
+}
+.ktrace-briefing-rail {
+  position: relative;
+  height: 18px;
+}
+.ktrace-briefing-rail::before {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto;
+  border-top: 1px solid var(--border);
+}
+.ktrace-briefing-mark {
+  position: absolute;
+  top: 3px;
+  left: calc(var(--ktrace-start) * 1%);
+  width: max(3px, calc(var(--ktrace-duration) * 1%));
+  height: 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 58%, var(--border));
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--accent) 30%, var(--surface));
+}
+.ktrace-briefing-row.is-wait .ktrace-briefing-mark {
+  border-color: var(--border-strong);
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--text-faint) 24%, var(--surface)) 0 4px,
+    var(--surface) 4px 8px
+  );
+}
+.ktrace-briefing-row.is-focus .ktrace-briefing-mark {
+  border-color: var(--accent);
+  box-shadow: 0 0 9px var(--accent-dim);
+}
+.ktrace-briefing-facts {
+  display: flex;
+  gap: calc(14px * var(--content-space-scale));
+  align-items: baseline;
+  color: var(--text-dim);
+  font: 0.68rem/1.3 var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.ktrace-briefing-facts strong {
+  margin-left: auto;
+  color: var(--text);
+  font-weight: 650;
+}
+.ktrace-briefing-kind {
+  min-width: 38px;
+  color: var(--accent);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.ktrace-briefing-row.is-wait .ktrace-briefing-kind {
+  color: var(--text-faint);
+}
+.ktrace-briefing-walk {
+  margin-top: calc(8px * var(--content-space-scale));
+}
+
+@media (width <= 760px) {
+  .ktrace-briefing-head,
+  .ktrace-briefing-row {
+    grid-template-columns: 1fr;
+    gap: calc(12px * var(--content-space-scale));
+  }
+  .ktrace-briefing-head {
+    align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ktrace-briefing-row {
+    transition: none;
+  }
+}
+
+.pr-stage .ktrace-briefing-label {
+  font-size: 1.08rem;
+}
+.pr-stage .ktrace-briefing-note,
+.pr-stage .ktrace-briefing-facts {
+  font-size: 0.84rem;
+}
+.pr-stage .ktrace-briefing-context span,
+.pr-stage .ktrace-briefing-scale,
+.pr-stage .ktrace-briefing-lane,
+.pr-stage .ktrace-briefing-num {
+  font-size: 0.76rem;
+}
+.ktrace-summary {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.8fr) minmax(380px, 1.2fr);
+  gap: calc(clamp(24px, 4vw, 64px) * var(--content-space-scale));
+  align-items: center;
+  min-height: 460px;
+  padding: calc(clamp(24px, 5vw, 72px) * var(--content-space-scale));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--accent) 8%, transparent),
+    transparent 45%
+  );
+}
+
+.ktrace-summary-hero {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  gap: calc(10px * var(--content-space-scale)) calc(14px * var(--content-space-scale));
+  align-items: baseline;
+}
+.ktrace-summary-before {
+  color: var(--text-dim);
+  font: 600 clamp(26px, 3vw, 46px)/1 var(--mono);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  white-space: nowrap;
+}
+.ktrace-summary-arrow {
+  color: var(--text-dim);
+  font-size: 28px;
+}
+.ktrace-summary-after {
+  color: var(--accent);
+  font: 700 clamp(42px, 5vw, 76px)/0.9 var(--mono);
+  white-space: nowrap;
+}
+.ktrace-summary-hero > small {
+  grid-column: 1 / -1;
+  margin-top: calc(12px * var(--content-space-scale));
+  color: var(--text);
+  font-size: 15px;
+}
+.ktrace-summary-evidence {
+  border-top: 1px solid var(--border);
+}
+.ktrace-summary-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: calc(6px * var(--content-space-scale)) calc(12px * var(--content-space-scale));
+  padding: calc(20px * var(--content-space-scale)) 0;
+  border-bottom: 1px solid var(--border);
+}
+.ktrace-summary-num {
+  grid-row: 1 / 3;
+  color: var(--accent);
+  font: 600 11px/1.5 var(--mono);
+}
+.ktrace-summary-row strong {
+  font-size: 17px;
+}
+.ktrace-summary-row small {
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+@media (width <= 760px) {
+  .ktrace-summary {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+}
+
+/* The Studio shell's inspector makes the artifact column narrower than the
+   viewport. Keep the summary readable in that shell while leaving the
+   standalone reading layout alone. */
+body.st-studio-open:not(.presenting) .ktrace-summary {
+  grid-template-columns: 1fr;
+  gap: 24px;
+  min-height: 0;
+  padding: 28px;
+}
+
+body.st-studio-open:not(.presenting) .ktrace .kch-trace-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 8px 16px;
+  margin: 0 0 10px;
+  padding: 0;
+}
+body.st-studio-open:not(.presenting) .ktrace .kch-trace-race-head .kch-trace-total:first-child {
+  grid-column: 1;
+  grid-row: 1;
+}
+body.st-studio-open:not(.presenting) .ktrace .kch-trace-race-head .kch-trace-total:last-child {
+  grid-column: 2;
+  grid-row: 1;
+}
+body.st-studio-open:not(.presenting) .ktrace .kch-trace-delta {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: center;
+  white-space: normal;
+  text-align: center;
+}
+body.st-studio-open:not(.presenting) .ktrace > figure {
+  width: 100%;
+  overflow-x: auto;
+}
+.ktrace .ktrace-span-marker circle {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 1.5;
+}
+.ktrace .ktrace-span-marker text {
+  font: 700 10px/1 var(--mono);
+  fill: var(--text);
+  pointer-events: none;
+}
+.ktrace .kch-item.kch-dim {
+  opacity: 0.4;
+}
+.ktrace .kch-item.ktrace-hover {
+  opacity: 1;
+}
+.ktrace .ktrace-hover .kch-trace-track,
+.ktrace .kch-trace-focus .kch-trace-track {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.ktrace .ktrace-hover .ktrace-span-marker circle,
+.ktrace .kch-trace-focus .ktrace-span-marker circle {
+  fill: var(--accent);
+  filter: drop-shadow(0 0 6px var(--accent-dim));
+}
+.ktrace .ktrace-hover .ktrace-span-marker text,
+.ktrace .kch-trace-focus .ktrace-span-marker text {
+  fill: var(--bg);
+}
+.ktrace .kch-trace-ring {
+  stroke-width: 2;
+}
+.ktrace .kch-stat-unit {
+  margin-left: 0.16em;
+}
+.ktrace .kch-trace-band {
+  fill: color-mix(in srgb, var(--accent) 4%, transparent);
+  stroke: none;
+}
+.ktrace .ktrace-cursor-label {
+  font: 700 12px/1 var(--mono);
+  fill: var(--accent);
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.ktrace .ktrace-cursor-label.on {
+  opacity: 1;
+}
+.ktrace .ktrace-legend {
+  margin-top: 14px;
+}
+.ktrace .kdf-legend-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+body.presenting .pr-slide[data-layout] .pr-stage:has(> .ktrace) {
+  width: min(1600px, calc(100vw - 32px));
+}
+.pr-stage .ktrace > figure {
+  width: 100%;
+}
+.pr-stage .ktrace .kch-trace-total .kch-stat-n,
+.pr-stage .ktrace .kch-trace-total .kch-stat-unit {
+  font-size: 2.2rem;
+}
+.pr-stage .ktrace > .ktrace-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  align-items: center;
+  gap: 24px;
+  height: 80px;
+  box-sizing: border-box;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.pr-stage .ktrace > .ktrace-footer > .kdf-legend {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  gap: 5px 12px;
+}
+.pr-stage .ktrace > .ktrace-footer > .kch-walk-guided {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.pr-stage .ktrace > .ktrace-footer .kch-walk-controls {
+  display: none;
+}
+.pr-stage .ktrace > .ktrace-footer .kch-walk-annotation {
+  min-height: 0;
+}
+.pr-stage .ktrace > .ktrace-footer .kch-walk-annotation strong {
+  font-size: 0.9rem;
+}
+.pr-stage .ktrace > .ktrace-footer .kch-walk-annotation p {
+  margin-top: 3px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+.pr-stage .ktrace > .ktrace-footer .kch-walk-dot::before {
+  width: 8px;
+  height: 8px;
+}
+
+@media (width <= 1200px) {
+  .ktrace {
+    overflow-x: visible;
+  }
+  .ktrace .kch-trace-head {
+    margin-left: 0;
+    padding-right: 0;
+  }
+  .ktrace figure {
+    overflow-x: auto;
+  }
+  .ktrace figure svg {
+    min-width: 1200px;
+  }
+  .ktrace .ktrace-footer > .kdf-legend,
+  .ktrace .ktrace-footer > .kch-walk-guided {
+    min-width: 0;
+  }
+}
+
+@media (width <= 700px) {
+  .ktrace .kch-trace-race-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 8px 16px;
+  }
+  .ktrace .kch-trace-race-head .kch-trace-total:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .ktrace .kch-trace-race-head .kch-trace-total:last-child {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .ktrace .kch-trace-race-head .kch-trace-delta {
+    grid-column: 1/-1;
+    grid-row: 2;
+    text-align: center;
+  }
+  .pr-stage .ktrace > .ktrace-footer {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 10px;
+    height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ktrace .ktrace-cursor-label {
+    display: none;
+  }
+}

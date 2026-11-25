@@ -1,0 +1,1159 @@
+<!-- Reference source: component showcase — renders every kit component with
+     sample data. Assemble and ship the output as showcase/components.html:
+     python3 .factory/skills/explainer/assemble.py .factory/skills/explainer/reference-sources/component-showcase.html --out .factory/skills/explainer/showcase/components.html -->
+
+<p style="font:15px/1.6 -apple-system,sans-serif;max-width:640px;margin:40px auto;padding:18px 22px;border:1px solid #b45309;color:#78350f;background:#fffbeb">
+  <strong>Note:</strong> this is an <code>/explainer</code> content source, not a finished page —
+  assemble it first (see <code>.factory/skills/explainer/README.md</code>):<br>
+  <code>python3 .factory/skills/explainer/assemble.py .factory/skills/explainer/reference-sources/component-showcase.html --out .factory/skills/explainer/showcase/components.html</code>
+</p>
+
+<script type="application/json" data-slot="meta">
+{
+  "title": "Component Showcase — /explainer kit",
+  "recipe": "explainer",
+  "style": "keynote",
+  "components": ["section", "table", "tree", "loop", "stepper", "architecture", "trace", "flow", "roadmap", "code", "chart", "geo-world", "iceberg", "pyramid"],
+  "output": ".factory/skills/explainer/showcase/components.html",
+  "thesis": "Every kit component, rendered with sample data, on one page.",
+  "slides": [
+    {"kicker":"Showcase","title":"Every component, one page","point":"Scroll or present to see what the kit can build"},
+    {"kicker":"00 · section — chapter","title":"A chapter owns the room","point":"A protected copy field and a full-bleed pattern make a deliberate transition"},
+    {"kicker":"00 · section — cover","title":"A cover sets the terms","point":"The same composition opens a deck; hairline arcs carry one accent sweep"},
+    {"kicker":"01 · table — rows","title":"Grouped hairline rows","point":"The ledger baseline — a row can carry a tone, a flag, a ref, or a dot-spectrum cell"},
+    {"kicker":"01 · table — before-after","title":"The reinvented flip","point":"Dim before flips to lit after; a struck ghost keeps the old claim visible"},
+    {"kicker":"01 · table — compare","title":"Comparison index","point":"Shared concerns become a scanning index beside two stable subject columns"},
+    {"kicker":"01 · table — grid","title":"Calmer tile cards","point":"Auto-fill cards for a labelled vocabulary, without the loud glow"},
+    {"kicker":"01 · table — chips","title":"Soft per-chip tone","point":"Each pill in a group carries its own tone"},
+    {"kicker":"01 · table — specs","title":"The spec-comparison strip","point":"Subjects as columns; one winner cell per row wears the accent, never bold"},
+    {"kicker":"02 · tree — org","title":"A hierarchy of boxes","point":"Root largest, each depth a notch smaller; more than 5 siblings wrap into rows"},
+    {"kicker":"02 · tree — files","title":"A repo's information architecture","point":"Folder icons, rationale labels, leaf files as a card grid"},
+    {"kicker":"02 · tree — evolution","title":"Before/after code structure","point":"Two mono trees mark what moved, was added, or was removed"},
+    {"kicker":"03 · loop","title":"Numbered circuit","point":"A process that feeds back into itself"},
+    {"kicker":"04 · stepper","title":"One concept per step","point":"Numbered dots, prev/next, prose left / code right"},
+    {"kicker":"05 · architecture","title":"Event-driven system, traced live","point":"A topic broadcasts, a queue alternates workers, one leg is filtered"},
+    {"kicker":"06 · architecture — operating-model","title":"From request to rollout","point":"Follow work across Product, Engineering, and Operations, then return the evidence to intake"},
+    {"kicker":"06a · operating-model — readiness","title":"Earn the next phase","point":"Pilot, Limited Availability, and GA have explicit evidence requirements and decision owners"},
+    {"kicker":"06b · architecture — system walkthrough","title":"Grouped system with API and trust boundaries","point":"The non-event-driven register: numbered edge markers across nested trust, API, compute, and storage groups"},
+    {"kicker":"06c · sequence","title":"Checkout authorization, end to end","point":"Ask, authorize, persist, then publish on one stable set of lifelines"},
+    {"kicker":"06d · erd","title":"Ten tables, one order model","point":"A stable whole-model board keeps ten tables and their relationships readable"},
+    {"kicker":"06e · stack","title":"The call detail, edge to store","point":"The technical view keeps functions, guards, effects, and return routes visible"},
+    {"kicker":"06e2 · stack — journey","title":"One request, six outcomes","point":"The request spine explains boundaries and outcomes before it reveals code"},
+    {"kicker":"06f · stack — diff","title":"A fat handler, split","point":"Before/after panes; move ribbons trace what relocated, a violet badge marks a rename, success/error weight marks what was added or died"},
+    {"kicker":"06f · code — diff","title":"The exact lines that changed","point":"Stable before and after panes let a PR walkthrough mark evidence without losing context"},
+    {"kicker":"06g · trace","title":"Authorization, serial vs parallel","point":"Numbered spans expose the pool wait and the overlapping writes on one shared clock"},
+    {"kicker":"07 · flow","title":"Canary rollout progression","point":"A sequential rollout advances through one explicit health gate"},
+    {"kicker":"08 · flow — timeline","title":"Dates on a dedicated axis","point":"Milestones stay above the axis while dates and today remain legible below"},
+    {"kicker":"08b · roadmap","title":"Parallel work, one horizon","point":"Workstreams, spans, milestones, dependencies, and today stay aligned"},
+    {"kicker":"09 · chart — line","title":"Trend over time","point":"2px line, direct end labels, crosshair readout"},
+    {"kicker":"09 · chart — bars","title":"Magnitudes compared","point":"Thin bars, values at the tips; accent on the subject only"},
+    {"kicker":"09 · chart — dumbbell","title":"Before → after per item","point":"Two dots on a hairline, one shared scale"},
+    {"kicker":"09 · chart — split","title":"Part-to-whole share","point":"One gapped bar with labels below — never a pie"},
+    {"kicker":"09 · chart — area","title":"Trend with filled volume","point":"Same data as line; the studio swaps the two with one click"},
+    {"kicker":"09 · chart — histogram","title":"A distribution over bins","point":"Contiguous columns; the peak carries the one label"},
+    {"kicker":"09 · chart — scatter","title":"Two measured axes","point":"Accent and label only the points that matter"},
+    {"kicker":"09 · chart — heatmap","title":"Magnitude over a grid","point":"One hue, more-is-stronger, with a ramp legend"},
+    {"kicker":"09 · chart — dots","title":"Every mark is a unit","point":"Exact votes or representation can be counted directly"},
+    {"kicker":"09 · chart — map","title":"Where things happen in the world","point":"Countries and pins wear the tones; the world stays quiet context"},
+    {"kicker":"09 · chart — stat","title":"Big numerals, one chart kind","point":"kind:'stat' replaced the separate stat component"},
+    {"kicker":"10 · iceberg","title":"An exhibition above the waterline","point":"The visitor experience rests on months of preparation"},
+    {"kicker":"11 · pyramid","title":"Layered trapezoids","point":"A broad base narrowing to a rare apex"}
+  ],
+  "facts": [],
+  "links": []
+}
+</script>
+
+<template data-slot="content">
+<section id="top" class="hero">
+  <div class="reveal">
+    <div class="hero-kicker">Component showcase</div>
+    <h1 class="display">Every component,<br><em>one page.</em></h1>
+    <p class="lede">Scroll through or press <code>P</code> to present. Each section shows one kit component with sample data and a one-line description of when to use it.</p>
+    <aside class="showcase-guide" aria-labelledby="showcaseGuideTitle">
+      <div class="showcase-guide-kicker" id="showcaseGuideTitle">How to use this library</div>
+      <ol>
+        <li><span><strong>Browse</strong>Scroll or press <code>P</code> to see each component working with real sample data.</span></li>
+        <li><span><strong>Choose</strong>Note the exact name in its section label, such as <code>chart — stat</code>.</span></li>
+        <li><span><strong>Use</strong>Choose <code>Change visual</code> beside a section, or ask your agent to use that component by name.</span></li>
+      </ol>
+    </aside>
+  </div>
+</section>
+
+<section id="section-slide"><div class="artifact" id="sectionHost"></div></section>
+
+<section id="section-cover"><div class="artifact" id="sectionCoverHost"></div></section>
+
+<section id="table">
+  <div class="reveal" id="tableRowsHead"><span class="eyebrow">01 · table — rows</span><h2 class="sec-title">Grouped hairline rows</h2><p class="sec-sub">The ledger baseline. A row can carry a tone, a flag, a ref, or an inline dot-spectrum cell.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="tableRowsHost"></div>
+
+  <div class="reveal" id="tableBaHead" style="margin-top:60px"><span class="eyebrow">01 · table — before-after</span><h2 class="sec-title">The reinvented flip</h2><p class="sec-sub">Click a row, press Enter, or step through Present — dim before flips to lit after.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="tableBaHost"></div>
+
+  <div class="reveal" id="tableCompareHead" style="margin-top:60px"><span class="eyebrow">01 · table — compare</span><h2 class="sec-title">Comparison index</h2><p class="sec-sub">A stable concern index makes differences and missing coverage easy to scan.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="tableCompareHost"></div>
+
+  <div class="reveal" id="tableGridHead" style="margin-top:60px"><span class="eyebrow">01 · table — grid</span><h2 class="sec-title">Calmer tile cards</h2><p class="sec-sub">Tiles DNA, toned down — an auto-fill grid for a labelled vocabulary.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="tableGridHost"></div>
+
+  <div class="reveal" id="tableChipsHead" style="margin-top:60px"><span class="eyebrow">01 · table — chips</span><h2 class="sec-title">Soft per-chip tone</h2><p class="sec-sub">Chips DNA, verbatim — each pill in a group carries its own tone.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="tableChipsHost"></div>
+
+  <div class="reveal" id="tableSpecsHead" style="margin-top:60px"><span class="eyebrow">01 · table — specs</span><h2 class="sec-title">The spec-comparison strip</h2><p class="sec-sub">Subjects as columns. One winner cell per row wears the accent — color and glow alone, never bold.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="tableSpecsHost"></div>
+</section>
+
+<section id="tree">
+  <div class="reveal" id="treeOrgHead"><span class="eyebrow">02 · tree — org</span><h2 class="sec-title">A product org, three depths</h2><p class="sec-sub">Root largest, each depth a notch smaller. Engineering carries the accent; six leads wrap into two rows.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="treeOrgHost" data-zoom></div>
+
+  <div class="reveal" id="treeFilesHead" style="margin-top:60px"><span class="eyebrow">02 · tree — files</span><h2 class="sec-title">A repo's information architecture</h2><p class="sec-sub">The flagship map look: folder icons, rationale labels, leaf files as a card grid.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="treeFilesHost"></div>
+
+  <div class="reveal" id="treeEvoHead" style="margin-top:60px"><span class="eyebrow">02 · tree — evolution</span><h2 class="sec-title">A payments refactor</h2><p class="sec-sub">One provider gateway split into a folder per concern.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="treeEvoHost"></div>
+</section>
+
+<section id="loop"><div class="reveal"><span class="eyebrow">03 · loop</span><h2 class="sec-title">Numbered circuit</h2><p class="sec-sub">A process that feeds back into itself. Click a node for details.</p></div><div class="reveal reveal-delay-1 artifact" id="loopHost"></div></section>
+
+<section id="stepper"><div class="reveal"><span class="eyebrow">04 · stepper</span><h2 class="sec-title">One concept per step</h2><p class="sec-sub">Numbered dots, prev/next, prose left / code right.</p></div><div class="reveal reveal-delay-1 artifact" id="stepperHost"></div></section>
+
+<section id="architecture"><div class="reveal"><span class="eyebrow">05 · architecture</span><h2 class="sec-title">Event-driven system, traced live</h2><p class="sec-sub">An accepted order becomes a shipment job. Follow the live broadcast across three ownership domains, then switch layouts to compare the full system, domain responsibilities, and one delivery path.</p></div><div class="reveal reveal-delay-1 artifact" id="architectureHost" data-zoom></div></section>
+
+<section id="architecture-operating-model"><div class="reveal"><span class="eyebrow">06 · architecture — operating-model</span><h2 class="sec-title">From request to rollout</h2><p class="sec-sub">Product, Engineering, and Operations pass work across clear ownership boundaries. The outcome review feeds the next intake.</p></div><div class="reveal reveal-delay-1 artifact" id="operatingModelHost"></div></section>
+<section id="launch-readiness"><div class="reveal"><span class="eyebrow">06a · operating-model — readiness</span><h2 class="sec-title">Earn the next phase</h2><p class="sec-sub">Pilot → Limited Availability → GA. Each transition needs evidence and an explicit approval, not just a target date.</p></div><div class="reveal reveal-delay-1 artifact" id="launchReadinessHost"></div></section>
+<section id="architecture-system"><div class="reveal"><span class="eyebrow">06b · architecture — system walkthrough</span><h2 class="sec-title">Grouped system with API and trust boundaries</h2><p class="sec-sub">A browser edit becomes trusted state: validate access, resolve conflicts, and persist the result with an audit trail.</p></div><div class="reveal reveal-delay-1 artifact" id="architectureSystemHost" data-zoom></div></section>
+
+<section id="sequence">
+  <div class="reveal"><span class="eyebrow">06c · sequence</span><h2 class="sec-title">Checkout authorization, end to end</h2><p class="sec-sub">One stable set of lifelines carries the ask, async authorization, return, local persist, and filtered publish.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="sequenceHost" data-zoom></div>
+</section>
+
+<section id="erd"><div class="reveal"><span class="eyebrow">06d · erd</span><h2 class="sec-title">Ten tables, <em>one order model</em></h2><p class="sec-sub">A stable board keeps the whole schema visible while walkthrough steps focus one relationship path.</p></div><div class="reveal reveal-delay-1 artifact" id="erdHost" data-zoom></div></section>
+
+<section id="stack">
+  <div class="reveal"><span class="eyebrow">06e · stack</span><h2 class="sec-title">The call detail, <em>edge to store</em></h2><p class="sec-sub">The developer view keeps every function, guard, effect, and return route available for inspection.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="stackHost"></div>
+</section>
+
+<section id="stack-journey">
+  <div class="reveal"><span class="eyebrow">06e2 · stack — journey</span><h2 class="sec-title">One request, <em>six outcomes</em></h2><p class="sec-sub">The audience view follows boundaries, exits, effects, and the explicit return before opening code evidence.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="stackJourneyHost"></div>
+</section>
+
+<section id="stack-diff"><div class="reveal"><span class="eyebrow">06f · stack — diff</span><h2 class="sec-title">A fat handler, split</h2><p class="sec-sub"><code>mode:'diff'</code> — the same stack chrome, two panes. Move ribbons trace what relocated between files, a violet badge marks a rename, and success/error weight marks what was added or died.</p></div><div class="reveal reveal-delay-1 artifact" id="stackDiffHost"></div></section>
+
+<section id="code"><div class="reveal"><span class="eyebrow">06f · code — diff</span><h2 class="sec-title">The exact lines that changed</h2><p class="sec-sub">A PR walkthrough keeps both hunks stable while each step marks the evidence behind the claim.</p></div><div class="reveal reveal-delay-1 artifact" id="codeHost"></div></section>
+
+<section id="trace"><div class="reveal"><span class="eyebrow">06g · trace</span><h2 class="sec-title">Authorization, serial vs parallel</h2><p class="sec-sub">One shared clock exposes a pool wait, then shows the ledger and receipt overlapping after the change.</p></div><div class="reveal reveal-delay-1 artifact" id="traceHost"></div></section>
+
+<section id="flow">
+  <div class="reveal" id="flowRailHead"><span class="eyebrow">07 · flow</span><h2 class="sec-title">Canary rollout progression</h2><p class="sec-sub">A release advances from candidate to full rollout through one explicit SLO gate. Branching systems belong in architecture diagrams; this rail is for an ordered journey.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="flowRailHost"></div>
+</section>
+
+<section id="flow-timeline">
+  <div class="reveal" id="flowTimelineRailHead"><span class="eyebrow">08 · flow — timeline</span><h2 class="sec-title">Dates on a dedicated axis</h2><p class="sec-sub">Milestones stand on the track by date; quarter labels sit on the axis below and a dashed line marks today. For parallel workstreams, use the roadmap.</p></div>
+  <div class="reveal reveal-delay-1 artifact" id="flowTimelineRailHost"></div>
+</section>
+
+<section id="roadmap"><div class="reveal"><span class="eyebrow">08b · roadmap</span><h2 class="sec-title">Parallel work, one horizon</h2><p class="sec-sub">Dated spans and milestones stay aligned across workstreams; dependencies and today get their own visual grammar.</p></div><div class="reveal reveal-delay-1 artifact" id="roadmapHost"></div></section>
+
+<section id="chart"><div class="reveal"><span class="eyebrow">09 · chart</span><h2 class="sec-title">Charts for <em>measured numbers</em></h2><p class="sec-sub">Eleven kinds, one contract — trend, magnitude, change, share, distribution, axes, grids, exact units, geography, and headline numerals. The subject wears the accent; hover any mark for the readout.</p></div><div class="reveal reveal-delay-1 artifact" id="chartLineHost"></div><div class="reveal reveal-delay-2 artifact" id="chartBarsHost"></div><div class="reveal reveal-delay-3 artifact" id="chartDumbbellHost"></div><div class="reveal reveal-delay-4 artifact" id="chartSplitHost"></div><div class="reveal artifact" id="chartAreaHost"></div><div class="reveal artifact" id="chartHistHost"></div><div class="reveal artifact" id="chartScatterHost"></div><div class="reveal artifact" id="chartHeatHost"></div><div class="reveal artifact" id="chartDotsHost"></div><div class="reveal artifact" id="chartMapHost"></div><div class="reveal artifact" id="chartStatHost" style="margin-top:24px"></div><p class="muted-note">sample numbers, hand-set for the demo · a real page stamps its collection date</p></section>
+
+<section id="iceberg"><div class="reveal"><span class="eyebrow">10 · iceberg</span><h2 class="sec-title">An exhibition above the waterline</h2><p class="sec-sub">Visitors see the exhibition. Research, conservation, and planning make it possible. A fictional museum example.</p></div><div class="reveal reveal-delay-1 artifact" id="icebergHost"></div></section>
+
+<section id="pyramid"><div class="reveal"><span class="eyebrow">11 · pyramid</span><h2 class="sec-title">Layered trapezoids</h2><p class="sec-sub">A broad base narrowing to a rare apex. The shape is the point.</p></div><div class="reveal reveal-delay-1 artifact" id="pyramidHost"></div></section>
+</template>
+
+<style data-slot="page-css">
+.showcase-guide{
+  max-width:980px;margin-top:clamp(34px,5vw,58px);padding-top:18px;
+  border-top:1px solid var(--border)}
+.showcase-guide-kicker{
+  margin-bottom:14px;color:var(--text-faint);font-family:var(--mono);
+  font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.showcase-guide ol{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(18px,3vw,38px);
+  list-style:none;counter-reset:showcase-guide}
+.showcase-guide li{
+  position:relative;min-width:0;padding-left:34px;counter-increment:showcase-guide}
+.showcase-guide li::before{
+  content:'0' counter(showcase-guide);position:absolute;left:0;top:2px;color:var(--accent);
+  font-family:var(--mono);font-size:.68rem;font-weight:700;letter-spacing:.04em}
+.showcase-guide li span{display:block;color:var(--text-dim);font-size:.82rem;line-height:1.55}
+.showcase-guide li strong{
+  display:block;margin-bottom:3px;color:var(--text);font-size:.9rem;font-weight:700}
+.showcase-guide code{font-size:.76em}
+@media(max-width:720px){
+  .showcase-guide ol{grid-template-columns:1fr;gap:14px}
+}
+</style>
+
+<script data-slot="page-js">
+var GLOSSARY = {};
+
+var sectionSlide = renderSection('#sectionHost', {
+  mode: 'chapter',
+  pattern: 'iso',
+  kicker: 'PLATFORM\nROADMAP 2027',
+  number: '02',
+  title: 'Make the migration boring',
+  sub: 'One shared path from pilot to default.',
+  details: ['Heitor Lessa', 'Principal Engineer'],
+  ariaLabel: 'Roadmap chapter: make the migration boring',
+});
+
+var sectionCover = renderSection('#sectionCoverHost', {
+  mode: 'cover',
+  pattern: 'arcs',
+  kicker: 'PLATFORM ENGINEERING\nQ3 REVIEW',
+  title: 'One year of paved roads',
+  sub: 'What we shipped, what it cost, and what comes next.',
+  details: ['Heitor Lessa', 'Principal Engineer'],
+  ariaLabel: 'Cover: one year of paved roads',
+});
+
+var tableRows = renderTable('#tableRowsHost', {
+  mode: 'rows',
+  ariaLabel: 'Rollout status by track, with maturity spectrum',
+  numbered: true,
+  legend: [{kind: 'done', label: 'in CI'}, {kind: 'progress', label: 'partial'}, {kind: 'gap', label: 'not started'}],
+  groups: [
+    {label: 'Now · 2', kind: 'progress', rows: [
+      {title: 'Unit coverage', key: true, sub: 'every package, enforced per file', tone: 'accent', dots: {value: 78, ends: ['not started', 'strong']}},
+      {title: 'Integration coverage', tone: 'warning', dots: {value: 41, ends: ['not started', 'strong']}},
+    ]},
+    {label: 'Shipped · 2', kind: 'done', rows: [
+      {title: 'Lint gate', key: true, sub: 'blocks on <code>eslint --max-warnings=0</code>', flag: {kind: 'done', label: 'in CI'}, ref: 'PR #241'},
+      {title: 'Type check', sub: 'strict mode, no <code>any</code> in new files', flag: {kind: 'done', label: 'in CI'}, ref: 'PR #248'},
+    ]},
+    {label: 'Gap · 1', kind: 'gap', rows: [
+      {title: 'Fuzz testing', key: true, sub: 'no property-based tests yet', flag: {kind: 'gap', label: 'not started'}},
+    ]},
+  ],
+});
+
+var tableBa = renderTable('#tableBaHost', {
+  mode: 'before-after',
+  ariaLabel: 'How the review culture changed',
+  rows: [
+    {title: 'Code review', before: 'a human skims the diff, approves by habit', after: 'adversarial review proves the diff correct', flag: {kind: 'done', label: 'enforced'}},
+    {title: 'Deploys', before: 'manual runbook, tribal knowledge required', after: 'one command, fully automated'},
+    {title: 'Incidents', before: 'alarms fire, no ticket, no owner', after: 'SLOs page the owner automatically'},
+    {title: 'Trust', before: 'trust the engineer’s word for it', after: 'verify with a deterministic gate'},
+  ],
+});
+
+var tableCompare = renderTable('#tableCompareHost', {
+  mode: 'compare',
+  ariaLabel: 'No spec vs OpenSpec, concern by concern',
+  leftName: 'No spec',
+  rightName: 'OpenSpec',
+  mid: 'Shared concern',
+  rows: [
+    {concern: 'Plan before code', left: 'if you ask, each time', right: 'opsx:plan, by default'},
+    {concern: 'Shared vocabulary', left: 'tribal knowledge', right: 'one schema, versioned'},
+    {concern: 'Audit trail', right: 'every change attested'},
+    {concern: 'Rollback plan', left: 'ad-hoc, undocumented'},
+  ],
+});
+
+var tableGrid = renderTable('#tableGridHost', {
+  mode: 'grid',
+  ariaLabel: 'Issue categories by area',
+  groups: [
+    {label: 'Product', kind: 'next', rows: [
+      {title: 'Feature', tone: 'accent'},
+      {title: 'Epic', sub: 'group-level', tone: 'accent'},
+      {title: 'Documentation', tone: 'accent'},
+    ]},
+    {label: 'Risk', kind: 'gap', rows: [
+      {title: 'Bug', tone: 'error'},
+      {title: 'Security', sub: 'triaged within 24h', tone: 'error'},
+    ]},
+  ],
+});
+
+var tableChips = renderTable('#tableChipsHost', {
+  mode: 'chips',
+  ariaLabel: 'Automation labels by project',
+  groups: [
+    {label: 'MR automation', kind: 'done', rows: [
+      {label: 'bug', tone: 'success'},
+      {label: 'feature', tone: 'accent'},
+      {label: 'documentation', tone: 'neutral'},
+    ]},
+    {label: 'Project', kind: 'next', rows: [
+      {label: 'peaky', tone: 'violet'},
+      {label: 'architect', tone: 'warning'},
+      {label: 'urgent', tone: 'error'},
+    ]},
+  ],
+});
+
+var tableSpecs = renderTable('#tableSpecsHost', {
+  mode: 'specs',
+  ariaLabel: 'CI pipeline strategy comparison across three configurations',
+  subjects: ['Baseline', 'Cached', 'Cached + parallel'],
+  groups: [{label: 'CI pipeline', kind: 'next', rows: [
+    {label: 'Build time', values: ['4m 40s', '2m 10s', '48s'], winner: 2},
+    {label: 'Cache hit rate', sub: 'first run has nothing to hit', values: ['—', '78%', '91%'], winner: 2},
+    {label: 'Peak memory', values: ['1.8 GB', '2.1 GB', '2.4 GB'], winner: 0},
+    {label: 'Rollback', values: ['manual revert, ~10 min', 'one-command revert', 'auto-revert pages on-call'], winner: 1},
+  ]}],
+});
+
+var treeOrg = renderTree('#treeOrgHost', {
+  mode: 'org',
+  ariaLabel: 'Product org chart, three depths, Engineering accented',
+  root: {
+    label: 'Mara Chen', sub: 'Founder & CEO',
+    children: [
+      {label: 'Priya Nair', sub: 'VP Product', children: [
+        {label: 'Grace Liu', sub: 'PM Lead'},
+      ]},
+      {label: 'Sam Okafor', sub: 'VP Engineering', tone: 'accent', children: [
+        {label: 'Dana Kim', sub: 'Staff Engineer', tone: 'accent'},
+        {label: 'Priyanka Rao', sub: 'Eng Manager', tone: 'accent'},
+      ]},
+      {label: 'Lena Ortiz', sub: 'Head of Design', children: [
+        {label: 'Iris Novak', sub: 'Design Lead'},
+      ]},
+      {label: 'Ben Ishikawa', sub: 'Head of Growth'},
+      {label: 'Faye Osei', sub: 'Head of Sales', children: [
+        {label: 'Tomas Vidal', sub: 'Account Lead'},
+      ]},
+      {label: 'Ravi Deshpande', sub: 'Head of Ops'},
+    ],
+  },
+});
+
+var treeFiles = renderTree('#treeFilesHost', {
+  mode: 'files',
+  ariaLabel: 'growth-service repository information architecture',
+  root: {
+    label: 'growth-service/', sub: 'checkout experiments platform',
+    kind: 'folder',
+    children: [
+      {label: 'README.md', kind: 'file', note: 'ENTRY POINT'},
+      {label: 'src/', kind: 'folder', note: 'RUNTIME', children: [
+        {label: 'experiments.ts', kind: 'file', note: 'flag evaluation'},
+        {label: 'checkout.ts', kind: 'file', note: 'cart + payment glue'},
+        {label: 'telemetry.ts', kind: 'file', note: 'event emission'},
+      ]},
+      {label: 'tests/', kind: 'folder', note: 'COVERAGE', children: [
+        {label: 'experiments.test.ts', kind: 'file'},
+        {label: 'checkout.test.ts', kind: 'file'},
+      ]},
+      {label: 'infra/', kind: 'folder', note: 'DEPLOY', children: [
+        {label: 'pipeline.yaml', kind: 'file'},
+        {label: 'Dockerfile', kind: 'file'},
+      ]},
+    ],
+  },
+});
+
+var treeEvo = renderTree('#treeEvoHost', {
+  mode: 'evolution',
+  ariaLabel: 'payments module refactor, before and after',
+  panes: [
+    {label: 'payments/ — before', tree: [
+      {name: 'gateway.go', mark: 'moved', note: '→ providers/gateway.go'},
+      {name: 'webhook.go', mark: 'moved'},
+      {name: 'legacy_stub.go', mark: 'removed', note: 'dead since v2'},
+    ]},
+    {label: 'after', accent: true, sub: 'provider-per-folder', tree: [
+      {name: 'providers/', children: [
+        {name: 'gateway.go', mark: 'moved'},
+        {name: 'webhook.go', mark: 'moved'},
+        {name: 'stripe.go', mark: 'added'},
+      ]},
+      {name: 'ledger.go', mark: 'added', note: 'reconciliation entrypoint'},
+    ]},
+  ],
+});
+
+var loop = renderLoop('#loopHost', {
+  legend: [{kind:'human', label:'human'}, {kind:'agent', label:'agent'}, {kind:'both', label:'human + agent'}],
+  return: {label:'/retro continuously improves the workflow'},
+  stages: [
+    {num:'01', kind:'human', label:'/opsx:explore', tag:'human · thinking',
+     title:'Explore', body:'A thinking stance: what is broken, what is next, what is risky?'},
+    {num:'02', kind:'agent', label:'/opsx:plan', tag:'agent · drafting',
+     title:'Plan', body:'The agent drafts a spec from the exploration notes.'},
+    {num:'03', kind:'both', label:'/opsx:implement', tag:'human + agent',
+     title:'Implement', body:'Code is written, tests are added, the spec is satisfied.'},
+    {num:'04', kind:'agent', label:'/merge-check', tag:'agent · gate',
+     title:'Verify', body:'A deterministic gate checks that the review is fresh and complete.'},
+  ],
+});
+
+var stepper = renderStepper('#stepperHost', {
+  steps: [
+    {label:'Step 01 · Describe', title:'Write the fix',
+     body:'A sentence or two describing what changed and why.',
+     code:{filename:'fix.go', html:'<span class="y-key">func</span> FixBug() {'}},
+    {label:'Step 02 · Review', title:'Scoped reviewers join',
+     body:'Only reviewers whose files you touched are asked.',
+     code:{filename:'reviewers.yml', html:'<span class="y-key">reviewers</span>:\n  - python-reviewer\n  - security-reviewer'}},
+    {label:'Step 03 · Gate', title:'Deterministic check',
+     body:'A shell gate verifies the review is fresh and complete.',
+     code:{filename:'merge-check.sh', html:'<span class="y-key">if</span> ! review_fresh; <span class="y-key">then</span>\n  exit 1\n<span class="y-key">fi</span>'}},
+  ],
+});
+
+var architecture = renderArchitecture('#architectureHost', {
+  width: 1600,
+  height: 560,
+  detail: 'contextual',
+  ariaLabel: 'Order events cross Checkout, Order operations, and Job delivery. Trace one fulfillment job from publish to worker.',
+  groups: [
+    {id:'checkout', label:'Checkout', x:20, y:52, w:560, h:448, tone:'accent'},
+    {id:'operations', label:'Order operations', x:610, y:52, w:270, h:448, tone:'violet'},
+    {id:'delivery', label:'Job delivery', x:910, y:52, w:670, h:448, tone:'success'},
+  ],
+  nodes: [
+    {id:'producer', group:'checkout', x:40, y:218, w:220, h:124, eyebrow:'Event producer', title:'Order service', sub:'Publishes accepted orders'},
+    {id:'topic', group:'checkout', kind:'topic', x:330, y:218, w:230, h:124, eyebrow:'Broadcast topic', title:'order.events', sub:'One copy per subscriber'},
+    {id:'consumer-a', group:'operations', x:630, y:102, w:230, h:104, eyebrow:'Subscriber', title:'Fulfillment', sub:'Creates a shipment job'},
+    {id:'consumer-b', group:'operations', x:630, y:236, w:230, h:104, eyebrow:'Subscriber', title:'Analytics', sub:'Creates a reporting job'},
+    {id:'consumer-c', group:'operations', x:630, y:370, w:230, h:104, eyebrow:'Filtered subscriber', title:'Card fraud', sub:'Creates a screening job'},
+    {id:'queue', group:'delivery', kind:'queue', x:940, y:218, w:240, h:124, eyebrow:'Shared work queue', title:'order.jobs', sub:'One worker per job'},
+    {id:'worker-a', group:'delivery', x:1320, y:156, w:230, h:112, eyebrow:'Job executor', title:'Worker A', sub:'Claims the next job'},
+    {id:'worker-b', group:'delivery', x:1320, y:332, w:230, h:112, eyebrow:'Job executor', title:'Worker B', sub:'Shares the queue load'},
+  ],
+  edges: [
+    {id:'e-produce', from:'producer', to:'topic', kind:'async', tone:'accent'},
+    {id:'e-sub-a', from:'topic', to:'consumer-a', kind:'async', tone:'violet'},
+    {id:'e-sub-b', from:'topic', to:'consumer-b', kind:'async', tone:'violet'},
+    {id:'e-sub-c', from:'topic', to:'consumer-c', kind:'async', tone:'violet', filter:'type=card.*'},
+    {id:'e-enqueue-a', from:'consumer-a', to:'queue', kind:'async', tone:'success'},
+    {id:'e-enqueue-b', from:'consumer-b', to:'queue', kind:'async', tone:'success'},
+    {id:'e-enqueue-c', from:'consumer-c', to:'queue', kind:'async', tone:'success'},
+    {id:'e-dispatch-1', from:'queue', to:'worker-a', kind:'async', tone:'warning'},
+    {id:'e-dispatch-2', from:'queue', to:'worker-b', kind:'async', tone:'warning'},
+  ],
+  overview: {
+    title: 'Broadcast events. Share the work.',
+    body: 'The topic fans out; the queue alternates workers. The card filter skips nonmatching events. Next, trace one fulfillment job. Domain views show ownership, not message-level dispatch.',
+  },
+  steps: [
+    {title:'1 · Accept and publish', body:'Checkout accepts an order and publishes it to <code>order.events</code>. Subscribers receive their own copy.', nodes:['producer','topic'], edges:['e-produce'], fire:['e-produce']},
+    {title:'2 · Create the shipment job', body:'Fulfillment receives the event and adds a shipment job to <code>order.jobs</code>. Analytics and fraud are separate branches, omitted in Request journey.', nodes:['topic','consumer-a','queue'], edges:['e-sub-a','e-enqueue-a'], fire:['e-sub-a','e-enqueue-a']},
+    {title:'3 · One worker claims the job', body:'Worker A claims this job. Worker B competes for the next one, rather than receiving another copy. The animation illustrates dispatch, not an exactly-once guarantee.', nodes:['queue','worker-a'], edges:['e-dispatch-1'], fire:['e-dispatch-1']},
+  ],
+});
+
+var operatingModel = renderArchitecture('#operatingModelHost', {
+  preset: 'operating-model',
+  layout: 'lanes',
+  principle: 'Every handoff names the next owner and what they need to accept the work.',
+  stages: [
+    {id:'frame', title:'Frame the request', owner:'Product', decider:'Product lead', cadence:'Weekly intake', body:'Agree the customer problem and the outcome to measure.'},
+    {id:'commit', title:'Build the change', owner:'Engineering', decider:'Tech lead', cadence:'Delivery cycle', body:'Build, test, and demonstrate the agreed behavior.'},
+    {id:'deliver', title:'Prepare the launch', owner:'Operations', decider:'Launch lead', cadence:'Before rollout', body:'Rehearse support, monitoring, and rollback.'},
+    {id:'learn', title:'Review outcomes', owner:'Product', decider:'Product lead', cadence:'After rollout', body:'Compare customer outcomes with the original goal.'},
+  ],
+  progression: {
+    caption: 'Illustrative target states for a service rollout, not live delivery status.',
+    states: [
+      {id:'planned', label:'Planned', tone:'neutral', color:'#c64056'},
+      {id:'building', label:'In delivery', tone:'warning', color:'#a65f00'},
+      {id:'ready', label:'Ready to use', tone:'violet', color:'#7540d8'},
+      {id:'proven', label:'Proven in use', tone:'success', color:'#087f5b'},
+    ],
+    capabilities: [
+      {id:'access', label:'Access controls', states:{frame:'planned', commit:'ready', deliver:'ready', learn:'proven'}},
+      {id:'workflow', label:'Service workflow', states:{frame:'planned', commit:'building', deliver:'ready', learn:'proven'}},
+      {id:'support', label:'Support model', states:{frame:'planned', commit:'planned', deliver:'ready', learn:'proven'}},
+      {id:'measurement', label:'Outcome measurement', states:{frame:'building', commit:'ready', deliver:'ready', learn:'proven'}},
+    ],
+    horizons: [
+      {from:'frame', to:'commit', label:'Definition and delivery', owner:'Program lead'},
+      {from:'deliver', to:'learn', label:'Rollout and learning', owner:'Launch lead'},
+    ],
+  },
+  handoffs: [
+    {id:'brief', from:'frame', to:'commit', label:'Accepted problem brief', acceptance:'Customer outcome and scope agreed'},
+    {id:'plan', from:'commit', to:'deliver', label:'Release candidate', acceptance:'Tests pass and runbook is ready'},
+    {id:'evidence', from:'deliver', to:'learn', label:'Launch evidence', acceptance:'Support and adoption signals collected'},
+    {id:'feedback', from:'learn', to:'frame', label:'Next intake decision', kind:'feedback', acceptance:'Continue, change scope, or stop'},
+  ],
+  overview: {title:'Follow the work across teams', body:'Rows show accountability, not reporting lines. Numbered handoffs carry work between owners; the return path feeds the next intake.'},
+  steps: [
+    {title:'Agree the problem before building', body:'Product owns the brief. Engineering accepts it when the outcome and scope are clear.', nodes:['frame'], edges:['brief']},
+    {title:'Hand over a supportable change', body:'Engineering supplies a tested release candidate and runbook. Operations owns launch preparation.', nodes:['commit'], edges:['plan']},
+    {title:'Bring the launch evidence back', body:'Operations brings support and adoption signals to Product for the outcome review.', nodes:['deliver'], edges:['evidence']},
+    {title:'Decide what happens next', body:'Product uses the evidence to continue, change the scope, or stop. The decision returns to intake.', nodes:['learn'], edges:['feedback']},
+  ],
+});
+
+var launchReadiness = renderArchitecture('#launchReadinessHost', {
+  preset: 'operating-model',
+  layout: 'gates',
+  detail: 'contextual',
+  principle: 'Expand access when the evidence is ready, not when the calendar says so.',
+  stages: [
+    {id:'pilot', title:'Pilot', audience:'Invited design partners', owner:'Product', cadence:'Weekly evidence review', body:'Validate the customer outcome with a small, supported cohort.'},
+    {id:'limited', title:'Limited Availability', audience:'Approved customers, bounded capacity', owner:'Launch team', cadence:'At each cohort expansion', body:'Prove the product can operate beyond its original pilot.'},
+    {id:'ga', title:'GA', audience:'All eligible customers', owner:'Service owner', cadence:'Monthly service review', decider:'Service owner', body:'Keep the published service promise. Monitor reliability, support demand, and customer outcomes.'},
+  ],
+  handoffs: [
+    {id:'pilot-exit', from:'pilot', to:'limited', label:'Open the next cohort', approver:'Product + Engineering', hold:'Keep access invite-only and repeat the failed validation.', criteria:[
+      {label:'Customer outcome validated', evidence:'Pilot results meet the agreed success measure.'},
+      {label:'Rollback rehearsed', evidence:'A recorded rollback drill restores the prior state.'},
+      {label:'Support owner ready', evidence:'Named responders and a reviewed support runbook.'},
+    ]},
+    {id:'limited-exit', from:'limited', to:'ga', label:'Approve general availability', approver:'Launch review', hold:'Keep the cohort cap until the missing evidence is accepted.', criteria:[
+      {label:'Reliability target demonstrated', evidence:'Production evidence meets the published service target.'},
+      {label:'Capacity and recovery proven', evidence:'Load and recovery exercises cover the launch envelope.'},
+      {label:'Customer operations ready', evidence:'Support, documentation, billing, and escalation signed off.'},
+    ]},
+  ],
+  overview: {title:'A phase is not a promise of promotion', body:'These are illustrative launch criteria, not company policy. Each exit gate names the evidence, decision owner, and what happens if the product is not ready.'},
+  steps: [
+    {title:'Pilot proves the customer outcome', body:'Limit access while the team validates value and prepares a safe rollback.', nodes:['pilot']},
+    {title:'Review the evidence before expanding', body:'Product and Engineering accept the pilot evidence before opening the next cohort.', edges:['pilot-exit']},
+    {title:'Limited Availability proves operation', body:'The bounded cohort tests reliability and the customer-support model under real usage.', nodes:['limited']},
+    {title:'GA needs an explicit decision', body:'The launch review accepts reliability, capacity, recovery, and customer-operations evidence.', edges:['limited-exit']},
+    {title:'GA begins the service commitment', body:'The service owner keeps measuring the promise after launch. GA does not end operational review.', nodes:['ga']},
+  ],
+});
+
+var architectureSystem = renderArchitecture('#architectureSystemHost', {
+  width: 1800,
+  height: 620,
+  ariaLabel: 'A browser mutation crosses a five-endpoint API surface, runs through compute, and reaches storage',
+  groups: [
+    {id:'client', label:'Untrusted · browser', x:20, y:20, w:560, h:580, style:'dashed'},
+    {id:'server', label:'Trusted · server', x:620, y:20, w:1160, h:580, tone:'success', style:'solid'},
+    {id:'api', parent:'server', label:'API · 5 endpoints', x:660, y:70, w:500, h:410, tone:'accent', style:'dashed'},
+    {id:'compute', parent:'server', label:'Compute', x:1210, y:70, w:520, h:410, tone:'violet', style:'dashed'},
+    {id:'storage', parent:'server', label:'Storage', x:660, y:500, w:1070, h:100, style:'dotted'},
+  ],
+  nodes: [
+    {id:'ui', group:'client', x:60, y:141, w:190, h:88, eyebrow:'Client', title:'Browser UI', sub:'Nuxt / Vue'},
+    {id:'outbox', group:'client', x:380, y:141, w:190, h:88, title:'Local outbox', sub:'SQLite', tone:'accent'},
+    {id:'push', group:'api', x:700, y:160, w:420, h:50, title:'POST /sync/push', tone:'success', size:'small'},
+    {id:'pull', group:'api', x:700, y:220, w:420, h:50, title:'GET /sync/pull', size:'small'},
+    {id:'bootstrap', group:'api', x:700, y:280, w:420, h:50, title:'GET /bootstrap', size:'small'},
+    {id:'authz', group:'api', x:700, y:340, w:420, h:50, title:'POST /authz/check', size:'small'},
+    {id:'auth', group:'api', x:700, y:400, w:420, h:50, title:'POST /auth/session', size:'small'},
+    {id:'worker', group:'compute', x:1260, y:137, w:420, h:96, eyebrow:'Sync engine', title:'Conflict resolver', sub:'validate · dedupe'},
+    {id:'identity', group:'compute', x:1260, y:317, w:420, h:96, eyebrow:'Identity', title:'Authorization engine', sub:'verify · evaluate policy'},
+    {id:'db', group:'storage', x:740, y:540, w:300, h:44, title:'PostgreSQL', size:'small'},
+    {id:'audit', group:'storage', x:1320, y:540, w:300, h:44, title:'Audit log', size:'small'},
+  ],
+  edges: [
+    {id:'local', from:'ui', to:'outbox', label:'stage field edit'},
+    {id:'push-event', from:'outbox', to:'push', label:'send push event', tone:'accent'},
+    {id:'resolve', from:'push', to:'worker', label:'resolve conflict', tone:'success'},
+    {id:'authorize', from:'authz', to:'identity', label:'evaluate access', tone:'warning'},
+    {id:'persist', from:'worker', to:'db', label:'persist state', tone:'success'},
+    {id:'record', from:'worker', to:'audit', label:'record audit event', tone:'success'},
+  ],
+  overview: {
+    title: 'Walk the data flow →',
+    body: 'Follow one edit from browser to durable state. Each step highlights the participating systems.',
+  },
+  steps: [
+    {title:'1 · Edit locally', body:'The UI writes to the local outbox.', nodes:['ui','outbox'], edges:['local'], groups:['client']},
+    {title:'2 · Cross the boundary', body:'The push enters one endpoint in the wider API surface.', nodes:['outbox','push'], edges:['push-event'], groups:['client','server','api']},
+    {title:'3 · Enforce and resolve', body:'Sync and identity decisions run in separate compute elements.', nodes:['push','worker','authz','identity'], edges:['resolve','authorize'], groups:['api','compute']},
+    {title:'4 · Persist evidence', body:'State and the audit record are stored.', nodes:['db','audit'], edges:['persist','record'], groups:['storage']},
+  ],
+});
+
+// The five-message checkout stays on one stable set of lifelines. Walkthrough
+// steps change emphasis only; genuinely large sequences can still use the
+// in-place continuation contract documented for renderSequence.
+var sequence = renderSequence('#sequenceHost', {
+  ariaLabel: 'Checkout authorization sequence across web, api, and psp: the ask, the authorize, the result',
+  actors: [
+    {id:'web', label:'Checkout', sub:'web app', tone:'accent'},
+    {id:'api', label:'Payments API', sub:'service'},
+    {id:'psp', label:'PSP', sub:'card network', tone:'violet'},
+    {id:'events', label:'Order events', sub:'fan-out topic', kind:'topic', tone:'success'},
+  ],
+  messages: [
+    {id:'m1', from:'web', to:'api', label:'POST /payments', kind:'sync', key:true},
+    {id:'m2', from:'api', to:'psp', label:'authorize', kind:'async', key:true},
+    {id:'m3', from:'psp', to:'api', label:'auth result', kind:'return'},
+    {id:'m4', from:'api', to:'api', label:'persist attempt'},
+    {id:'m5', from:'api', to:'events', label:'payment.authorized', kind:'async', filter:'region = EU', key:true},
+  ],
+  overview: {
+    title: 'Watch the checkout →',
+    body: 'One payment attempt asks, authorizes, persists, then publishes without changing lifelines or scale.',
+  },
+  walkthrough: [
+    {title:'1 · The ask', note:'The web app asks the API to start a payment — a plain synchronous call.', fire:['m1']},
+    {title:'2 · Authorization', note:'The API asks the PSP to authorize, and gets a result back on the return leg.', fire:['m2','m3']},
+    {title:'3 · Persist the attempt', note:'The API records the authorization result locally before publishing the event.', fire:['m4']},
+    {title:'4 · Publish to the topic', note:'After the local write, payment.authorized fans out to the topic. The EU leg is filtered on the wire.', fire:['m5']},
+  ],
+});
+
+var erd = renderErd('#erdHost', {
+  ariaLabel: 'Ten-table order model from customer through fulfillment',
+  entities: [
+    {id:'customer', label:'Customer', tone:'accent', attrs:[{name:'customer_id', type:'uuid', key:'pk', present:true},{name:'email', type:'text', present:true},{name:'segment', type:'text', present:true},{name:'created_at', type:'time'}]},
+    {id:'order', label:'Order', attrs:[{name:'order_id', type:'uuid', key:'pk', present:true},{name:'customer_id', type:'uuid', key:'fk', present:true},{name:'status', type:'text', present:true},{name:'updated_at', type:'time'}]},
+    {id:'order_item', label:'Order item', attrs:[{name:'item_id', type:'uuid', key:'pk', present:true},{name:'order_id', type:'uuid', key:'fk', present:true},{name:'product_id', type:'uuid', key:'fk', present:true},{name:'quantity', type:'int'}]},
+    {id:'product', label:'Product', attrs:[{name:'product_id', type:'uuid', key:'pk', present:true},{name:'sku', type:'text', present:true},{name:'name', type:'text', present:true},{name:'price', type:'decimal'}]},
+    {id:'inventory', label:'Inventory', attrs:[{name:'inventory_id', type:'uuid', key:'pk', present:true},{name:'product_id', type:'uuid', key:'fk', present:true},{name:'on_hand', type:'int', present:true},{name:'reserved', type:'int'}]},
+    {id:'address', label:'Address', attrs:[{name:'address_id', type:'uuid', key:'pk', present:true},{name:'customer_id', type:'uuid', key:'fk', present:true},{name:'city', type:'text', present:true},{name:'country', type:'text'}]},
+    {id:'payment', label:'Payment', tone:'success', attrs:[{name:'payment_id', type:'uuid', key:'pk', present:true},{name:'order_id', type:'uuid', key:'fk', present:true},{name:'amount', type:'decimal', present:true},{name:'state', type:'text'}]},
+    {id:'refund', label:'Refund', tone:'warning', attrs:[{name:'refund_id', type:'uuid', key:'pk', present:true},{name:'payment_id', type:'uuid', key:'fk', present:true},{name:'amount', type:'decimal', present:true},{name:'reason', type:'text'}]},
+    {id:'shipment', label:'Shipment', attrs:[{name:'shipment_id', type:'uuid', key:'pk', present:true},{name:'order_id', type:'uuid', key:'fk', present:true},{name:'warehouse_id', type:'uuid', key:'fk', present:true},{name:'state', type:'text'}]},
+    {id:'warehouse', label:'Warehouse', attrs:[{name:'warehouse_id', type:'uuid', key:'pk', present:true},{name:'name', type:'text', present:true},{name:'region', type:'text', present:true},{name:'capacity', type:'int'}]},
+  ],
+  relations: [
+    {id:'r1', from:'customer', to:'order', label:'places', card:'1:0..N'},
+    {id:'r2', from:'customer', to:'address', label:'uses', card:'1:0..N'},
+    {id:'r3', from:'order', to:'order_item', label:'contains', card:'1:0..N'},
+    {id:'r4', from:'order', to:'payment', label:'captures', card:'1:0..N'},
+    {id:'r5', from:'order_item', to:'product', label:'references', card:'0..N:1'},
+    {id:'r6', from:'product', to:'inventory', label:'stocks', card:'1:0..N'},
+    {id:'r7', from:'payment', to:'refund', label:'may refund', card:'1:0..N'},
+    {id:'r8', from:'order', to:'shipment', label:'ships', card:'1:0..N'},
+    {id:'r9', from:'inventory', to:'warehouse', label:'stored at', card:'0..N:1'},
+    {id:'r10', from:'shipment', to:'warehouse', label:'dispatches', card:'0..N:1'},
+  ],
+  overview: {
+    title: 'Read the whole model →',
+    body: 'Ten tables remain fixed while each step isolates one path through the order model.',
+  },
+  walkthrough: [
+    {title:'1 · Purchase path', note:'The customer creates an order with product-backed line items.', fire:['r1','r3','r5']},
+    {title:'2 · Payment path', note:'The order may capture a payment and that payment may later refund.', fire:['r4','r7']},
+    {title:'3 · Fulfillment path', note:'Stock and shipment records meet at the warehouse boundary.', fire:['r6','r8','r9','r10']},
+  ],
+});
+
+// Generic request lifecycle — kit-agnostic on purpose (the showcase never
+// explains the kit with the kit): edge terminates the request, the API
+// clears two guards before dispatching, the service does the business
+// logic (one leg async), and the store commits. The weighted fixed map
+// keeps every frame and route on one stable surface in read and Present
+// modes; walkthrough steps change emphasis only. Route lists are explicit
+// so frame focus never lights an unrelated incoming call.
+var stackLanes = [
+    {id:'edge', label:'EDGE', sub:'terminates the request', weight:.95,
+     frames: [
+       {id:'e1', depth:0, fn:'accept()', note:'TLS terminated here'},
+       {id:'e2', depth:1, fn:'routeRequest()', kind:'async', chips:[{label:'trace.start'}]},
+     ]},
+    {id:'api', label:'API', sub:'validates & dispatches', weight:1.75, handoff:{label:'request crosses the wire'},
+     frames: [
+       {id:'a1', depth:0, fn:'do_POST()', note:'validates auth · rate budget'},
+       {id:'a2', depth:1, fn:'authGuard()', guard:'401 unauthenticated'},
+       {id:'a3', depth:1, fn:'rateLimitGuard()', guard:'429 over budget'},
+       {id:'a4', depth:1, fn:'dispatch()', kind:'async'},
+       {id:'a5', depth:1, fn:'auditLog()', kind:'async', chips:[{label:'audit.write', kind:'write'}]},
+     ]},
+    {id:'svc', label:'SERVICE', sub:'business logic', weight:1.35, gutter:32, handoff:{label:'validated request', from:'a4'},
+     frames: [
+       {id:'s1', depth:0, fn:'processOrder()', file:'service/orders.py',
+        code:['def process_order(order):', '    reserve_stock(order)', '    return charge_card(order)'], hot:2,
+        chips:[{label:'orders.write', kind:'write'}]},
+       {id:'s2', depth:1, fn:'reserveStock()', kind:'async'},
+       {id:'s3', depth:1, fn:'chargeCard()', chips:[{label:'payments.write', kind:'write'}]},
+     ]},
+    {id:'store', label:'STORE', sub:'persistence', weight:1.1, handoff:{label:'commit', from:'s3'},
+     frames: [
+       {id:'d1', depth:0, fn:'commit()', file:'store/ledger.py',
+        chips:[{label:'orders.db', kind:'write'}, {label:'staging.tmp', kind:'kill'}]},
+       {id:'d2', depth:1, fn:'unlockRow()'},
+     ]},
+  ];
+
+var stack = renderStack('#stackHost', {
+  ariaLabel: 'A request descends from the edge through two guards, service work, and a store commit',
+  lanes: stackLanes,
+  overview: {
+    title: 'Watch the descent →',
+    body: 'One request enters at the edge; guards can exit early, async legs fork instead of blocking, side effects land as chips.',
+  },
+  walkthrough: [
+    {title:'1 · Two guards', note:'Auth and rate-limit can both bounce the request before anything dispatches.', fire:['a1','a2','a3'], routes:[{from:'e2',to:'a1'},{from:'a1',to:'a2'},{from:'a1',to:'a3'}]},
+    {title:'2 · Async fan-out', note:'Dispatch and the audit log fire together — two async legs, genuinely concurrent, not queued.', fire:['a1','a4','a5'], routes:[{from:'a1',to:'a4'},{from:'a1',to:'a5'}]},
+    {title:'3 · Service commits', note:'processOrder runs, forks an async stock reservation, then charges the card.', fire:['a4','s1','s2','s3'], routes:[{from:'a4',to:'s1'},{from:'s1',to:'s2'},{from:'s1',to:'s3'}]},
+    {title:'4 · Store commits', note:'The store writes orders.db, clears the staging file, and unlocks the row.', fire:['s3','d1','d2'], routes:[{from:'s3',to:'d1'},{from:'d1',to:'d2'}]},
+  ],
+});
+
+var stackJourney = renderStack('#stackJourneyHost', {
+  mode: 'journey',
+  progression: 'overview',
+  ariaLabel: 'One request crosses four boundaries and returns after six outcomes',
+  lanes: stackLanes,
+  journey: [
+    {id:'receive', frame:'e1', label:'Request received'},
+    {id:'guards', frames:['a2','a3'], label:'Guards cleared'},
+    {id:'dispatch', frame:'a4', label:'Work dispatched'},
+    {id:'work', frames:['s1','s2','s3'], label:'Order processed'},
+    {id:'commit', frame:'d1', label:'Order committed'},
+    {id:'return', frame:'d2', label:'Response returned'},
+  ],
+  returnPath: {from:'d2', to:'e1', label:'201 response'},
+  walkthrough: [
+    {title:'1 · Request reaches the edge', note:'The edge receives the request and starts its trace.', fire:['e1']},
+    {title:'2 · Guards clear', note:'Authentication and rate limits can still exit before dispatch.', fire:['a2','a3']},
+    {title:'3 · Work dispatches', note:'The API crosses into the service boundary.', fire:['a4']},
+    {title:'4 · Order work runs', note:'Business work can reserve stock and charge the card in parallel.', fire:['s1','s2','s3']},
+    {title:'5 · The order commits', note:'The durable write lands before the row unlocks.', fire:['d1']},
+    {title:'6 · The response returns', note:'The explicit return closes the request lifecycle.', fire:['d2']},
+  ],
+});
+
+// mode:'diff' — the refactor story, kit-agnostic on purpose: a fat order
+// handler splits into service modules. handleOrder() stays put (unchanged);
+// validate() moves out AND is renamed to validateOrder() (moved+renamed);
+// chargeCard() and writeAudit() relocate to their own files (moved);
+// sendReceipt() is brand new (added); legacyNotify() never worked and is
+// deleted outright (removed) — all five change states in one fixture.
+// Note for authors copying this fixture: the five states derive from frame
+// id + depth + file, NEVER from code contents — h1's body changes below
+// (it now calls the renamed validate_order) while its state stays
+// 'unchanged', and that is the intended reading.
+var stackDiff = renderStack('#stackDiffHost', {
+  mode: 'diff',
+  ariaLabel: 'A fat order handler split into validate, payments, audit, and notify service modules',
+  before: {
+    label: 'v1',
+    lanes: [
+      {id:'handler', label:'HANDLER', sub:'one fat file',
+       frames: [
+         {id:'h1', depth:0, fn:'handleOrder()', file:'handlers/order.py',
+          code:['def handle_order(req):', '    validate(req)', '    charge_card(req)', '    ...'], hot:0},
+         {id:'h2', depth:1, fn:'validate()', file:'handlers/order.py'},
+         {id:'h3', depth:1, fn:'chargeCard()', file:'handlers/order.py', chips:[{label:'payments.write', kind:'write'}]},
+         {id:'h4', depth:1, fn:'legacyNotify()', file:'handlers/order.py'},
+         {id:'h5', depth:1, fn:'writeAudit()', file:'handlers/order.py'},
+       ]},
+    ],
+  },
+  after: {
+    label: 'v2',
+    lanes: [
+      {id:'handler', label:'HANDLER', sub:'thin entrypoint',
+       frames: [
+         {id:'h1', depth:0, fn:'handleOrder()', file:'handlers/order.py',
+          code:['def handle_order(req):', '    validate_order(req)', '    charge_card(req)', '    ...'], hot:0},
+       ]},
+      {id:'services', label:'SERVICES', sub:'extracted modules',
+       frames: [
+         {id:'h2', depth:0, fn:'validateOrder()', was:'validate()', file:'services/validate.py'},
+         {id:'h3', depth:0, fn:'chargeCard()', file:'services/payments.py', chips:[{label:'payments.write', kind:'write'}]},
+         {id:'h5', depth:0, fn:'writeAudit()', file:'services/audit.py'},
+         {id:'h6', depth:0, fn:'sendReceipt()', file:'services/notify.py', chips:[{label:'email.send'}]},
+       ]},
+    ],
+  },
+  walkthrough: [
+    {title:'1 · Split begins', note:'validate and chargeCard leave the fat handler for their own service modules — one renamed on the way out.', fire:['h2','h3']},
+    {title:'2 · Audit follows, receipt arrives', note:'writeAudit relocates alongside a brand new sendReceipt.', fire:['h5','h6']},
+    {title:'3 · Dead code goes', note:'legacyNotify never had a working integration — deleted outright.', fire:['h4']},
+  ],
+});
+
+var codeDiff = renderCode('#codeHost', {
+  mode: 'diff',
+  ariaLabel: 'Pull request changes the missing policy branch from allow to deny',
+  before: {label:'before', file:'router.ts', lines:[
+    {id:'b39', number:39, text:'const policy = await loadPolicy(tenant);'},
+    {id:'b40', number:40, kind:'removed', text:'if (!policy) return allow(event);'},
+    {id:'b41', number:41, text:'return evaluate(policy, event);'},
+    {id:'b42', number:42, text:'}'},
+  ]},
+  after: {label:'after', file:'router.ts', lines:[
+    {id:'a39', number:39, text:'const policy = await loadPolicy(tenant);'},
+    {id:'a40', number:40, kind:'added', text:'if (!policy) return deny("missing policy");'},
+    {id:'a41', number:41, kind:'changed', text:'return evaluate(policy, event, audit);'},
+    {id:'a42', number:42, text:'}'},
+  ]},
+  overview: {title:'Read the claim against the code', note:'Both hunks remain visible while each step marks the exact evidence.'},
+  walkthrough: [
+    {title:'Fail closed', note:'The missing-policy branch now denies explicitly.', lines:['b40','a40']},
+    {title:'Carry audit context', note:'The evaluator receives the audit sink on the accepted path.', lines:['a41']},
+  ],
+  completion: {title:'One behavior change, one supporting hook', note:'The complete hunk keeps the PR claim reviewable.'},
+});
+
+var flowData = {
+  ariaLabel: 'Canary rollout progression through an SLO gate',
+  caption: 'advance only while <b>error rate and latency</b> stay within budget',
+  items: [
+    {type:'station', kind:'accent', when:'01 · BUILD', label:'Release candidate', sub:'signed, immutable artifact'},
+    {type:'station', when:'02 · CANARY', label:'Expose 5%', sub:'one region for 15 minutes'},
+    {type:'gate', when:'03 · SLO GATE',
+     outcomes:[{tone:'ok', text:'✓ promote'}, {tone:'bad', text:'✕ pause + rollback'}]},
+    {type:'station', kind:'warn', when:'04 · EXPAND', label:'Increase traffic', sub:'25% → 50% → 100%'},
+    {type:'station', kind:'ok', check:true, when:'05 · COMPLETE', label:'Full rollout', sub:'all regions healthy'},
+  ],
+};
+var flow = renderFlow('#flowRailHost', flowData);
+
+var flowTimelineData = {
+  ariaLabel: 'Kit component rollout across four quarters',
+  caption: 'six table modes and three tree modes — <b>replacing fourteen bespoke files</b> with two',
+  mode: 'timeline',
+  today: 'Q3 25',
+  items: [
+    {label:'table ships', kind:'success', state:'shipped', at:'Q1 25', sub:'six modes, one contract'},
+    {label:'tree ships', kind:'success', state:'shipped', at:'Q2 25', sub:'three tree modes'},
+    {label:'pulse engine', kind:'accent', state:'now', at:'Q3 25', sub:'async edges, live traffic'},
+    {label:'next diet pass', state:'planned', at:'Q4 25', sub:'no candidates yet'},
+  ],
+};
+var flowTimeline = renderFlow('#flowTimelineRailHost', flowTimelineData);
+
+var roadmap = renderRoadmap('#roadmapHost', {
+  ariaLabel: 'Platform roadmap across foundations, teams, and operations for the first half of 2027',
+  layout: 'timeline',
+  items: 'key',
+  typeScale: 'large',
+  view: 'follow',
+  periods: [
+    {label:'Q1', start:'2027-01-01', end:'2027-04-01'},
+    {label:'Q2', start:'2027-04-01', end:'2027-07-01'},
+  ],
+  today: '2027-03-12',
+  todayLabel: 'NOW',
+  lanes: [
+    {id:'platform', label:'Platform', sub:'shared foundations', items:[
+      {id:'contract', label:'Stable contract', note:'versioned and observable', start:'2027-01-08', end:'2027-03-10', state:'done', key:true},
+      {id:'default', label:'Default path', note:'one supported workflow', start:'2027-03-11', end:'2027-06-18', state:'now', key:true},
+    ]},
+    {id:'teams', label:'Teams', sub:'adoption waves', items:[
+      {id:'pilot', label:'Pilot cohort', note:'three volunteer teams', at:'2027-02-14', state:'done'},
+      {id:'waves', label:'Migration waves', note:'ten teams per wave', start:'2027-03-20', end:'2027-06-11', state:'planned', key:true},
+    ]},
+    {id:'operations', label:'Operations', sub:'safe by default', items:[
+      {id:'telemetry', label:'Rollout telemetry', note:'health by cohort', start:'2027-02-01', end:'2027-04-12', state:'now'},
+      {id:'sunset', label:'Legacy sunset', note:'date depends on adoption', at:'2027-06-21', state:'risk', key:true},
+    ]},
+  ],
+  dependencies: [
+    {from:'contract', to:'waves'},
+    {from:'telemetry', to:'default'},
+    {from:'waves', to:'sunset'},
+  ],
+  overview: {title:'Read across, then down', note:'Time runs left to right; each lane owns one workstream.'},
+  walkthrough: [
+    {title:'Foundations unlock adoption', note:'The stable contract and rollout telemetry make migration waves safe.', items:['contract','telemetry','waves'], dependencies:[0]},
+    {title:'The default changes during Q2', note:'The platform path advances while team migrations remain visible.', items:['default','waves'], lanes:['platform','teams']},
+    {title:'Sunset follows proof', note:'The legacy path ends only after migration waves complete.', items:['waves','sunset'], dependencies:[2]},
+  ],
+  completion: {title:'Sequence and ownership stay together', note:'The full roadmap preserves dates, workstreams, and dependencies.'},
+});
+
+var chartLine = renderChart('#chartLineHost', {
+  kind: 'line', unit: 's',
+  ariaLabel: 'fetch p90 seconds per day, humans vs automation, over one week',
+  x: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+  series: [
+    {label:'humans', key:true, values:[92,101,123,110,96,44,41]},
+    {label:'automation', values:[130,128,131,127,129,126,128], tone:'context'},
+  ],
+  overview: {title:'Read the week as two regimes', note:'Weekdays establish the baseline; the weekend shows the changed system.'},
+  walkthrough: [
+    {title:'Weekday baseline', note:'Human p90 hovers near two minutes.', focus:{x:[0,4]}},
+    {title:'The fix lands', note:'Friday night separates the two regimes.', focus:{x:4}},
+    {title:'Weekend result', note:'Human p90 falls by more than half.', focus:{x:[5,6], series:'humans'}},
+  ],
+  completion: {title:'The improvement holds', note:'The complete week shows a sustained weekend drop, not a single outlier.'},
+});
+
+var chartBars = renderChart('#chartBarsHost', {
+  kind: 'bars', unit: 's',
+  ariaLabel: 'wall time by clone strategy',
+  items: [
+    {label:'full clone', value: 200.9, note:'5.8 GB payload'},
+    {label:'partial clone', value: 91, note:'blobless'},
+    {label:'shallow --depth 1', key:true, value: 33, tone:'accent', note:'771 MB payload'},
+  ],
+  overview: {title:'Three strategies, one clock', note:'Each row uses the same wall-time scale.'},
+  walkthrough: [
+    {title:'Full history is expensive', note:'The full clone establishes the 200.9 second baseline.', focus:{item:'full clone'}},
+    {title:'Depth one is the subject', note:'The shallow clone reaches a usable checkout in 33 seconds.', focus:{item:'shallow --depth 1'}},
+  ],
+  completion: {title:'Depth one is six times faster', note:'The full comparison keeps the trade-off visible.'},
+});
+
+var chartDumbbell = renderChart('#chartDumbbellHost', {
+  kind: 'dumbbell', unit: 's',
+  ariaLabel: 'fetch p90 seconds per cohort, before and after the fixes',
+  beforeLabel: 'April', afterLabel: 'August',
+  items: [
+    {label:'humans', before: 123, after: 41},
+    {label:'mirrors', before: 180, after: 95},
+    {label:'CI runners', before: 87, after: 80},
+  ],
+  overview: {title:'Compare movement, not isolated values', note:'Every row shares one before-to-after scale.'},
+  walkthrough: [
+    {title:'Humans gain the most', note:'Human p90 falls from 123 to 41 seconds.', focus:{item:'humans'}},
+    {title:'Mirrors still carry distance', note:'Mirror fetches improve, but remain the slowest cohort.', focus:{item:'mirrors'}},
+    {title:'CI barely moves', note:'Runner performance changes by only seven seconds.', focus:{item:'CI runners'}},
+  ],
+  completion: {title:'The gains are uneven', note:'Restoring all cohorts makes the remaining mirror bottleneck explicit.'},
+});
+
+var chartSplit = renderChart('#chartSplitHost', {
+  kind: 'split',
+  ariaLabel: 'clone payload split between history and snapshot',
+  parts: [
+    {label:'history', value: 87, tone:'accent'},
+    {label:"today's snapshot", value: 13},
+  ],
+  overview: {title:'Most bytes are historical', note:'The bar preserves the complete payload before isolating each share.'},
+  walkthrough: [
+    {title:'History dominates', note:'Past objects account for 87% of transferred bytes.', focus:{part:'history'}},
+    {title:'Today is the smaller share', note:'The current snapshot is only 13% of the payload.', focus:{part:"today's snapshot"}},
+  ],
+  completion: {title:'A shallow strategy removes the dominant share', note:'The complete bar explains why depth changes wall time so sharply.'},
+});
+
+var chartArea = renderChart('#chartAreaHost', {
+  kind: 'area', unit: 'GB',
+  ariaLabel: 'repository size by quarter',
+  x: ['Q1 25','Q2 25','Q3 25','Q4 25','Q1 26','Q2 26'],
+  series: [{label:'repository size', values:[3.9,4.3,4.7,5.1,5.5,5.8]}],
+  overview: {title:'Volume accumulates every quarter', note:'The filled area makes sustained repository growth visible.'},
+  walkthrough: [
+    {title:'The baseline is already large', note:'The period opens at 3.9 GB.', focus:{x:0}},
+    {title:'Growth never reverses', note:'Every quarter adds more history.', focus:{x:[1,4]}},
+    {title:'The repository reaches 5.8 GB', note:'The latest quarter is the high-water mark.', focus:{x:5}},
+  ],
+  completion: {title:'The transfer problem compounds', note:'The full area shows why clone strategy matters more over time.'},
+});
+
+var chartHist = renderChart('#chartHistHost', {
+  kind: 'histogram', unit: 'fetches', xLabel: 'fetch duration',
+  ariaLabel: 'distribution of fetch durations over one day',
+  bins: [
+    {label:'<15 s', value: 18432}, {label:'15–30 s', value: 9210},
+    {label:'30–60 s', value: 4988}, {label:'1–2 m', value: 1502},
+    {label:'2–4 m', value: 431}, {label:'>4 m', value: 68},
+  ],
+  overview: {title:'Most fetches are quick; the tail is real', note:'Contiguous bins show the whole distribution.'},
+  walkthrough: [
+    {title:'The mode is under 15 seconds', note:'18,432 fetches land in the fastest bin.', focus:{item:'<15 s'}},
+    {title:'A long tail remains', note:'The slowest bin still contains 68 fetches.', focus:{item:'>4 m'}},
+  ],
+  completion: {title:'Optimize the tail without hiding the mode', note:'The restored distribution keeps frequency and severity in one view.'},
+});
+
+var chartScatter = renderChart('#chartScatterHost', {
+  kind: 'scatter', unit: 's', xUnit: 'GB',
+  xLabel: 'repository size', yLabel: 'full clone time',
+  ariaLabel: 'clone time against repository size, one point per repository',
+  points: [
+    {x: 0.2, y: 9}, {x: 0.5, y: 19}, {x: 0.8, y: 31}, {x: 1.1, y: 41},
+    {x: 1.6, y: 60}, {x: 2.3, y: 84}, {x: 3.1, y: 112},
+    {x: 5.8, y: 200.9, label: 'adyen-main', tone: 'accent'},
+  ],
+  overview: {title:'Size and clone time rise together', note:'Context points establish the relationship before the subject is isolated.'},
+  walkthrough: [
+    {title:'The subject sits beyond the cohort', note:'adyen-main is both the largest and slowest repository.', focus:{item:'adyen-main'}},
+  ],
+  completion: {title:'The outlier follows the same slope', note:'The full field shows a scale problem rather than a mysterious exception.'},
+});
+
+var chartHeat = renderChart('#chartHeatHost', {
+  kind: 'heatmap', unit: 'fetches',
+  ariaLabel: 'fetch volume by weekday and four-hour block',
+  rows: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+  cols: ['00','04','08','12','16','20'],
+  values: [
+    [9800, 1300, 5200, 6100, 5600, 2900],
+    [9750, 1250, 5400, 6300, 5800, 3000],
+    [9900, 1400, 5600, 6500, 5900, 3100],
+    [9700, 1350, 5300, 6200, 5700, 2950],
+    [9600, 1200, 4900, 5800, 5100, 2400],
+    [9500, 900, 1100, 1400, 1300, 1000],
+    [9450, 850, 1000, 1300, 1250, 950],
+  ],
+  overview: {title:'The grid has two different rhythms', note:'Weekdays carry working-hour demand; weekends collapse after midnight.'},
+  walkthrough: [
+    {title:'Wednesday is the weekday peak', note:'The noon block reaches 6,500 fetches.', focus:{item:'Wed'}},
+    {title:'Saturday loses the daytime ridge', note:'Only the midnight batch remains strong.', focus:{item:'Sat'}},
+    {title:'Sunday repeats the weekend shape', note:'Low daytime volume confirms a recurring regime.', focus:{item:'Sun'}},
+  ],
+  completion: {title:'Capacity planning needs both regimes', note:'The restored week shows one overnight floor and two daytime patterns.'},
+});
+
+var chartDots = renderChart('#chartDotsHost', {
+  kind: 'dots',
+  total: 100,
+  columns: 20,
+  ariaLabel: 'One hundred votes: sixty-four approve, twenty-three request changes, and thirteen abstain',
+  parts: [
+    {label:'Approve', value:64, tone:'accent'},
+    {label:'Request changes', value:23, tone:'warning'},
+    {label:'Abstain', value:13, tone:'context'},
+  ],
+  overview: {title:'Every dot is one vote', note:'The full field makes both the total and the represented shares countable.'},
+  walkthrough: [
+    {title:'Approval is the majority', note:'Sixty-four of one hundred votes approve.', focus:{part:'Approve'}},
+    {title:'Twenty-three request changes', note:'The dissent remains explicit rather than collapsing into other.', focus:{part:'Request changes'}},
+  ],
+  completion: {title:'The whole vote remains visible', note:'Exact representation survives the conclusion.'},
+});
+
+var chartMap = renderChart('#chartMapHost', {
+  kind: 'map', unit: 's',
+  ariaLabel: 'full clone time by office, in seconds',
+  regions: [
+    {id:'NLD', label:'Amsterdam', value: 14, tone:'accent', dx: -34, dy: -34},
+    {id:'USA', label:'New York',  value: 38},
+    {id:'BRA', label:'São Paulo', value: 47},
+    {id:'IND', label:'Bengaluru', value: 52},
+    {id:'AUS', label:'Sydney',    value: 61},
+  ],
+  pins: [ {lon: 103.8, lat: 1.35, label: 'planned mirror', tone: 'success'} ],
+  overview: {title:'Distance shapes the same clone', note:'All offices fetch the same bytes from the Amsterdam origin.'},
+  walkthrough: [
+    {title:'Near the origin', note:'Amsterdam completes the clone in 14 seconds.', focus:{item:'NLD'}},
+    {title:'The far-office penalty', note:'Sydney waits more than four times longer.', focus:{item:'AUS'}},
+    {title:'Place the next mirror', note:'Singapore targets the long-distance cohort.', focus:{item:'planned mirror'}},
+  ],
+  completion: {title:'The mirror follows the latency map', note:'The complete geography keeps origin, pain, and intervention together.'},
+});
+
+var chartStat = renderChart('#chartStatHost', {
+  kind: 'stat',
+  ariaLabel: 'clone migration headline numbers',
+  items: [
+    {n: '200.9 s', label: 'a full clone', sub: '5.8 GB · median of 3 runs', tone: 'accent'},
+    {n: '585M', label: 'objects walked', sub: 'history back to 2014', ticks: 8},
+    {n: 3, label: 'checks passed', tone: 'success'},
+  ],
+  overview: {title:'Three numbers frame the migration', note:'Scale, historical work, and validation belong in one opening read.'},
+  walkthrough: [
+    {title:'Start with elapsed time', note:'A full clone consumes 200.9 seconds.', focus:{item:'a full clone'}},
+    {title:'Name the historical burden', note:'The walk crosses 585 million objects.', focus:{item:'objects walked'}},
+    {title:'Close on evidence', note:'Three independent checks passed.', focus:{item:'checks passed'}},
+  ],
+  completion: {title:'The case is scale plus proof', note:'The complete set keeps the cost and validation together.'},
+});
+
+var trace = renderTrace('#traceHost', {
+  width: 1400, unit: 'ms',
+  ariaLabel: 'checkout authorization latency race: serial vs parallel',
+  compare: {
+    before: {label: 'serial', spans: [
+      {id:'edge', label:'edge terminate', lane:'edge', start:0, dur:6},
+      {id:'wait', label:'pool wait', lane:'api', start:6, dur:340, kind:'wait', note:'conn pool · 5 cap'},
+      {id:'validate', label:'api validate', lane:'api', start:346, dur:32},
+      {id:'psp', label:'psp authorize', lane:'psp', start:378, dur:180},
+      {id:'ledger', label:'ledger write', lane:'ledger', start:558, dur:45},
+      {id:'email', label:'receipt email', lane:'email', start:603, dur:60},
+    ]},
+    after: {label: 'parallel', spans: [
+      {id:'edge', label:'edge terminate', lane:'edge', start:0, dur:6},
+      {id:'validate', label:'api validate', lane:'api', start:6, dur:32},
+      {id:'psp', label:'psp authorize', lane:'psp', start:38, dur:180},
+      {id:'ledger', label:'ledger write', lane:'ledger', start:218, dur:45},
+      {id:'email', label:'receipt email', lane:'email', start:218, dur:60},
+    ]},
+  },
+  overview: {
+    title: 'Compare the same six spans',
+    note: 'Numbers match spans across both traces. Hatching is wait time.',
+  },
+  walkthrough: [
+    {title:'Pool wait, then validation', note:'Serial waits 340 ms for a connection before validation.', focus:{spans:['wait','validate']}},
+    {title:'PSP authorization', note:'The PSP authorization is the next numbered span on both sides.', focus:{span:'psp'}},
+    {title:'Ledger and email overlap', note:'Parallel overlaps the ledger write with the receipt email.', focus:{spans:['ledger','email']}},
+    {title:'Replay on one clock', note:'Replay both traces against the same clock.', focus:{replay:true}},
+  ],
+  completion: {
+    title: 'Parallel finishes 58% faster',
+    note: 'Removing the pool wait and overlapping ledger with email cuts 663 ms to 278 ms.',
+  },
+});
+
+renderIceberg('#icebergHost', {
+  ariaLabel: 'A fictional museum exhibition: the visitor experience above, preparation below',
+  stamp: 'WHAT VISITORS SEE',
+  above: [
+    {side: 'left', title: 'Opening day', lines: ['doors open', 'visitors arrive']},
+    {side: 'right', title: 'The exhibition', lines: ['objects on display', 'stories to explore']},
+  ],
+  below: [
+    ['Research and selection', 'Loans and insurance'],
+    ['Conservation checks', 'Transport and handling'],
+    ['Lighting and labels', 'Access and staff training'],
+  ],
+  punch: 'a day out rests on months of preparation',
+  bottom: 'Fictional museum example',
+});
+
+var pyramid = renderPyramid('#pyramidHost', {
+  ariaLabel: 'Test pyramid: broad unit base narrowing to fuzz at the apex',
+  layers: [
+    {name: 'Fuzz · Property', count: '2 Go files', flag: {tone: 'warning', label: 'LOCAL'}},
+    {name: 'E2E + A11y', count: '26 specs', flag: {tone: 'accent', label: 'CI NEXT'}},
+    {name: 'Integration', count: '11 files', flag: {tone: 'success', label: 'IN CI'}},
+    {name: 'Unit tests', count: '117 files', flag: {tone: 'success', label: 'IN CI'}},
+  ],
+});
+
+initPresent([
+  {pick:['#top']},
+  {pick:['#sectionHost'], layout:'cover', steps:{count:sectionSlide.count, go:sectionSlide.go}},
+  {pick:['#sectionCoverHost'], layout:'cover', steps:{count:sectionCover.count, go:sectionCover.go}},
+  {kicker:'01 · table — rows', pick:['#tableRowsHead','#tableRowsHost'], maxScale:1.0, steps:{count:tableRows.count, go:tableRows.go}},
+  {kicker:'01 · table — before-after', pick:['#tableBaHead','#tableBaHost'], steps:{count:tableBa.count, go:tableBa.go}},
+  {kicker:'01 · table — compare', pick:['#tableCompareHead','#tableCompareHost'], layout:'wide', steps:{count:tableCompare.count, go:tableCompare.go}},
+  {kicker:'01 · table — grid', pick:['#tableGridHead','#tableGridHost'], steps:{count:tableGrid.count, go:tableGrid.go}},
+  {kicker:'01 · table — chips', pick:['#tableChipsHead','#tableChipsHost'], steps:{count:tableChips.count, go:tableChips.go}},
+  {kicker:'01 · table — specs', pick:['#tableSpecsHead','#tableSpecsHost'], steps:{count:tableSpecs.count, go:tableSpecs.go}},
+  {kicker:'02 · tree — org', title:'A product org, three depths', pick:['#treeOrgHost'], layout:'wide', minScale:0.65, steps:{count:treeOrg.count, go:treeOrg.go}},
+  {kicker:'02 · tree — files', title:"A repo's information architecture", pick:['#treeFilesHost'], layout:'wide', minScale:0.6, steps:{count:treeFiles.count, go:treeFiles.go}},
+  {kicker:'02 · tree — evolution', title:'A payments refactor', pick:['#treeEvoHost'], layout:'wide', minScale:0.7, steps:{count:treeEvo.count, go:treeEvo.go}},
+  {kicker:'03 · loop', pick:['#loop .reveal','#loopHost'], minScale:0.85, steps:{count:loop.count, go:loop.go}},
+  {kicker:'04 · stepper', pick:['#stepper .reveal','#stepperHost'], steps:{count:stepper.count, go:stepper.go}},
+  {kicker:'05 · architecture', pick:['#architecture .reveal','#architectureHost'], layout:'wide', minScale:0.55, steps:{count:architecture.count, go:architecture.go}},
+  {kicker:'06 · architecture — operating-model', title:'From request to rollout', pick:['#operatingModelHost'], layout:'wide', minScale:0.75, steps:{count:operatingModel.count, go:operatingModel.go}},
+  {kicker:'06a · operating-model — readiness', title:'Earn the next phase', pick:['#launchReadinessHost'], layout:'wide', minScale:0.7, steps:{count:launchReadiness.count, go:launchReadiness.go}},
+  {kicker:'06b · architecture — system walkthrough', pick:['#architecture-system .reveal','#architectureSystemHost'], layout:'wide', minScale:0.55, steps:{count:architectureSystem.count, go:architectureSystem.go}},
+  {kicker:'06c · sequence', title:'Checkout authorization, end to end', pick:['#sequenceHost'], layout:'wide', minScale:0.8, steps:{count:sequence.count, go:sequence.go}},
+  // erd + both stack slides + stack-diff pick hosts only (no section head):
+  // their canvases are floor-sized by the components (a 720-unit erd canvas
+  // on the 1480px-wide kdf Present stage; stack lanes/diff panes in plain
+  // HTML flow), so the head's ~120-170px is what tips each of these slides
+  // under the 0.75-scale budget — the kicker-only pattern the chart
+  // continuation slides already use. Heads still anchor the scroll sections.
+  {kicker:'06d · erd', pick:['#erdHost'], layout:'wide', minScale:0.75, steps:{count:erd.count, go:erd.go}},
+  {kicker:'06e · stack', title:'The call detail, edge to store', pick:['#stackHost'], layout:'wide', minScale:0.9, steps:{count:stack.count, go:stack.go}},
+  {kicker:'06e2 · stack — journey', title:'One request, six outcomes', pick:['#stackJourneyHost'], layout:'wide', minScale:0.9, steps:{count:stackJourney.count, go:stackJourney.go}},
+  {kicker:'06f · stack — diff', pick:['#stackDiffHost'], layout:'wide', minScale:0.75, steps:{count:stackDiff.count, go:stackDiff.go}},
+  {kicker:'06f · code — diff', title:'The exact lines that changed', pick:['#codeHost'], layout:'wide', minScale:0.8, steps:{count:codeDiff.count, go:codeDiff.go}},
+  {kicker:'06g · trace', pick:['#traceHost'], layout:'wide', minScale:0.9, steps:{count:trace.count, go:trace.go}},
+  {kicker:'07 · flow', pick:['#flowRailHead','#flowRailHost'], layout:'diagram', steps:{count:flow.count, go:flow.go}},
+  {kicker:'08 · flow — timeline', pick:['#flowTimelineRailHead','#flowTimelineRailHost'], layout:'diagram', steps:{count:flowTimeline.count, go:flowTimeline.go}},
+  {kicker:'08b · roadmap', title:'Parallel work, one horizon', pick:['#roadmapHost'], layout:'wide', minScale:0.7, steps:{count:roadmap.count, go:roadmap.go}},
+  {kicker:'09 · chart — line', pick:['#chart .reveal','#chartLineHost'], steps:{count:chartLine.count, go:chartLine.go}},
+  {kicker:'09 · chart — bars', pick:['#chartBarsHost'], steps:{count:chartBars.count, go:chartBars.go}},
+  {kicker:'09 · chart — dumbbell', pick:['#chartDumbbellHost'], steps:{count:chartDumbbell.count, go:chartDumbbell.go}},
+  {kicker:'09 · chart — split', pick:['#chartSplitHost'], steps:{count:chartSplit.count, go:chartSplit.go}},
+  {kicker:'09 · chart — area', pick:['#chartAreaHost'], steps:{count:chartArea.count, go:chartArea.go}},
+  {kicker:'09 · chart — histogram', pick:['#chartHistHost'], steps:{count:chartHist.count, go:chartHist.go}},
+  {kicker:'09 · chart — scatter', pick:['#chartScatterHost'], steps:{count:chartScatter.count, go:chartScatter.go}},
+  {kicker:'09 · chart — heatmap', pick:['#chartHeatHost'], steps:{count:chartHeat.count, go:chartHeat.go}},
+  {kicker:'09 · chart — dots', title:'Every mark is a unit', pick:['#chartDotsHost'], steps:{count:chartDots.count, go:chartDots.go}},
+  {kicker:'09 · chart — map', pick:['#chartMapHost'], steps:{count:chartMap.count, go:chartMap.go}},
+  {kicker:'09 · chart — stat', pick:['#chartStatHost'], steps:{count:chartStat.count, go:chartStat.go}},
+  {kicker:'10 · iceberg', pick:['#iceberg .reveal','#icebergHost'], layout:'diagram'},
+  {kicker:'11 · pyramid', pick:['#pyramid .reveal','#pyramidHost'], steps:{count:pyramid.count, go:pyramid.go}},
+]);
+// The showcase is the reference gallery: expose every component's layout
+// choices inline so a reader can compare variants without opening Studio.
+ExplainerKit.mountAdjustmentBars();
+</script>

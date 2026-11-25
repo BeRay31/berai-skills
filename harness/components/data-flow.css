@@ -1,0 +1,1224 @@
+.kdf {
+  margin: 48px 0 8px;
+}
+.kdf-canvas {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--surface) 94%, var(--accent) 6%),
+    color-mix(in srgb, var(--bg) 96%, var(--surface) 4%)
+  );
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--bg) 45%, transparent);
+}
+.kdf-canvas::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.035;
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--text) 48%, transparent) 0.7px,
+    transparent 0.7px
+  );
+  background-size: 20px 20px;
+}
+.kdf-group {
+  position: absolute;
+  z-index: 0;
+  overflow: hidden;
+  container-type: inline-size;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 32%, transparent);
+  transition:
+    opacity 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+.kdf-group.solid {
+  border-style: solid;
+}
+.kdf-group.dotted {
+  border-style: dotted;
+}
+.kdf-group.nested {
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 18%, transparent);
+}
+.kdf-group.accent {
+  border-color: color-mix(in srgb, var(--accent) 58%, var(--border-strong));
+  background: color-mix(in srgb, var(--accent-dim) 35%, transparent);
+}
+.kdf-group.success {
+  border-color: color-mix(in srgb, var(--success) 58%, var(--border-strong));
+  background: color-mix(in srgb, var(--success-dim) 42%, transparent);
+}
+.kdf-group.warning {
+  border-color: color-mix(in srgb, var(--warning) 58%, var(--border-strong));
+  background: color-mix(in srgb, var(--warning-dim) 35%, transparent);
+}
+.kdf-group.violet {
+  border-color: color-mix(in srgb, var(--violet) 58%, var(--border-strong));
+  background: color-mix(in srgb, var(--violet-dim) 35%, transparent);
+}
+.kdf-group > span {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  right: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-dim);
+  font: 700 0.75rem/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.kdf-group > small {
+  position: absolute;
+  top: 31px;
+  left: 16px;
+  right: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-faint);
+  font: 500 0.68rem/1.2 var(--mono);
+}
+.kdf-group.accent > span {
+  color: var(--accent);
+}
+.kdf-group.success > span {
+  color: var(--success);
+}
+.kdf-group.warning > span {
+  color: var(--warning);
+}
+.kdf-group.violet > span {
+  color: var(--violet);
+}
+.kdf-wires,
+.kdf-labels {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.kdf-wires {
+  z-index: 1;
+}
+.kdf-labels {
+  z-index: 4;
+}
+.kdf-edge-path {
+  fill: none;
+  stroke: var(--text-dim);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:
+    opacity 0.35s ease,
+    stroke-width 0.35s ease,
+    filter 0.35s ease;
+}
+.kdf-edge.accent .kdf-edge-path {
+  stroke: var(--accent);
+}
+.kdf-edge.success .kdf-edge-path {
+  stroke: var(--success);
+}
+.kdf-edge.warning .kdf-edge-path {
+  stroke: var(--warning);
+}
+.kdf-edge.violet .kdf-edge-path {
+  stroke: var(--violet);
+}
+.kdf-edge.dashed .kdf-edge-path {
+  stroke-dasharray: 9 7;
+}
+.kdf-edge.async .kdf-edge-path {
+  stroke-dasharray: 4 3;
+  opacity: 0.82;
+}
+.kdf-arrow-head.neutral {
+  fill: var(--text-dim);
+}
+.kdf-arrow-head.accent {
+  fill: var(--accent);
+}
+.kdf-arrow-head.success {
+  fill: var(--success);
+}
+.kdf-arrow-head.warning {
+  fill: var(--warning);
+}
+.kdf-arrow-head.violet {
+  fill: var(--violet);
+}
+.kdf-edge-marker {
+  cursor: pointer;
+  transition: opacity 0.35s ease;
+}
+.kdf-edge-marker-ring {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+  transition:
+    stroke 0.2s ease,
+    fill 0.2s ease;
+}
+.kdf-edge-marker-num {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-dim);
+}
+.kdf-edge-marker.accent .kdf-edge-marker-ring {
+  stroke: var(--accent);
+}
+.kdf-edge-marker.accent .kdf-edge-marker-num {
+  fill: var(--accent);
+}
+.kdf-edge-marker.success .kdf-edge-marker-ring {
+  stroke: var(--success);
+}
+.kdf-edge-marker.success .kdf-edge-marker-num {
+  fill: var(--success);
+}
+.kdf-edge-marker.warning .kdf-edge-marker-ring {
+  stroke: var(--warning);
+}
+.kdf-edge-marker.warning .kdf-edge-marker-num {
+  fill: var(--warning);
+}
+.kdf-edge-marker.violet .kdf-edge-marker-ring {
+  stroke: var(--violet);
+}
+.kdf-edge-marker.violet .kdf-edge-marker-num {
+  fill: var(--violet);
+}
+.kdf-edge-marker.hover .kdf-edge-marker-ring,
+.kdf-edge-marker.active .kdf-edge-marker-ring {
+  fill: var(--accent);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+.kdf-edge-marker.hover .kdf-edge-marker-num,
+.kdf-edge-marker.active .kdf-edge-marker-num {
+  fill: var(--bg);
+}
+.kdf-edge.hover .kdf-edge-path {
+  stroke-width: 3.2;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, currentcolor 30%, transparent));
+}
+
+/* Filter glyph — a subscription predicate on an async edge: a small funnel
+   + the filter text in mono microtype, same size as an edge label. Lives in
+   the labels layer (above wires), independent of the numbered-marker/legend
+   system since a filter is a predicate on the wire, not a walkthrough stop. */
+.kdf-filter {
+  pointer-events: none;
+}
+.kdf-filter-glyph {
+  fill: var(--text-dim);
+}
+.kdf-filter.accent .kdf-filter-glyph {
+  fill: var(--accent);
+}
+.kdf-filter.success .kdf-filter-glyph {
+  fill: var(--success);
+}
+.kdf-filter.warning .kdf-filter-glyph {
+  fill: var(--warning);
+}
+.kdf-filter.violet .kdf-filter-glyph {
+  fill: var(--violet);
+}
+.kdf-filter-text {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-dim);
+}
+
+/* Pulse engine — a bright 3px head + an 18px fading tail, both stroked
+   along the exact edge geometry. Painted in their own top-level layer (see
+   pulseLayer in data-flow.js) so they never inherit an edge's walkthrough
+   dim. `.on` is the only thing JS toggles for visibility; stroke-dasharray/
+   stroke-dashoffset (static or MOTION-driven) live as inline styles set at
+   creation time, per edge length. */
+.kdf-pulse-layer {
+  pointer-events: none;
+}
+.kdf-pulse-dot,
+.kdf-pulse-trail {
+  fill: none;
+  stroke-linecap: round;
+  opacity: 0;
+  pointer-events: none;
+}
+.kdf-pulse-dot.on {
+  opacity: 1;
+}
+.kdf-pulse-trail.on {
+  opacity: 0.4;
+}
+.kdf-pulse-dot {
+  stroke-width: 3.4;
+  stroke: var(--text-dim);
+}
+.kdf-pulse-trail {
+  stroke-width: 3;
+  stroke: var(--text-dim);
+  filter: blur(2px);
+}
+.kdf-pulse-dot.accent,
+.kdf-pulse-trail.accent {
+  stroke: var(--accent);
+}
+.kdf-pulse-dot.success,
+.kdf-pulse-trail.success {
+  stroke: var(--success);
+}
+.kdf-pulse-dot.warning,
+.kdf-pulse-trail.warning {
+  stroke: var(--warning);
+}
+.kdf-pulse-dot.violet,
+.kdf-pulse-trail.violet {
+  stroke: var(--violet);
+}
+.kdf-pulse-dot.accent {
+  filter: drop-shadow(0 0 5px var(--accent-dim));
+}
+.kdf-pulse-dot.success {
+  filter: drop-shadow(0 0 5px var(--success-dim));
+}
+.kdf-pulse-dot.warning {
+  filter: drop-shadow(0 0 5px var(--warning-dim));
+}
+.kdf-pulse-dot.violet {
+  filter: drop-shadow(0 0 5px var(--violet-dim));
+}
+.kdf[data-motion-preset="calm"] .kdf-pulse-dot.on {
+  opacity: 0.7;
+}
+.kdf[data-motion-preset="calm"] .kdf-pulse-trail.on {
+  opacity: 0.2;
+}
+.kdf[data-motion-preset="calm"] .kdf-pulse-dot {
+  stroke-width: 2.7;
+  filter: none;
+}
+.kdf[data-motion-preset="calm"] .kdf-pulse-trail {
+  stroke-width: 2.4;
+  filter: blur(1px);
+}
+
+.kdf[data-motion-preset="off"] .kdf-pulse-dot,
+.kdf[data-motion-preset="off"] .kdf-pulse-trail {
+  opacity: 0 !important;
+}
+.kdf-node {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
+  container-type: inline-size;
+  padding: calc(14px * var(--content-space-scale)) calc(18px * var(--content-space-scale));
+  border: 1.5px solid var(--border-strong);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--bg) 28%, transparent);
+  transition:
+    opacity 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    filter 0.35s ease;
+}
+.kdf-sketch .kdf-node {
+  border-radius: 5px 8px 6px 9px;
+  box-shadow: 0 9px 22px color-mix(in srgb, var(--bg) 24%, transparent);
+}
+.kdf-node.accent {
+  border-color: color-mix(in srgb, var(--accent) 68%, var(--border-strong));
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+}
+.kdf-node.success {
+  border-color: color-mix(in srgb, var(--success) 68%, var(--border-strong));
+  background: color-mix(in srgb, var(--surface) 92%, var(--success) 8%);
+}
+.kdf-node.warning {
+  border-color: color-mix(in srgb, var(--warning) 68%, var(--border-strong));
+  background: color-mix(in srgb, var(--surface) 94%, var(--warning) 6%);
+}
+.kdf-node.violet {
+  border-color: color-mix(in srgb, var(--violet) 68%, var(--border-strong));
+  background: color-mix(in srgb, var(--surface) 92%, var(--violet) 8%);
+}
+.kdf-canvas[data-detail]::before {
+  opacity: 0;
+}
+.kdf-canvas[data-detail] .kdf-node {
+  box-shadow: none;
+}
+.kdf-canvas[data-detail="minimal"] .kdf-node > span,
+.kdf-canvas[data-detail="minimal"] .kdf-node > small,
+.kdf-canvas[data-detail="minimal"] .kdf-group > small {
+  display: none;
+}
+.kdf-canvas[data-detail="minimal"] .kdf-node > strong {
+  margin-top: 0;
+}
+
+/* flex-shrink:0 on every direct child matters more than it looks: a flex
+   item with overflow:hidden gets an automatic min-height of 0 (not its
+   content size) per the flexbox spec, so the moment a node's text is a
+   touch taller than its box, the default shrink-to-fit silently collapses
+   the eyebrow — the smallest, least visually anchored child — to nothing,
+   with no visual clue anything is wrong (confirmed against the kit's own
+   pre-existing showcase, not something the pulse-engine work introduced). */
+.kdf-node > span {
+  flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-faint);
+  font: 700 0.66rem/1.15 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.kdf-node > strong {
+  display: block;
+  flex-shrink: 0;
+  min-width: 0;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.15;
+}
+.kdf-node > small {
+  display: block;
+  flex-shrink: 0;
+  min-width: 0;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+.kdf-node.small {
+  padding: 6px 12px;
+}
+.kdf-node.small > span {
+  font-size: 0.56rem;
+}
+.kdf-node.small > strong {
+  margin-top: 3px;
+  font-size: 0.9rem;
+  line-height: 1.1;
+}
+.kdf-node.small > small {
+  margin-top: 3px;
+  font-size: 0.68rem;
+  line-height: 1.15;
+}
+.kdf-node.hero {
+  align-items: center;
+  padding: 24px 30px;
+  text-align: center;
+}
+.kdf-node.hero > span {
+  font-size: 0.76rem;
+}
+.kdf-node.hero > strong {
+  margin-top: 10px;
+  font-size: 1.48rem;
+  line-height: 1.1;
+}
+.kdf-node.hero > small {
+  margin-top: 9px;
+  font-size: 0.88rem;
+}
+.kdf-node.accent > strong {
+  color: var(--accent);
+}
+.kdf-node.success > strong {
+  color: var(--success);
+}
+.kdf-node.warning > strong {
+  color: var(--warning);
+}
+.kdf-node.violet > strong {
+  color: var(--violet);
+}
+
+/* queue/topic — a stacked-slats glyph on the left edge reads "buffer" at a
+   glance (topic fans the same three bars 12° to read "fan-out" instead),
+   plus a pill radius. Title/sub/eyebrow/tone are untouched. */
+.kdf-node.queue,
+.kdf-node.topic {
+  border-radius: 14px;
+  padding-left: 32px;
+}
+.kdf-node.queue.small,
+.kdf-node.topic.small {
+  padding-left: 24px;
+}
+.kdf-slats {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  width: 11px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  pointer-events: none;
+}
+.kdf-node.small .kdf-slats {
+  left: 9px;
+  width: 8px;
+  gap: 2px;
+}
+.kdf-slats b {
+  display: block;
+  height: 3px;
+  border-radius: 1.5px;
+  background: var(--text-dim);
+}
+.kdf-node.small .kdf-slats b {
+  height: 2px;
+}
+.kdf-node.topic .kdf-slats b:first-child {
+  transform: rotate(-12deg);
+}
+.kdf-node.topic .kdf-slats b:last-child {
+  transform: rotate(12deg);
+}
+.kdf-node.accent .kdf-slats b {
+  background: var(--accent);
+}
+.kdf-node.success .kdf-slats b {
+  background: var(--success);
+}
+.kdf-node.warning .kdf-slats b {
+  background: var(--warning);
+}
+.kdf-node.violet .kdf-slats b {
+  background: var(--violet);
+}
+.kdf-canvas.walking .kdf-node,
+.kdf-canvas.walking .kdf-edge,
+.kdf-canvas.walking .kdf-edge-marker {
+  opacity: 0.2;
+}
+.kdf-canvas.walking .kdf-group {
+  opacity: 0.48;
+}
+.kdf-canvas.walking .kdf-node.active,
+.kdf-canvas.walking .kdf-edge.active,
+.kdf-canvas.walking .kdf-edge-marker.active,
+.kdf-canvas.walking .kdf-group.active {
+  opacity: 1;
+}
+.kdf-canvas.walking .kdf-node.active {
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent),
+    0 14px 34px color-mix(in srgb, var(--bg) 36%, transparent);
+}
+.kdf-canvas.walking .kdf-edge.active .kdf-edge-path {
+  stroke-width: 3.2;
+  stroke-dasharray: 10 8;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, currentcolor 35%, transparent));
+  animation: kdf-dash 0.75s linear infinite;
+}
+.kdf[data-motion-preset="calm"] .kdf-canvas.walking .kdf-edge.active .kdf-edge-path {
+  filter: none;
+  animation-duration: 1.3s;
+}
+.kdf[data-motion-preset="off"] .kdf-canvas.walking .kdf-edge.active .kdf-edge-path {
+  animation: none;
+}
+
+@keyframes kdf-dash {
+  to {
+    stroke-dashoffset: -36;
+  }
+}
+.kdf-walk[hidden] {
+  display: none;
+}
+.kseq-footer:has(> .kdf-walk:only-child[hidden]),
+.kstk-footer:has(> .kdf-walk:only-child[hidden]),
+.ktrace-footer:has(> .kdf-walk:only-child[hidden]) {
+  display: none;
+}
+.kdf-walk {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 22px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.kdf-dots {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.kdf-dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--border-strong);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.kdf-dot.active {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.kdf-dot.done {
+  background: var(--success);
+}
+.kdf-annotation {
+  min-width: 0;
+  min-height: 66px;
+}
+.kdf-annotation strong {
+  display: block;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.3;
+}
+.kdf-annotation p {
+  margin-top: 6px;
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.kdf-annotation code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  color: var(--accent);
+}
+.kdf-controls {
+  display: flex;
+  gap: 10px;
+}
+.kdf-controls button {
+  padding: 9px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font: 650 0.75rem/1 var(--mono);
+  cursor: pointer;
+}
+.kdf-controls button:hover:not(:disabled),
+.kdf-controls button:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+  outline: none;
+}
+.kdf-controls button:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+.kdf-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 18px;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 50%, transparent);
+}
+.kdf-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+.kdf-legend-item.dim {
+  opacity: 0.68;
+}
+.kdf-legend-item.dim.active {
+  opacity: 1;
+}
+.kdf-legend-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-dim);
+  font: 700 0.68rem/1 var(--mono);
+}
+.kdf-legend-text {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.kdf-legend-item.accent .kdf-legend-num {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.kdf-legend-item.accent .kdf-legend-text {
+  color: var(--text);
+}
+.kdf-legend-item.success .kdf-legend-num {
+  border-color: var(--success);
+  color: var(--success);
+}
+.kdf-legend-item.success .kdf-legend-text {
+  color: var(--text);
+}
+.kdf-legend-item.warning .kdf-legend-num {
+  border-color: var(--warning);
+  color: var(--warning);
+}
+.kdf-legend-item.warning .kdf-legend-text {
+  color: var(--text);
+}
+.kdf-legend-item.violet .kdf-legend-num {
+  border-color: var(--violet);
+  color: var(--violet);
+}
+.kdf-legend-item.violet .kdf-legend-text {
+  color: var(--text);
+}
+.kdf-legend-item.hover .kdf-legend-num,
+.kdf-legend-item.active .kdf-legend-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.kdf-legend-item.hover .kdf-legend-text,
+.kdf-legend-item.active .kdf-legend-text {
+  color: var(--text);
+}
+.pr-stage .kdf {
+  max-width: none;
+  margin: 0;
+  overflow: visible;
+}
+.pr-stage .kdf-node > span {
+  font-size: 0.76rem;
+}
+.pr-stage .kdf-node > strong {
+  font-size: 1.16rem;
+}
+.pr-stage .kdf-node > small {
+  font-size: 0.9rem;
+}
+.pr-stage .kdf-node.small > span {
+  font-size: 0.62rem;
+}
+.pr-stage .kdf-node.small > strong {
+  font-size: 1rem;
+}
+.pr-stage .kdf-node.small > small {
+  font-size: 0.72rem;
+}
+.pr-stage .kdf-node.hero > span {
+  font-size: 0.86rem;
+}
+.pr-stage .kdf-node.hero > strong {
+  font-size: 1.72rem;
+}
+.pr-stage .kdf-node.hero > small {
+  font-size: 1rem;
+}
+.pr-stage .kdf-group > span {
+  font-size: 0.82rem;
+}
+.pr-stage .kdf-group > small {
+  font-size: 0.76rem;
+}
+.pr-stage .kdf-edge-marker-num {
+  font-size: 15px;
+}
+.pr-stage .kdf-legend {
+  gap: 10px 20px;
+  padding: 16px 22px;
+}
+.pr-stage .kdf-legend-num {
+  width: 26px;
+  height: 26px;
+  font-size: 0.76rem;
+}
+.pr-stage .kdf-legend-text {
+  font-size: 0.92rem;
+}
+.pr-stage .kdf-annotation strong {
+  font-size: 1.14rem;
+}
+.pr-stage .kdf-annotation p {
+  font-size: 1rem;
+}
+
+@media (height >= 601px) {
+  .pr-deck .pr-slide:has(.kdf) .pr-stage {
+    width: min(1480px, calc(100vw - 96px));
+  }
+  .pr-deck .pr-slide:has(.kdf) .sec-sub {
+    display: none;
+  }
+}
+
+@media (width <= 900px) {
+  .kdf {
+    overflow-x: auto;
+  }
+  .kdf-canvas,
+  .kdf-walk,
+  .kdf-legend {
+    min-width: var(--kdf-floor, 920px);
+  }
+}
+
+@media (height <= 600px) {
+  .pr-stage:has(.kdf) .sec-sub {
+    display: none;
+  }
+  .pr-stage .kdf-canvas {
+    aspect-ratio: 1200/380 !important;
+  }
+  .pr-stage .kdf-walk {
+    display: none;
+  }
+  .pr-stage .kdf-annotation {
+    min-height: 0;
+  }
+  .pr-stage .kdf-annotation p,
+  .pr-stage .kdf-controls {
+    display: none;
+  }
+  .pr-stage .kdf-annotation strong {
+    font-size: 0.86rem;
+  }
+  .pr-stage .kdf-node {
+    padding: 6px 10px;
+  }
+  .pr-stage .kdf-node > span,
+  .pr-stage .kdf-node > small {
+    display: none;
+  }
+  .pr-stage .kdf-node > strong {
+    margin-top: 0;
+    font-size: 0.9rem;
+  }
+  .pr-stage .kdf-group > span {
+    font-size: 0.64rem;
+  }
+  .pr-stage .kdf-group > small {
+    font-size: 0.58rem;
+  }
+  .pr-stage .kdf-edge-marker-num {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kdf-canvas.walking .kdf-edge.active .kdf-edge-path {
+    animation: none;
+  }
+  .kdf-pulse-trail {
+    opacity: 0 !important;
+  }
+}
+
+/* Key-only architecture: membership is a caption, not nested tinted boxes. */
+.kdf-membership {
+  display: none;
+}
+.kdf-canvas[data-detail="minimal"] {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+.kdf-canvas[data-detail="minimal"] .kdf-group {
+  background: transparent;
+  border-color: var(--border);
+}
+.kdf-canvas[data-detail="minimal"]:not([data-layout="free"]) .kdf-group {
+  visibility: hidden;
+}
+
+/* Key only drops text and ornament, never the tone: the border, tint, and
+   title colour that say what kind of node this is stay put. */
+.kdf-canvas[data-detail="minimal"] .kdf-node {
+  border-radius: 3px;
+}
+.kdf-canvas[data-detail="minimal"]:not([data-layout="free"]) .kdf-node > .kdf-membership {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-dim);
+  font: 500 0.6rem/1.3 var(--sans);
+  letter-spacing: 0;
+  white-space: normal;
+  text-transform: none;
+}
+
+/* Auto layouts communicate domains through headings or captions; their
+   geometry cannot reuse overlapping source-coordinate boundary boxes. */
+.kdf-canvas[data-layout]:not([data-layout="free"]) .kdf-group {
+  display: none;
+}
+.kdf-stage-heading {
+  position: absolute;
+  top: 2.5%;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--text);
+}
+.kdf-stage-heading > span {
+  font: 500 11px/1 var(--mono);
+  color: var(--text-faint);
+}
+.kdf-stage-heading > strong {
+  font: 600 clamp(12px, 1.2vw, 20px)/1.3 var(--sans);
+}
+.kdf-canvas[data-layout="stages"] .kdf-membership {
+  display: none !important;
+}
+.kdf-canvas[data-layout="groups"] .kdf-node {
+  border: 0;
+  border-top: 2px solid var(--accent);
+  background: var(--surface);
+  padding: 18px;
+}
+.kdf-canvas[data-layout="groups"] .kdf-node > strong {
+  font-size: clamp(16px, 1.7vw, 28px);
+  line-height: 1.2;
+}
+.kdf-canvas[data-layout="groups"] .kdf-node > small {
+  display: block;
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-top: 10px;
+}
+.kdf-canvas[data-layout="groups"] .kdf-node > span {
+  display: block;
+  font-size: 10px;
+  color: var(--text-faint);
+}
+
+/* Node ornaments get a reserved rail, including in compact layouts. */
+.kdf-canvas[data-detail] .kdf-node:is(.queue, .topic) {
+  padding-left: 34px;
+}
+.kdf-canvas[data-detail] .kdf-node .kdf-slats {
+  left: 10px;
+  width: 10px;
+}
+.kdf-canvas[data-detail] .kdf-node > strong {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+.kdf-canvas[data-layout="groups"] .kdf-node {
+  padding: 20px;
+  border-top-width: 2px;
+  background: transparent;
+}
+.kdf-canvas[data-layout="groups"] .kdf-node > strong {
+  font-size: clamp(18px, 2vw, 32px);
+}
+.kdf-canvas[data-layout="main-flow"] .kdf-node {
+  border: 0;
+  border-left: 2px solid var(--accent);
+  background: var(--bg);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.kdf-architecture[data-detail="minimal"] .kdf-canvas[data-layout="free"] ~ .kdf-legend,
+.kdf-architecture[data-detail="minimal"] .kdf-canvas[data-layout="free"] .kdf-edge-marker {
+  display: none;
+}
+.kdf-architecture .kdf-canvas[data-layout="groups"] .kdf-node > small {
+  white-space: normal;
+  font-size: 16px;
+  line-height: 1.35;
+}
+.kdf-architecture .kdf-canvas[data-layout="groups"] .kdf-node > span {
+  font-family: var(--sans);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+/* Compact reference maps spend their box on the label, not ornaments. */
+.kdf-architecture[data-detail="minimal"] .kdf-canvas .kdf-node {
+  padding: calc(6px * var(--content-space-scale)) 8px;
+}
+.kdf-architecture[data-detail="minimal"] .kdf-canvas .kdf-node.small {
+  padding: calc(3px * var(--content-space-scale)) 8px;
+}
+.kdf-architecture[data-detail="minimal"] .kdf-slats {
+  display: none;
+}
+.kdf-architecture .kdf-canvas[data-detail="minimal"][data-layout="free"] .kdf-node > strong {
+  font-size: clamp(11px, 14cqw, 18px);
+  line-height: 1.2;
+}
+.kdf-architecture .kdf-node {
+  container-type: size;
+}
+.kdf-architecture .kdf-canvas[data-detail="minimal"][data-layout="free"] .kdf-node.small > strong {
+  font-size: clamp(10px, 65cqh, 16px);
+  line-height: 1.1;
+}
+
+.kdf-architecture .kdf-canvas[data-layout="free"] .kdf-group > span {
+  top: 4px;
+  left: 8px;
+  right: 8px;
+  font-size: clamp(9px, 2cqw, 12px);
+}
+.kdf-architecture .kdf-canvas[data-layout="free"] .kdf-node {
+  padding: 6px 8px;
+}
+.kdf-architecture .kdf-canvas[data-layout="free"] .kdf-node.small {
+  padding: 3px 8px;
+}
+.kdf-architecture .kdf-canvas[data-layout="free"] .kdf-node > :is(span, small),
+.kdf-architecture .kdf-canvas[data-layout="free"] .kdf-slats {
+  display: none;
+}
+.kdf-architecture .kdf-canvas[data-layout="free"] .kdf-node > strong {
+  margin-top: 0;
+  font-size: clamp(11px, 14cqw, 18px);
+  line-height: 1.2;
+}
+.kdf-architecture .kdf-canvas[data-layout="free"] .kdf-node.small > strong {
+  font-size: clamp(10px, 65cqh, 16px);
+  line-height: 1.1;
+}
+
+/* Role tone lives in the left bar and tint at every detail level; switching
+   Key only ↔ More detail adds or removes text, never colour. */
+.kdf-architecture .kdf-canvas[data-detail] .kdf-node {
+  border-left: 3px solid var(--kdf-role-color, var(--border-strong));
+  background: color-mix(in srgb, var(--surface) 95%, var(--kdf-role-color, var(--text)) 5%);
+}
+.kdf-architecture .kdf-canvas[data-detail] .kdf-node > strong {
+  color: var(--text);
+}
+.kdf-architecture .kdf-canvas[data-detail="contextual"][data-layout="free"] .kdf-roomy {
+  padding: calc(8px * var(--content-space-scale)) 12px;
+}
+.kdf-architecture .kdf-canvas .kdf-node.accent {
+  --kdf-role-color: var(--accent);
+}
+.kdf-architecture .kdf-canvas .kdf-node.violet {
+  --kdf-role-color: var(--violet);
+}
+.kdf-architecture .kdf-canvas .kdf-node.success {
+  --kdf-role-color: var(--success);
+}
+.kdf-architecture .kdf-canvas .kdf-node.warning {
+  --kdf-role-color: var(--warning);
+}
+.kdf-architecture
+  .kdf-canvas[data-detail="contextual"][data-layout="free"]
+  .kdf-roomy
+  > span:not(.kdf-membership) {
+  display: block;
+  color: var(--kdf-role-color, var(--text-dim));
+  font-size: 9px;
+  letter-spacing: 0.05em;
+}
+.kdf-architecture .kdf-canvas[data-detail="contextual"][data-layout="free"] .kdf-roomy > strong {
+  margin-top: 5px;
+  font-size: 18px;
+  color: var(--text);
+}
+.kdf-architecture .kdf-canvas[data-detail="contextual"][data-layout="free"] .kdf-roomy > small {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+.kdf-architecture
+  .kdf-canvas[data-detail="contextual"][data-layout="free"]
+  .kdf-roomy:is(.queue, .topic) {
+  padding-left: 30px;
+}
+.kdf-architecture .kdf-canvas[data-detail="contextual"][data-layout="free"] .kdf-roomy .kdf-slats {
+  display: flex;
+}
+.kdf-reference-notes {
+  display: none;
+}
+.kdf-architecture[data-detail="contextual"] .kdf-canvas[data-layout="groups"] .kdf-node {
+  padding: calc(12px * var(--content-space-scale));
+}
+
+.kdf-architecture[data-detail="contextual"] .kdf-reference-notes:not(:empty) {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: calc(20px * var(--content-space-scale));
+  margin-top: calc(24px * var(--content-space-scale));
+}
+.kdf-reference-note {
+  padding-top: calc(12px * var(--content-space-scale));
+  border-top: 1px solid var(--border);
+}
+.kdf-reference-note strong {
+  color: var(--text);
+  font: 600 14px/1.4 var(--sans);
+}
+.kdf-reference-note p {
+  margin-top: calc(5px * var(--content-space-scale));
+  color: var(--text-dim);
+  font: 400 13px/1.5 var(--sans);
+}
+
+/* Architecture keeps a visible engineering grammar in every presentation. */
+.kdf-architecture .kdf-canvas .kdf-node {
+  background: color-mix(in srgb, var(--surface) 84%, var(--text) 8%);
+  border: 1.5px solid color-mix(in srgb, var(--text) 32%, var(--border));
+  border-radius: 8px;
+  padding: calc(12px * var(--content-space-scale)) calc(16px * var(--content-space-scale));
+  box-shadow: none;
+}
+.kdf-architecture .kdf-canvas:not([data-layout="free"]) .kdf-node > strong {
+  color: var(--text);
+  font: 650 clamp(18px, 11cqw, 28px)/1.2 var(--sans);
+  margin-top: 0;
+}
+.kdf-architecture .kdf-canvas[data-layout="main-flow"] .kdf-node > strong {
+  font-size: 22px;
+}
+.kdf-architecture .kdf-canvas[data-layout="stages"] .kdf-node > strong {
+  font-size: clamp(10px, min(11cqw, 65cqh), 20px);
+}
+.kdf-architecture .kdf-canvas[data-layout="stages"] .kdf-node > span {
+  display: none;
+}
+.kdf-architecture .kdf-canvas[data-layout="stages"] .kdf-node > small {
+  margin-top: 4px;
+  font-size: 15px;
+  line-height: 1.2;
+}
+.kdf-architecture .kdf-canvas[data-layout="stages"] .kdf-stage-heading > strong {
+  font-size: 18px;
+}
+.kdf-architecture .kdf-canvas[data-layout="main-flow"] .kdf-node > :is(span, small),
+.kdf-architecture .kdf-canvas[data-layout="stages"] .kdf-membership {
+  display: none;
+}
+.kdf-architecture .kdf-canvas[data-layout="main-flow"] .kdf-group:not(.nested),
+.kdf-architecture .kdf-canvas[data-layout="groups"] .kdf-group:not(.nested) {
+  display: block;
+  visibility: visible;
+  border: 1px dashed color-mix(in srgb, var(--text) 35%, transparent);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
+}
+.kdf-architecture
+  .kdf-canvas[data-layout="groups"]
+  .kdf-group:not(:has(~ .kdf-group[data-parent])) {
+  background: transparent;
+}
+.kdf-architecture .kdf-canvas:not([data-layout="free"]) .kdf-group > span {
+  top: 10px;
+  left: 14px;
+  font: 600 clamp(12px, 2cqw, 18px)/1.2 var(--sans);
+  color: var(--text-dim);
+  letter-spacing: 0;
+}
+.kdf-architecture .kdf-canvas[data-layout="groups"] .kdf-node > small {
+  font: 400 clamp(12px, 6cqw, 19px)/1.5 var(--sans);
+  color: var(--text-dim);
+  margin-top: 12px;
+}
+.kdf-architecture .kdf-canvas:not([data-layout="free"]) .kdf-edge-marker {
+  display: block;
+}
+.kdf-architecture .kdf-canvas:not([data-layout="free"]) .kdf-edge-marker-ring {
+  r: 16px;
+  stroke-width: 2;
+}
+.kdf-architecture .kdf-canvas:not([data-layout="free"]) .kdf-edge-marker-num {
+  font-size: 20px;
+}
+.kdf-architecture > .kdf-legend {
+  margin-top: 8px;
+  padding: 8px 14px;
+  gap: 6px 18px;
+}
+.kdf-architecture > .kdf-legend .kdf-legend-text {
+  font-size: 1rem;
+}
+.kdf-architecture > .kdf-domain-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.kdf-architecture > .kdf-domain-legend .kdf-legend-item {
+  min-width: 0;
+}
+.kdf-architecture > .kdf-domain-legend .kdf-legend-text {
+  overflow-wrap: anywhere;
+}
+.pr-stage .kdf-architecture > .kdf-walk {
+  gap: 14px;
+  margin-top: 10px;
+  padding-top: 8px;
+}
+.pr-stage .kdf-architecture > .kdf-walk .kdf-annotation {
+  min-height: 0;
+}
+
+.kdf-architecture .kdf-canvas[data-layout="main-flow"] .kdf-node > .kdf-membership,
+.kdf-architecture .kdf-canvas[data-layout="groups"] .kdf-node > .kdf-membership {
+  display: none !important;
+}
+.kdf-architecture .kdf-canvas[data-layout="groups"] .kdf-node > span:not(.kdf-membership) {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 12px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  color: var(--accent);
+  font: 700 14px/1 var(--mono);
+}
+.kdf-architecture .kdf-canvas[data-layout="stages"] .kdf-node {
+  container-type: size;
+  padding: 2px 6px;
+}
+.kdf-architecture
+  .kdf-canvas[data-detail="contextual"][data-layout="stages"]
+  .kdf-node:is(.queue, .topic) {
+  padding-left: 30px;
+}

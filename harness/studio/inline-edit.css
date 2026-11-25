@@ -1,0 +1,116 @@
+/* Inline content editing (Studio Visual tab, see studio/inline-edit.js).
+   The hover affordance and the active-edit state are applied to kit page
+   elements, so they read the page's own theme tokens and work in every
+   style and in both [data-theme] light and dark. The floating cap counter
+   and the item toolbar sit over the page as well; the hint paragraph is
+   Studio panel chrome. */
+.st-inline-hover {
+  outline: 1px dashed var(--accent, #30d158);
+  outline-offset: 2px;
+  cursor: text;
+}
+
+.st-inline-editing {
+  outline: 2px solid var(--accent, #30d158);
+  outline-offset: 2px;
+  cursor: text;
+}
+
+/* SVG text takes no outline box in every engine, so the affordance there is
+   a dashed underline in the same accent. */
+svg .st-inline-hover,
+svg .st-inline-editing {
+  outline: 1px dashed var(--accent, #30d158);
+  outline-offset: 2px;
+  text-decoration: underline dashed var(--accent, #30d158);
+  cursor: text;
+}
+
+/* A chart draws one wide transparent hit target per row for its hover
+   readout, painted above the category caption it belongs to. While that
+   chart is armed for editing, the caption underneath has to win the
+   pointer; every other chart on the page keeps its readout. */
+.st-inline-armed .kch-hit {
+  pointer-events: none;
+}
+
+/* The floating field that edits an SVG caption in place. */
+.st-inline-svg-input {
+  position: fixed;
+  z-index: 1001;
+  box-sizing: border-box;
+  padding: 2px 6px;
+  border: 2px solid var(--accent, #30d158);
+  border-radius: 5px;
+  background: var(--surface, #14141c);
+  color: var(--text, #edeef5);
+  line-height: 1.3;
+}
+
+.st-inline-cap {
+  position: fixed;
+  z-index: 1000;
+  padding: 3px 8px;
+  border: 1px solid var(--border-strong, #3a3a54);
+  border-radius: 6px;
+  background: var(--surface, #14141c);
+  color: var(--text, #edeef5);
+  font: 500 12px/1.4 var(--mono, ui-monospace, monospace);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.st-inline-cap-over {
+  border-color: var(--warning, #ffd740);
+  color: var(--warning, #ffd740);
+}
+
+/* In-content item selection (canvas-native editing): a collection item's
+   own surface reads as clickable while its visual is armed, and the
+   selected item wears a subtle 1px outline in the page's own accent. The
+   cursor stays an I-beam over the item's text targets (st-inline-hover), so
+   "click text to edit" and "click the card to select" never blur. */
+.st-item-candidate {
+  cursor: pointer;
+}
+
+.st-item-selected {
+  outline: 1px solid var(--accent, #30d158);
+  outline-offset: 2px;
+}
+
+/* The floating toolbar of item actions, shown beside the selected item.
+   It reuses the shape toolbar's chrome (ec-shape-toolbar, composition.css)
+   and only pins its own positioning: it is fixed to the viewport and
+   recomputed from its item's box on scroll, resize, and every re-render. */
+.st-item-toolbar {
+  position: fixed;
+  z-index: 1002;
+  direction: ltr;
+}
+
+.st-item-toolbar button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.st-item-toolbar button:disabled:hover {
+  border-color: var(--st-line, #35383f);
+  color: var(--st-ink, #e9e9e5);
+}
+
+.st-item-toolbar button[data-item-action="remove"]:hover:not(:disabled) {
+  border-color: rgb(255 95 95);
+  color: rgb(255 95 95);
+}
+
+.st-inline-hint {
+  margin: 2px 0 10px;
+  padding: 8px 10px;
+  border-left: 3px solid #30d158;
+  border-radius: 4px;
+  background: rgb(48 209 88 / 10%);
+  color: #d7e7dc;
+  font-size: 12.5px;
+  line-height: 1.45;
+}

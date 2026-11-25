@@ -1,0 +1,296 @@
+/* Structured component editor. It inherits Studio's color tokens and keeps
+   nested component data legible without turning the inspector into a JSON UI. */
+.ece-editor {
+  --ece-ink: var(--st-ink, #e9e9e5);
+  --ece-muted: var(--st-muted, #a1a5ad);
+  --ece-line: var(--st-line, #35383f);
+  --ece-accent: var(--st-accent, #b9d6c2);
+  --ece-surface: #15181c;
+  --ece-surface-raised: #202329;
+  --ece-danger: #f0a3a3;
+
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  color: var(--ece-ink);
+  color-scheme: dark;
+}
+
+.ece-title,
+.ece-list h4 {
+  margin: 0;
+  font: 650 12px/1.25 var(--sans, ui-sans-serif, system-ui, sans-serif);
+  letter-spacing: 0.01em;
+}
+
+.ece-status,
+.ece-empty,
+.ece-muted {
+  margin: 0;
+  color: var(--ece-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.ece-object {
+  display: grid;
+  gap: 9px;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--ece-line);
+  border-radius: 7px;
+  padding: 9px;
+}
+
+.ece-object > legend {
+  padding: 0 4px;
+  color: var(--ece-muted);
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.ece-root-object {
+  border: 0;
+  padding: 0;
+}
+
+.ece-invalid {
+  color: var(--ece-danger);
+}
+
+.ece-field {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.ece-label {
+  color: var(--ece-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ece-control {
+  appearance: none;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 30px;
+  border: 1px solid var(--ece-line);
+  border-radius: 5px;
+  background: var(--ece-surface);
+  color: var(--ece-ink);
+  font: 400 12px/1.35 var(--sans, ui-sans-serif, system-ui, sans-serif);
+  padding: 6px 8px;
+}
+
+select.ece-control {
+  padding-right: 30px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ece-muted) 50%),
+    linear-gradient(135deg, var(--ece-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 16px) 50%,
+    calc(100% - 12px) 50%;
+  background-size: 4px 4px;
+  background-repeat: no-repeat;
+}
+
+.ece-control:hover {
+  border-color: color-mix(in srgb, var(--ece-muted) 70%, var(--ece-line));
+}
+
+.ece-control:focus-visible,
+.ece-button:focus-visible,
+.ece-icon:focus-visible {
+  outline: 2px solid var(--ece-accent);
+  outline-offset: 2px;
+}
+
+textarea.ece-control {
+  resize: vertical;
+}
+
+input[type="color"].ece-control {
+  height: 32px;
+  padding: 3px;
+}
+
+.ece-check {
+  width: 16px;
+  height: 16px;
+  margin: 1px 0;
+  accent-color: var(--ece-accent);
+}
+
+.ece-list {
+  display: grid;
+  min-width: 0;
+  border-top: 1px solid var(--ece-line);
+  padding-top: 2px;
+}
+
+/* An auto grid track grows to its widest row's min-content, and a row whose
+   name does not wrap reports its whole text there — which pushed the item
+   rows past the panel edge and clipped their action buttons. Capping the
+   track at the container width makes the name truncate instead. */
+.ece-editor,
+.ece-object,
+.ece-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ece-list-heading,
+.ece-list-toolbar,
+.ece-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ece-list-heading {
+  justify-content: space-between;
+  min-height: 42px;
+  color: var(--ece-ink);
+  cursor: pointer;
+  list-style: none;
+}
+
+.ece-list-heading::-webkit-details-marker,
+.ece-list-item > summary::-webkit-details-marker {
+  display: none;
+}
+
+.ece-list-heading::after,
+.ece-list-item > summary::after {
+  content: "›";
+  margin-left: auto;
+  color: var(--ece-muted);
+  font-size: 17px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.ece-list[open] > .ece-list-heading::after,
+.ece-list-item[open] > summary::after {
+  transform: rotate(90deg);
+}
+
+.ece-list-toolbar {
+  justify-content: flex-end;
+  padding: 4px 0 8px;
+}
+
+.ece-list-item {
+  display: grid;
+  min-width: 0;
+  margin: 0 0 6px;
+  border: 1px solid var(--ece-line);
+  border-radius: 5px;
+  background: var(--ece-surface);
+  overflow: clip;
+}
+
+.ece-list-item > summary {
+  display: flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 10px;
+  color: var(--ece-ink);
+  cursor: pointer;
+  list-style: none;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ece-list-item[open] > summary {
+  border-bottom: 1px solid var(--ece-line);
+  background: var(--ece-surface-raised);
+}
+
+.ece-actions {
+  justify-content: flex-end;
+  padding: 8px 8px 0;
+}
+
+.ece-list-item > :not(summary, .ece-actions) {
+  margin: 8px;
+}
+
+.ece-button,
+.ece-icon {
+  min-height: 28px;
+  border: 1px solid var(--ece-line);
+  border-radius: 5px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: 600 11px/1 var(--sans, ui-sans-serif, system-ui, sans-serif);
+  padding: 0 8px;
+}
+
+.ece-icon {
+  min-height: 24px;
+  color: var(--ece-muted);
+  font-size: 10px;
+  padding: 0 6px;
+}
+
+.ece-button:hover:not(:disabled),
+.ece-icon:hover:not(:disabled) {
+  border-color: var(--ece-accent);
+  color: var(--ece-accent);
+}
+
+.ece-danger:hover:not(:disabled) {
+  border-color: var(--ece-danger);
+  color: var(--ece-danger);
+}
+
+.ece-button:disabled,
+.ece-icon:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* A covered collection's collapsed row (see the skipPath seam): the item name
+   plus its Duplicate/Move/Remove buttons on one line, no per-item fields. */
+.ece-compact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  border: 1px solid var(--ece-line);
+  border-radius: 5px;
+  background: var(--ece-surface);
+  padding: 6px 10px;
+}
+
+.ece-compact-head {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ece-ink);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ece-compact-item .ece-actions {
+  flex-shrink: 0;
+  gap: 3px;
+  padding: 0;
+}
+
+/* Fixed-width icon buttons: the four-item action group keeps one constant
+   width whatever the item is, so the row can never push past the panel and
+   clip its buttons — the item name truncates instead. */
+.ece-icon-fixed {
+  width: 24px;
+  min-width: 24px;
+  box-sizing: border-box;
+  padding: 0;
+  font-size: 12px;
+  text-align: center;
+}

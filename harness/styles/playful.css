@@ -1,0 +1,73 @@
+/* ── Style: playful / vivid ────────────────────────────────────────────
+   Saturated accents, rounded geometry, livelier orbs. Same honesty
+   rules as every other style — vivid is a palette, not a register.
+   default-theme: dark */
+:root {
+  color-scheme: dark;
+
+  --bg: #0a0614;
+  --surface: #140e22;
+  --surface-hover: #1b1330;
+  --border: #2c2246;
+  --border-strong: #413364;
+  --text: #f2edfa;
+  --text-dim: #a89fc2;
+  --text-faint: #8c82a8;
+  --accent: #ff2d95;
+  --accent-dim: #ff2d9533;
+  --success: #2dffb3;
+  --success-dim: #2dffb322;
+  --error: #ff5252;
+  --error-dim: #ff525222;
+  --warning: #ffc53d;
+  --warning-dim: #ffc53d22;
+  --violet: #7c4dff;
+  --violet-dim: #7c4dff2e;
+  --mono: "SF Mono", "Fira Code", ui-monospace, sfmono-regular, menlo, monaco, consolas, monospace;
+  --sans: "Inter", -apple-system, blinkmacsystemfont, "Segoe UI", roboto, sans-serif;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* scale knobs — expressive but still one idea at a time */
+  --fs-display: clamp(3.2rem, 8.8vw, 7.6rem);
+  --fs-claim: clamp(2.4rem, 5.8vw, 4.8rem);
+  --fs-sec: clamp(1.9rem, 4vw, 3.3rem);
+  --fs-lede: clamp(1.1rem, 1.8vw, 1.42rem);
+  --fs-body: 1.04rem;
+  --fs-detail: 0.92rem;
+  --measure: 56ch;
+  --radius: 10px;
+  --orb-opacity: 0.75;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #fdf9ff;
+  --surface: #fff;
+  --surface-hover: #f8f2fc;
+  --border: #ecdff5;
+  --border-strong: #d7c2e8;
+  --text: #180d24;
+  --text-dim: #5e5272;
+  --text-faint: #83778f;
+  --accent: #d1006c;
+  --accent-dim: #d1006c16;
+  --success: #008a55;
+  --success-dim: #008a5516;
+  --error: #c62828;
+  --error-dim: #c6282816;
+  --warning: #9a6b00;
+  --warning-dim: #9a6b0016;
+  --violet: #5e35b1;
+  --violet-dim: #5e35b116;
+}
+
+/* playful flourish: two-tone display headline */
+body[data-style="playful"] .display em {
+  background: linear-gradient(100deg, var(--accent), var(--violet));
+  /* stylelint-disable-next-line property-no-vendor-prefix -- Safari before 15.5 needs it. */
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

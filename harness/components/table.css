@@ -1,0 +1,1438 @@
+/* component: table — the one tabular device. Five modes share one hairline
+   weight (ledger's baseline): rows (+ an optional inline dot-spectrum cell),
+   before-after (the reinvented flip), compare (a butterfly map), grid
+   (calmer tiles), chips (chips DNA, per-chip tone). */
+.kt {
+  margin-top: calc(8px * var(--content-space-scale));
+}
+
+/* ── shared: legend + group header (verbatim ledger treatment) ── */
+.kt-legend {
+  display: inline-flex;
+  gap: calc(22px * var(--content-space-scale));
+  margin-bottom: calc(6px * var(--content-space-scale));
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  flex-wrap: wrap;
+}
+.kt-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8px * var(--content-space-scale));
+}
+.kt-legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.kt-group {
+  display: flex;
+  align-items: center;
+  gap: calc(9px * var(--content-space-scale));
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: calc(28px * var(--content-space-scale)) 0 calc(10px * var(--content-space-scale));
+  border-bottom: 1px solid var(--border);
+}
+.kt-group:first-child {
+  padding-top: 0;
+}
+.kt-group i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.kt-group i.done {
+  background: var(--success);
+  box-shadow: 0 0 7px var(--success-dim);
+}
+.kt-group i.progress {
+  background: var(--warning);
+  box-shadow: 0 0 7px var(--warning-dim);
+}
+.kt-group i.next {
+  background: var(--accent);
+  box-shadow: 0 0 7px var(--accent-dim);
+}
+.kt-group i.gap {
+  background: var(--error);
+  box-shadow: 0 0 7px var(--error-dim);
+}
+
+/* ── reveal states: shared by rows/grid/chips/compare (chart.js's
+   kch-off/kch-pre pattern, this component's kt- prefix) ── */
+.kt-item {
+  transition:
+    opacity 0.5s ease,
+    transform 0.6s var(--ease-out-expo);
+}
+.kt-off {
+  opacity: 0;
+  visibility: hidden;
+}
+.kt-pre {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-item {
+    transition: none;
+  }
+}
+
+/* ══ rows mode — the ledger baseline ══ */
+.kt-row {
+  display: flex;
+  align-items: baseline;
+  gap: calc(16px * var(--content-space-scale));
+  padding: calc(13px * var(--content-space-scale)) 2px;
+  border-bottom: 1px solid var(--border);
+  border-radius: 7px;
+  transition:
+    background 0.25s ease,
+    opacity 0.5s ease,
+    transform 0.6s var(--ease-out-expo);
+}
+.kt-row:hover {
+  background: color-mix(in srgb, var(--surface-hover) 62%, transparent);
+}
+.kt-num {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--text-faint);
+  min-width: 26px;
+  transition: color 0.25s ease;
+}
+.kt-row:hover .kt-num {
+  color: var(--accent);
+}
+.kt-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+.kt-title code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  color: var(--accent);
+}
+.kt-sub {
+  font-size: 0.84rem;
+  color: var(--text-dim);
+  line-height: 1.5;
+  min-width: 0;
+}
+.kt-sub code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  color: var(--accent);
+}
+.kt-end {
+  margin-left: auto;
+  padding-left: calc(12px * var(--content-space-scale));
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(14px * var(--content-space-scale));
+}
+.kt-ref {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+}
+
+/* an explicit row tone: a small glowing dot ahead of the number/title —
+   absent by default (ledger stays plain unless a row deliberately tones) */
+.kt-row.has-tone::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kt-tone);
+  box-shadow: 0 0 7px var(--kt-tone-dim);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* Briefing turns the same measurements into a stage-readable executive scan. */
+.kt-briefing-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: calc(12px * var(--content-space-scale));
+  padding: calc(12px * var(--content-space-scale)) 0 calc(22px * var(--content-space-scale));
+}
+.kt-briefing-row {
+  display: grid;
+  gap: calc(18px * var(--content-space-scale));
+  min-height: 118px;
+  padding: calc(20px * var(--content-space-scale));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+}
+.kt-briefing-row::before {
+  content: "";
+  width: 28px;
+  height: 2px;
+  background: var(--kt-tone, var(--accent));
+}
+.kt-briefing-title {
+  color: var(--text);
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+}
+.kt-briefing-measure {
+  align-self: end;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+.kt-briefing-row:has(.kt-briefing-measure:not(:empty)) .kt-briefing-measure {
+  color: var(--text);
+}
+.kt-briefing-scale {
+  margin: 0;
+  color: var(--text-faint);
+  font: 0.62rem/1.4 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* dots cell — an inline dotplot spectrum read across rows: the words sit in a
+   fixed-width column on the left so every track shares an origin, and the
+   spectrum fills the rest. The column is a percentage rather than the title's
+   own width, because a longer title must not shift where its value lands. */
+.kt-row.has-dots {
+  gap: calc(20px * var(--content-space-scale));
+  align-items: center;
+}
+.kt-label {
+  flex: 0 0 38%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(4px * var(--content-space-scale));
+}
+.kt-label .kt-title {
+  white-space: normal;
+}
+.kt-dots-cell {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: calc(10px * var(--content-space-scale));
+}
+.kt-dot-end {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+.kt-dot-track {
+  position: relative;
+  flex: 1;
+  min-width: 56px;
+  height: 20px;
+}
+.kt-dot-track::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--border);
+}
+.kt-dot-track::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 8px;
+  background: var(--border-strong);
+}
+.kt-dot-tick {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 8px;
+  background: var(--border-strong);
+}
+.kt-dot-marker {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--kt-tone, var(--accent));
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 9px var(--kt-tone-dim, var(--accent-dim));
+}
+
+@media (width <= 720px) {
+  .kt-row {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* the desktop rule centres a one-line label against its track; once the row
+     stacks, centring drags the number and tone dot into the middle while every
+     other row keeps them left */
+  .kt-row.has-dots {
+    gap: 6px;
+    align-items: stretch;
+  }
+  .kt-label {
+    flex: none;
+    width: 100%;
+  }
+  .kt-title {
+    white-space: normal;
+  }
+  .kt-end {
+    margin-left: 0;
+    padding-left: 0;
+  }
+  .kt-dots-cell {
+    width: 100%;
+  }
+}
+
+/* ══ grid mode — tiles DNA as real cards: header weight, depth, vivid tone ══ */
+
+/* The card set owns this class, NOT the host: the host carries the mode
+   marker .kt-grid, so styling that name laid the grid out on the host and
+   turned group labels and card sets into grid cells — labels in their own
+   column, cards one-wide and stretched to the row (2026-08-09). Cards are
+   content-height (align-items:start) and capped so three of them never
+   balloon across a 1400px stage. */
+.kt-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 240px));
+  justify-content: start;
+  align-items: start;
+  gap: calc(14px * var(--content-space-scale));
+  margin-top: calc(8px * var(--content-space-scale));
+}
+
+/* the card: a hairline-weight tile with a clearer header band, subtle
+   resting shadow, and a min-height that keeps with-sub and without-sub
+   cards visually balanced (sub pins to the foot via margin-top:auto). */
+.kt-card {
+  position: relative;
+  overflow: hidden;
+  padding: calc(20px * var(--content-space-scale)) calc(18px * var(--content-space-scale))
+    calc(18px * var(--content-space-scale));
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: calc(8px * var(--content-space-scale));
+  min-height: 88px;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--bg) 18%, transparent);
+  transition:
+    transform 0.3s var(--ease-out-expo),
+    border-color 0.3s ease,
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    opacity 0.5s ease;
+}
+.kt-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--bg) 28%, transparent);
+}
+
+/* a faint top edge-bar reads as the card's header accent — tone colors
+   tint it; neutral stays hairline. Sits above the title for hierarchy. */
+.kt-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  border-radius: 5px 5px 0 0;
+  background: var(--border);
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.kt-card-title {
+  font-family: var(--sans);
+  font-size: 1.06rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.kt-card-sub {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  line-height: 1.4;
+  margin-top: auto;
+}
+.kt-card.cat-accent {
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border));
+}
+.kt-card.cat-accent::before {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-dim);
+}
+.kt-card.cat-accent:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.kt-card.cat-violet {
+  border-color: color-mix(in srgb, var(--violet) 32%, var(--border));
+}
+.kt-card.cat-violet::before {
+  background: var(--violet);
+  box-shadow: 0 0 8px var(--violet-dim);
+}
+.kt-card.cat-violet:hover {
+  border-color: var(--violet);
+  background: color-mix(in srgb, var(--violet) 10%, var(--surface));
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--violet) 18%, transparent);
+}
+.kt-card.cat-success {
+  border-color: color-mix(in srgb, var(--success) 32%, var(--border));
+}
+.kt-card.cat-success::before {
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success-dim);
+}
+.kt-card.cat-success:hover {
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 10%, var(--surface));
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--success) 18%, transparent);
+}
+.kt-card.cat-warning {
+  border-color: color-mix(in srgb, var(--warning) 32%, var(--border));
+}
+.kt-card.cat-warning::before {
+  background: var(--warning);
+  box-shadow: 0 0 8px var(--warning-dim);
+}
+.kt-card.cat-warning:hover {
+  border-color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 10%, var(--surface));
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--warning) 18%, transparent);
+}
+.kt-card.cat-error {
+  border-color: color-mix(in srgb, var(--error) 32%, var(--border));
+}
+.kt-card.cat-error::before {
+  background: var(--error);
+  box-shadow: 0 0 8px var(--error-dim);
+}
+.kt-card.cat-error:hover {
+  border-color: var(--error);
+  background: color-mix(in srgb, var(--error) 10%, var(--surface));
+  box-shadow: 0 12px 26px color-mix(in srgb, var(--error) 18%, transparent);
+}
+.kt-card.cat-neutral::before {
+  background: var(--border-strong);
+}
+.kt-card.cat-neutral:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+@media (width <= 720px) {
+  .kt-cards {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+}
+
+/* ══ chips mode — chips DNA verbatim, tone per chip ══ */
+.kt-chips-row {
+  margin-top: calc(12px * var(--content-space-scale));
+  margin-bottom: calc(20px * var(--content-space-scale));
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(6px * var(--content-space-scale));
+}
+.kt-chip {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  padding: calc(5px * var(--content-space-scale)) calc(10px * var(--content-space-scale));
+  border-radius: 6px;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: calc(8px * var(--content-space-scale));
+  min-height: 28px;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    opacity 0.5s ease;
+}
+.kt-chip:hover {
+  transform: translateY(-1px);
+}
+.kt-chip.success {
+  background: color-mix(in srgb, var(--success) 9%, transparent);
+}
+.kt-chip.accent {
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+.kt-chip.violet {
+  background: color-mix(in srgb, var(--violet) 9%, transparent);
+}
+.kt-chip.warning {
+  background: color-mix(in srgb, var(--warning) 9%, transparent);
+}
+.kt-chip.error {
+  background: color-mix(in srgb, var(--error) 9%, transparent);
+}
+.kt-chip.neutral {
+  background: var(--surface);
+}
+.kt-chip.accent:hover {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.kt-chip.success:hover {
+  background: color-mix(in srgb, var(--success) 16%, transparent);
+}
+.kt-chip.violet:hover {
+  background: color-mix(in srgb, var(--violet) 16%, transparent);
+}
+.kt-chip.warning:hover {
+  background: color-mix(in srgb, var(--warning) 16%, transparent);
+}
+.kt-chip.error:hover {
+  background: color-mix(in srgb, var(--error) 16%, transparent);
+}
+.kt-chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.kt-chip-dot.success {
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success-dim);
+}
+.kt-chip-dot.accent {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-dim);
+}
+.kt-chip-dot.violet {
+  background: var(--violet);
+  box-shadow: 0 0 8px var(--violet-dim);
+}
+.kt-chip-dot.warning {
+  background: var(--warning);
+  box-shadow: 0 0 8px var(--warning-dim);
+}
+.kt-chip-dot.error {
+  background: var(--error);
+  box-shadow: 0 0 8px var(--error-dim);
+}
+.kt-chip-dot.neutral {
+  background: var(--text-dim);
+}
+
+/* ══ compare mode — shared-concern index + two stable subject columns ══
+   The concern is a scanning aid, not a pill. Missing coverage stays explicit
+   at full text size on an inset, full-height surface. */
+.kt-compare {
+  --kt-cmp-concern-bg: color-mix(in srgb, var(--accent) 3%, var(--surface));
+  --kt-cmp-concern-rule: color-mix(in srgb, var(--accent) 52%, var(--border));
+}
+
+[data-theme="dark"] .kt-compare {
+  --kt-cmp-concern-bg: color-mix(in srgb, var(--surface) 88%, var(--text) 12%);
+  --kt-cmp-concern-rule: color-mix(in srgb, var(--accent) 34%, var(--border-strong));
+}
+.kt-cmp {
+  margin-top: calc(16px * var(--content-space-scale));
+  border-top: 2px solid var(--text);
+}
+.kt-cmp-head,
+.kt-cmp-row {
+  display: grid;
+  grid-template-columns: 230px 1fr 1fr;
+  gap: 0;
+  align-items: center;
+}
+.kt-cmp-head {
+  margin: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-strong);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.kt-cmp-head > * {
+  padding: calc(14px * var(--content-space-scale)) calc(18px * var(--content-space-scale));
+}
+.kt-cmp-mid {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: left;
+  color: var(--text-dim);
+}
+.kt-cmp-h:first-child {
+  grid-column: 2;
+  grid-row: 1;
+  text-align: left;
+  border-left: 1px solid var(--border);
+  color: var(--violet);
+}
+.kt-cmp-h.right {
+  grid-column: 3;
+  grid-row: 1;
+  text-align: left;
+  border-left: 1px solid var(--border);
+  color: var(--accent);
+}
+.kt-cmp-row {
+  min-height: 68px;
+  padding: 0;
+  border-bottom: 1px solid var(--border);
+  transition:
+    background 0.25s ease,
+    opacity 0.5s ease,
+    transform 0.6s var(--ease-out-expo);
+}
+.kt-cmp-row:nth-child(odd) {
+  background: color-mix(in srgb, var(--surface) 44%, transparent);
+}
+.kt-cmp-row:hover {
+  background: color-mix(in srgb, var(--surface-hover) 55%, transparent);
+}
+
+/* The tint stops just short of the next column's rule (margin-right) so a
+   high-contrast concern fill cannot read as bleeding into the comparison
+   cells — close enough to stay one table, clear of the divider — and it
+   carries its own bottom rule: the row's border-bottom sits behind this fill
+   and disappears against it, leaving column 1 as one undivided block. */
+.kt-cmp-concern {
+  grid-column: 1;
+  grid-row: 1;
+  place-self: stretch stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: none;
+  padding: calc(14px * var(--content-space-scale)) calc(18px * var(--content-space-scale));
+  margin-right: 4px;
+  border: 0;
+  border-radius: 0;
+  background: var(--kt-cmp-concern-bg);
+  box-shadow:
+    inset 2px 0 var(--kt-cmp-concern-rule),
+    inset 0 -1px var(--border-strong);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  font-weight: 620;
+  letter-spacing: 0.025em;
+  line-height: 1.4;
+  text-align: left;
+  text-transform: uppercase;
+}
+.kt-cmp-note {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 0.82em;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.kt-cmp-cell {
+  display: flex;
+  align-items: center;
+  padding: calc(16px * var(--content-space-scale)) calc(18px * var(--content-space-scale));
+  border-left: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.96rem;
+  line-height: 1.5;
+  text-align: left;
+}
+.kt-cmp-left {
+  grid-column: 2;
+  grid-row: 1;
+}
+.kt-cmp-right {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+/* the missing-coverage placeholder lives in the DOM (a .kt-cmp-missing span
+   emitted by renderTable), not in generated content, so screen readers and
+   copy/paste both carry it */
+.kt-cmp-cell.kt-cmp-empty {
+  position: relative;
+  background: transparent;
+  color: var(--text);
+  font-weight: 600;
+}
+.kt-cmp-cell.kt-cmp-empty::before {
+  content: "";
+  position: absolute;
+  inset: 0 4px;
+  border: 1px solid var(--border);
+  background: var(--surface-hover);
+}
+.kt-cmp-missing {
+  position: relative;
+  z-index: 1;
+  color: inherit;
+  font-family: var(--sans);
+  font-size: inherit;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Criterion reading keeps both subject answers inside one bounded record,
+   useful when the concern and its note should lead the audience's scan. */
+.kt-cmp-criteria {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(24px * var(--content-space-scale)) calc(36px * var(--content-space-scale));
+  margin-top: calc(16px * var(--content-space-scale));
+}
+.kt-cmp-criterion {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--border-strong);
+  overflow: hidden;
+}
+.kt-cmp-criterion.subject {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--border));
+}
+.kt-cmp-criterion-head,
+.kt-cmp-answer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: calc(5px * var(--content-space-scale));
+  min-width: 0;
+  padding: calc(16px * var(--content-space-scale));
+}
+.kt-cmp-criterion-head {
+  grid-column: 1 / -1;
+  padding-left: 0;
+}
+.kt-cmp-criterion-title {
+  color: var(--text);
+  font: 600 1rem/1.4 var(--sans);
+}
+.kt-cmp-answer {
+  border-left: 1px solid var(--border);
+}
+.kt-cmp-answer-subject {
+  color: var(--text-faint);
+  font: 0.6rem/1.2 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.kt-cmp-answer-value {
+  color: var(--text);
+  font-size: 0.96rem;
+  line-height: 1.5;
+}
+.kt-cmp-answer.kt-cmp-empty {
+  background: var(--surface-hover);
+  color: var(--text-dim);
+}
+
+/* floor breakpoint aligned to 900px — the kdf/kf/chart convention — so
+   721-900px (previously unprotected) also gets the scroll floor instead of
+   shrinking uncontrolled. */
+@media (width <= 900px) {
+  .kt-compare {
+    overflow-x: auto;
+  }
+  .kt-cmp {
+    min-width: 560px;
+  }
+  .kt-cmp-head,
+  .kt-cmp-row {
+    grid-template-columns: 170px minmax(195px, 1fr) minmax(195px, 1fr);
+  }
+  .kt-cmp-criterion {
+    grid-template-columns: 1fr;
+  }
+  .kt-cmp-answer {
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+}
+.pr-stage .kt-compare {
+  overflow: visible;
+}
+.pr-stage .kt-cmp {
+  min-width: 0;
+}
+.pr-stage .kt-cmp-head,
+.pr-stage .kt-cmp-row {
+  grid-template-columns: 230px 1fr 1fr;
+}
+
+/* ══ specs mode — the chip-launch spec-comparison strip ══
+   Subjects as a sticky-feeling (visual weight, not position:sticky — the
+   Present stage scales its ancestor, which sticky doesn't survive) header
+   row; label column left, numeric cells mono/tabular-nums/centered, one
+   winner cell per row wearing the accent — never bold, the color does it. */
+.kt-specs {
+  margin-top: 16px;
+}
+.kt-specs-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.3fr) repeat(var(--kt-specs-cols), minmax(64px, 1fr));
+  gap: 0 16px;
+  align-items: center;
+  padding: 13px 2px;
+  border-bottom: 1px solid var(--border);
+}
+.kt-specs-head {
+  padding: 0 2px 14px;
+  border-bottom: 1px solid var(--border-strong);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--surface) 70%, transparent),
+    transparent
+  );
+}
+.kt-specs-subject {
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text);
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+.kt-specs-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.kt-specs-label-text {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.kt-specs-label-text code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  color: var(--accent);
+}
+.kt-specs-sub {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.kt-specs-cell {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--text);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+.kt-specs-cell.dim {
+  color: var(--text-faint);
+}
+
+/* the winner: color + soft glow only — chart's kch-tone-accent grammar,
+   read through this component's --kt-tone/--kt-tone-dim pairing */
+.kt-specs-cell.winner {
+  color: var(--kt-tone, var(--accent));
+  text-shadow: 0 0 8px var(--kt-tone-dim, var(--accent-dim));
+  font-weight: 400;
+}
+.kt-specs-cell.winner.kt-pop {
+  animation: kt-pop 0.5s var(--ease-out-expo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-specs-cell.winner.kt-pop {
+    animation: none !important;
+  }
+}
+
+/* floor breakpoint aligned to 900px — see .kt-compare above */
+@media (width <= 900px) {
+  .kt-specs {
+    overflow-x: auto;
+  }
+  .kt-specs-row {
+    grid-template-columns: minmax(120px, 1fr) repeat(var(--kt-specs-cols), minmax(60px, auto));
+    min-width: max-content;
+  }
+}
+.pr-stage .kt-specs-row {
+  grid-template-columns: minmax(180px, 1.3fr) repeat(var(--kt-specs-cols), minmax(90px, 1fr));
+}
+
+/* Specification sections use only authored groups. Unlabelled input remains
+   one clear record set; no category names or subject priority are inferred. */
+.kt-spec-sections {
+  display: grid;
+  gap: calc(20px * var(--content-space-scale));
+  margin-top: calc(12px * var(--content-space-scale));
+}
+.kt-spec-section {
+  min-width: 0;
+}
+.kt-spec-section > .kt-group {
+  padding-top: 0;
+}
+.kt-spec-records {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: calc(12px * var(--content-space-scale));
+  padding-top: calc(12px * var(--content-space-scale));
+}
+.kt-spec-record {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  gap: calc(14px * var(--content-space-scale));
+  padding: calc(18px * var(--content-space-scale)) 0;
+  border-top: 1px solid var(--border-strong);
+}
+.kt-spec-record-head {
+  display: flex;
+  flex-direction: column;
+  gap: calc(3px * var(--content-space-scale));
+  padding-bottom: calc(10px * var(--content-space-scale));
+  border-bottom: 1px solid var(--border);
+}
+.kt-spec-record-values {
+  display: grid;
+  gap: calc(8px * var(--content-space-scale));
+}
+.kt-spec-record-value {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
+  gap: calc(12px * var(--content-space-scale));
+  align-items: baseline;
+}
+.kt-spec-record-subject {
+  overflow-wrap: anywhere;
+  color: var(--text-faint);
+  font: 0.62rem/1.3 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.kt-spec-record-reading {
+  overflow-wrap: anywhere;
+  color: var(--text);
+  font: 0.9rem/1.4 var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+.kt-spec-record-value.winner .kt-spec-record-reading {
+  overflow-wrap: anywhere;
+  color: var(--kt-tone, var(--accent));
+  text-shadow: 0 0 8px var(--kt-tone-dim, var(--accent-dim));
+}
+.kt-spec-record-value.dim .kt-spec-record-reading {
+  overflow-wrap: anywhere;
+  color: var(--text-faint);
+}
+
+/* ══ before-after mode — the reinvented flip (the artistic core) ══
+   One line: [edge-bar] [marker] title · state-text [ghost] [flag].
+   Dim before → lit after, a struck ghost of the claim it replaced. */
+.kt-ba-row {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: calc(13px * var(--content-space-scale)) 2px calc(13px * var(--content-space-scale))
+    calc(16px * var(--content-space-scale));
+  margin: 0;
+  font: inherit;
+  border-radius: 7px;
+  transition: background 0.25s ease;
+}
+.kt-ba-row:hover {
+  background: color-mix(in srgb, var(--surface-hover) 55%, transparent);
+}
+.kt-ba-row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.kt-ba-edge {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 3px;
+  border-radius: 2px;
+  background: transparent;
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.kt-ba-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1.5px solid var(--text-faint);
+  margin-right: 12px;
+  vertical-align: middle;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+.kt-ba-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-faint);
+  transition: color 0.3s ease;
+}
+.kt-ba-title code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+}
+.kt-ba-sep {
+  margin: 0 10px;
+  color: var(--text-faint);
+  font-size: 0.85rem;
+}
+
+/* both texts share one grid cell — the cell sizes to the wider of the two,
+   so a short "after" doesn't get clipped and a long one never overlaps
+   what follows (the flag, the ghost line) */
+.kt-ba-state {
+  display: inline-grid;
+  align-items: center;
+  vertical-align: middle;
+}
+.kt-ba-before-text,
+.kt-ba-after-text {
+  grid-area: 1/1;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+.kt-ba-before-text {
+  color: var(--text-faint);
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.kt-ba-after-text {
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.24s var(--ease-out-expo),
+    transform 0.24s var(--ease-out-expo);
+}
+.kt-ba-ghost {
+  display: block;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text-faint);
+  text-decoration: line-through;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease 0.1s;
+  margin-left: 0;
+}
+.kt-ba-row .flag {
+  margin-left: 12px;
+  vertical-align: middle;
+  transform: scale(1);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* flipped state */
+@keyframes kt-pop {
+  0% {
+    transform: scale(0.2);
+  }
+  60% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes kt-stamp {
+  0% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.kt-ba-row.kt-flip .kt-ba-edge {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent-dim);
+}
+.kt-ba-row.kt-flip .kt-ba-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  animation: kt-pop 0.5s var(--ease-out-expo);
+}
+.kt-ba-row.kt-flip .kt-ba-title {
+  color: var(--text);
+}
+.kt-ba-row.kt-flip .kt-ba-before-text {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.kt-ba-row.kt-flip .kt-ba-after-text {
+  opacity: 1;
+  transform: translateY(0);
+}
+.kt-ba-row.kt-flip .kt-ba-ghost {
+  opacity: 0.45;
+  max-height: 2em;
+}
+.kt-ba-row.kt-flip .flag {
+  opacity: 1;
+  animation: kt-stamp 0.18s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kt-ba-edge,
+  .kt-ba-dot,
+  .kt-ba-title,
+  .kt-ba-before-text,
+  .kt-ba-after-text,
+  .kt-ba-ghost,
+  .kt-ba-row .flag {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Parallel reading keeps each authored pair visible at once, aligned under
+   stable Before and After columns. */
+.kt-ba-parallel {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.65fr) repeat(2, minmax(0, 1fr)) auto;
+  column-gap: calc(18px * var(--content-space-scale));
+  margin-top: calc(12px * var(--content-space-scale));
+  border-top: 2px solid var(--text);
+}
+.kt-ba-parallel-head,
+.kt-ba-pair {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  column-gap: calc(18px * var(--content-space-scale));
+  align-items: center;
+}
+.kt-ba-parallel-head {
+  padding: calc(11px * var(--content-space-scale)) 2px;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--text-faint);
+  font: 0.62rem/1.2 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.kt-ba-parallel-head > :first-child {
+  grid-column: 2;
+}
+.kt-ba-pair {
+  min-height: calc(66px * var(--content-space-scale));
+  padding: calc(12px * var(--content-space-scale)) 2px;
+  border-bottom: 1px solid var(--border);
+}
+.kt-ba-pair-title {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+.kt-ba-pair-before,
+.kt-ba-pair-after {
+  padding-left: calc(14px * var(--content-space-scale));
+  border-left: 1px solid var(--border);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+.kt-ba-pair-before {
+  color: var(--text-faint);
+}
+.kt-ba-pair-after {
+  border-left-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  color: var(--text);
+}
+.kt-ba-pair-flag {
+  justify-self: end;
+}
+
+@media (width <= 720px) {
+  .kt-ba-parallel-head {
+    display: none;
+  }
+  .kt-ba-pair {
+    grid-template-columns: 1fr;
+    gap: calc(9px * var(--content-space-scale));
+  }
+  .kt-ba-pair-before::before,
+  .kt-ba-pair-after::before {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--text-faint);
+    font: 0.58rem/1.2 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .kt-ba-pair-before::before {
+    content: "Before";
+  }
+  .kt-ba-pair-after::before {
+    content: "After";
+  }
+  .kt-ba-pair-flag {
+    justify-self: start;
+  }
+}
+
+/* ══ Present mode — per-mode tuning so the auto-scale reads at a glance ══
+   The stage scales the slide's natural content to fit. Without overrides
+   the ledger over-scales (reviewer had to zoom to 50%); before-after has
+   headroom to be slightly larger; compare and grid gain presence. Each
+   block names the mode it scopes. */
+
+/* ledger (rows): enlarge only this mode's presentation typography. Keeping
+   this out of the stage scaler avoids changing every other diagram. */
+.pr-stage .kt-rows .kt-legend {
+  font-size: 0.93rem;
+  gap: 28px;
+}
+.pr-stage .kt-rows .kt-group {
+  font-size: 0.93rem;
+  gap: 12px;
+  padding: 30px 0 12px;
+}
+.pr-stage .kt-rows .kt-group i {
+  width: 9px;
+  height: 9px;
+}
+.pr-stage .kt-rows .kt-row {
+  gap: 24px;
+  padding: 15px 3px;
+}
+.pr-stage .kt-rows .kt-label {
+  gap: 6px;
+}
+.pr-stage .kt-rows .kt-num {
+  font-size: 0.93rem;
+  min-width: 39px;
+}
+.pr-stage .kt-rows .kt-title {
+  font-size: 1.425rem;
+}
+.pr-stage .kt-rows .kt-sub {
+  font-size: 1.26rem;
+}
+.pr-stage .kt-rows .kt-ref {
+  font-size: 0.93rem;
+}
+.pr-stage .kt-rows .flag {
+  font-size: 0.93rem;
+}
+.pr-stage .kt-rows .flag i {
+  width: 8px;
+  height: 8px;
+}
+.pr-stage .kt-rows .kt-row.has-tone::before {
+  width: 9px;
+  height: 9px;
+}
+.pr-stage .kt-rows .kt-dot-end {
+  font-size: 0.9rem;
+}
+.pr-stage .kt-rows .kt-dot-track {
+  height: 30px;
+}
+.pr-stage .kt-rows .kt-dot-marker {
+  width: 13px;
+  height: 13px;
+}
+
+/* before-after: slightly bigger — enormous whitespace, make it unmissable */
+.pr-stage .kt-ba-row {
+  padding: 17px 2px 17px 18px;
+}
+.pr-stage .kt-ba-edge {
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+}
+.pr-stage .kt-ba-dot {
+  width: 11px;
+  height: 11px;
+  margin-right: 14px;
+}
+.pr-stage .kt-ba-title {
+  font-size: 1.08rem;
+}
+.pr-stage .kt-ba-sep {
+  font-size: 0.96rem;
+  margin: 0 12px;
+}
+.pr-stage .kt-ba-before-text,
+.pr-stage .kt-ba-after-text {
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+.pr-stage .kt-ba-ghost {
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* compare: preserve the index hierarchy at presentation scale */
+.pr-stage .kt-cmp {
+  margin-top: 10px;
+}
+.pr-stage .kt-cmp-head {
+  font-size: 0.93rem;
+}
+.pr-stage .kt-cmp-row {
+  min-height: 68px;
+}
+.pr-stage .kt-cmp-cell {
+  font-size: 1.06rem;
+}
+.pr-stage .kt-cmp-concern {
+  font-size: 0.92rem;
+}
+.pr-stage .kt-cmp-note {
+  font-size: 0.78rem;
+}
+.pr-stage .kt-cmp-criterion-title,
+.pr-stage .kt-cmp-answer-subject {
+  font-size: 0.9rem;
+}
+.pr-stage .kt-cmp-answer-value {
+  font-size: 1.06rem;
+}
+
+/* grid: cards gain presence — bigger title, more padding, deeper shadow */
+.pr-stage .kt-cards {
+  grid-template-columns: repeat(auto-fit, minmax(210px, 280px));
+  gap: 18px;
+  margin-top: 12px;
+}
+.pr-stage .kt-card {
+  padding: 22px 20px 18px;
+  min-height: 96px;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--bg) 22%, transparent);
+}
+.pr-stage .kt-card:hover {
+  box-shadow: 0 16px 32px color-mix(in srgb, var(--bg) 30%, transparent);
+}
+.pr-stage .kt-card-title {
+  font-size: 1.18rem;
+}
+.pr-stage .kt-card-sub {
+  font-size: 0.7rem;
+}
+
+/* Present type scale for the whole family. Measured in the showcase at 1512:
+   rows, before-after, and compare each bumped their type, while grid and specs
+   bumped everything except the group label and chips bumped nothing at all — so
+   a section name that read at 0.93rem in rows stayed at 0.62rem on a projector,
+   and a chip label stayed at 0.82rem. Scoping the group label to `.kt` means the
+   next mode inherits the floor instead of quietly missing it. */
+.pr-stage .kt .kt-group {
+  font-size: 0.93rem;
+}
+.pr-stage .kt-chips .kt-chips-row {
+  gap: 10px;
+}
+.pr-stage .kt-chips .kt-chip {
+  font-size: 1.15rem;
+  padding: 8px 15px;
+  min-height: 38px;
+}
+.pr-stage .kt-specs .kt-specs-subject,
+.pr-stage .kt-specs .kt-specs-label-text {
+  font-size: 1.3rem;
+}
+.pr-stage .kt-specs .kt-specs-sub {
+  font-size: 1.05rem;
+}
+.pr-stage .kt-specs .kt-specs-cell {
+  font-size: 1.26rem;
+}
+.pr-stage .kt-spec-record-subject {
+  overflow-wrap: anywhere;
+  font-size: 0.82rem;
+}
+.pr-stage .kt-spec-record-reading {
+  overflow-wrap: anywhere;
+  font-size: 1.12rem;
+}
+.pr-stage .kt-ba-parallel-head {
+  font-size: 0.82rem;
+}
+.pr-stage .kt-ba-pair-title {
+  font-size: 1.05rem;
+}
+.pr-stage .kt-ba-pair-before,
+.pr-stage .kt-ba-pair-after {
+  font-size: 1rem;
+}
+
+.kt-ba-parallel-head > span {
+  padding-left: calc(14px * var(--content-space-scale) + 1px);
+}
+.pr-stage .kt .kt-muted {
+  opacity: 0.3;
+}
+
+@media (width <= 720px) {
+  .kt-ba-parallel {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (width <= 720px) {
+  .kt-cmp-criteria {
+    grid-template-columns: 1fr;
+  }
+}

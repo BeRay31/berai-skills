@@ -1,0 +1,618 @@
+#!/usr/bin/env bash
+# Capture before/after evidence for a merge request or pull request.
+# The before side is a disposable worktree at the merge-base, the after side is
+# the current checkout. Run `evidence help` for usage.
+# shellcheck disable=SC2016 # Markdown backticks are literal.
+set -euo pipefail
+
+PLAYWRIGHT_PKG="playwright@${CR_PLAYWRIGHT_VERSION:-1.63.0}"
+MERMAID_PKG="@mermaid-js/mermaid-cli@${CR_MERMAID_CLI_VERSION:-11.17.0}"
+TMUX_SOCKET="create-review-evidence"
+
+usage() {
+    cat <<'EOF'
+Usage: evidence [-C <repo>] <command> [args]
+
+  init [--target BRANCH] [--setup CMD]
+  cli NAME -- COMMAND [ARGS...]
+  gif NAME [--size COLSxROWS] -- COMMAND [ARGS...]
+  tui NAME [--keys "K1 K2 ..."] [--interactive] [--size COLSxROWS] [--width PX] -- COMMAND [ARGS...]
+  web NAME (--serve CMD | --before-url URL --after-url URL) [web options]
+  mermaid FILE
+  upload [--dry-run] NAME...
+  paths
+  cleanup
+
+OUT=<git-dir>/create-review-evidence/out; init and paths print its path.
+-C <repo> changes directory before processing the command.
+Exit codes: 0 on success; 1 on usage errors, missing tools, failed setup,
+failed capture or render, or a Mermaid block that does not render. cli returns
+0 when the captured command fails; its text files record exit N.
+Use help COMMAND for command-specific files, pinned environments, waits, and
+exit status.
+EOF
+}
+
+die() { echo "evidence: $*" >&2; exit 1; }
+warn() { echo "evidence: warning: $*" >&2; }
+resolve_tool() {
+    local tool="$1" directory candidate
+    while IFS= read -r -d : directory; do
+        [ -n "$directory" ] || directory=.
+        candidate="$directory/$tool"
+        if [ -x "$candidate" ] && [ ! -d "$candidate" ]; then
+            case "$candidate" in /*) ;; *) candidate="$PWD/$candidate" ;; esac
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done < <(printf '%s:%s:%s:' "${PATH:-}" "${HOME:-/nonexistent}/.cargo/bin" /opt/homebrew/bin)
+    return 1
+}
+need() {
+    local tool
+    for tool in "$@"; do
+        resolve_tool "$tool" >/dev/null || die "missing required tool: $tool"
+    done
+}
+
+help_exit_status() {
+    cat <<'EOF'
+Exit status: 0 on success; 1 on usage errors, missing tools, failed setup,
+failed capture or render, or a Mermaid block that does not render.
+EOF
+}
+
+help_command() {
+    case "$1" in
+        cli)
+            cat <<'EOF'
+cli NAME -- COMMAND [ARGS...]
+Files in OUT: NAME.md, NAME.before.txt, NAME.after.txt.
+Pinned environment: NO_COLOR=1 TERM=dumb TZ=UTC COLUMNS=100.
+Wait: waits for COMMAND to exit; there is no timeout, so COMMAND must exit by itself.
+A failed captured COMMAND still returns 0; its exit code is recorded as exit N.
+EOF
+            ;;
+        gif)
+            cat <<'EOF'
+gif NAME [--size COLSxROWS] -- COMMAND [ARGS...]
+Files in OUT: NAME.before.cast, NAME.after.cast, NAME.before.gif, NAME.after.gif.
+Pinned environment: TERM=xterm-256color TZ=UTC COLUMNS=COLS LINES=ROWS.
+Wait: waits for COMMAND to exit; there is no timeout, so COMMAND must exit by itself.
+EOF
+            ;;
+        tui)
+            cat <<'EOF'
+tui NAME [--keys "K1 K2 ..."] [--interactive] [--size COLSxROWS] [--width PX] -- COMMAND [ARGS...]
+Files in OUT: NAME.before.png, NAME.after.png.
+Pinned environment: TZ=UTC; interactive capture uses xterm-256color at 100x30 by default.
+Wait: polls pane captures every 0.3s until two match, for at most 15s; then warns and captures.
+EOF
+            ;;
+        web)
+            cat <<'EOF'
+web NAME (--serve CMD | --before-url URL --after-url URL) [web options]
+Files in OUT: NAME.before.png, NAME.after.png.
+Pinned Playwright: 1.63.0 by default; CR_PLAYWRIGHT_VERSION overrides it.
+Viewport defaults to 1280x800.
+Wait: a managed server must answer within 120s; --wait-ms adds a page-settle wait.
+EOF
+            ;;
+        init)
+            cat <<'EOF'
+init [--target BRANCH] [--setup CMD]
+Prints BASE, BEFORE, AFTER, and OUT; reuses the existing before worktree when the base is unchanged.
+--setup runs CMD in both trees and prints a start and elapsed-time finish line for each.
+EOF
+            ;;
+        mermaid)
+            cat <<'EOF'
+mermaid FILE
+Writes mermaid-N.png for each Mermaid block in FILE to OUT.
+Pinned Mermaid CLI: 11.17.0 by default; CR_MERMAID_CLI_VERSION overrides it.
+EOF
+            ;;
+        upload)
+            cat <<'EOF'
+upload [--dry-run] NAME...
+Prints a Before | After Markdown table, selecting GIFs when present and otherwise PNGs.
+--dry-run prints local file:// URLs without uploading.
+EOF
+            ;;
+        paths)
+            cat <<'EOF'
+paths
+Prints BASE, BEFORE, AFTER, and OUT. OUT is <git-dir>/create-review-evidence/out.
+EOF
+            ;;
+        cleanup)
+            cat <<'EOF'
+cleanup
+Removes the before worktree, the tmux server, and all captures in OUT.
+EOF
+            ;;
+        *) return 1 ;;
+    esac
+    printf '\n'
+    help_exit_status
+}
+
+init_paths() {
+    AFTER="$(git rev-parse --show-toplevel 2>/dev/null)" || die "not inside a git repository"
+    STATE="$(git rev-parse --path-format=absolute --git-dir)/create-review-evidence"
+    OUT="$STATE/out"
+    mkdir -p "$OUT"
+}
+
+load_state() {
+    [ -f "$STATE/env" ] || die "run 'evidence init' first"
+    # shellcheck disable=SC1091
+    . "$STATE/env"
+    [ -d "$BEFORE" ] || die "before worktree $BEFORE is gone; run 'evidence init' again"
+}
+
+tree_for() { if [ "$1" = before ]; then echo "$BEFORE"; else echo "$AFTER"; fi; }
+
+remove_before() {
+    [ -n "${BEFORE:-}" ] || return 0
+    git worktree remove --force "$BEFORE" 2>/dev/null || true
+    rm -rf "$(dirname "$BEFORE")"
+    git worktree prune
+}
+
+run_in_both() {
+    local side started elapsed
+    for side in before after; do
+        started=$SECONDS
+        echo "evidence: [$side] $1" >&2
+        (cd "$(tree_for "$side")" && bash -c "$1") >&2 || die "command failed in the $side tree: $1"
+        elapsed=$((SECONDS - started))
+        echo "evidence: [$side] setup finished in ${elapsed}s" >&2
+    done
+}
+
+cmd_init() {
+    local target="" setup="" ref base
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --target) target="$2"; shift 2 ;;
+            --setup) setup="$2"; shift 2 ;;
+            *) die "init: unknown argument $1" ;;
+        esac
+    done
+    if [ -z "$target" ]; then
+        target="$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null || true)"
+        target="${target#origin/}"
+        [ -n "$target" ] || die "init: cannot detect origin's default branch; pass --target"
+    fi
+    ref="$target"
+    if git remote get-url origin >/dev/null 2>&1 && git fetch --quiet origin "$target"; then
+        ref="origin/$target"
+    fi
+    base="$(git merge-base "$ref" HEAD)" || die "init: no merge-base between $ref and HEAD"
+    [ -z "$(git status --porcelain)" ] || warn "uncommitted changes are part of the after side"
+
+    BEFORE=""
+    if [ -f "$STATE/env" ]; then
+        # shellcheck disable=SC1091
+        . "$STATE/env"
+    fi
+    if [ "${BASE:-}" != "$base" ] || [ ! -d "$BEFORE" ]; then
+        remove_before
+        BEFORE="$(cd "$(mktemp -d)" && pwd -P)/before"
+        echo "evidence: creating before worktree $BEFORE at $base" >&2
+        git worktree add --quiet --detach "$BEFORE" "$base"
+        rm -f "$OUT"/*.before.*
+    else
+        echo "evidence: reusing before worktree $BEFORE at $base" >&2
+    fi
+    printf 'BASE=%q\nREF=%q\nBEFORE=%q\n' "$base" "$ref" "$BEFORE" >"$STATE/env"
+    [ -z "$setup" ] || run_in_both "$setup"
+    cmd_paths
+}
+
+cmd_paths() {
+    load_state
+    printf 'BASE=%s (merge-base with %s)\nBEFORE=%s\nAFTER=%s\nOUT=%s\n' "$BASE" "$REF" "$BEFORE" "$AFTER" "$OUT"
+}
+
+# Replace both trees' absolute paths so they do not show up as a difference.
+normalise() {
+    perl -pe 'BEGIN { @t = sort { length($b) <=> length($a) } splice(@ARGV, 0, 2) } for $t (@t) { s/\Q$t\E/<repo>/g }' \
+        "$1" "$(cd "$1" && pwd -P)"
+}
+
+# NAME prefixes every capture file, so it must be a plain file name.
+require_name() {
+    [ -n "${1:-}" ] && [ "${1#-}" = "$1" ] || die "$2: missing NAME"
+    case "$1" in */* | .*) die "$2: NAME must be a plain file name" ;; esac
+}
+
+cmd_cli() {
+    local name="${1:-}" side tree file lines
+    require_name "$name" cli; shift
+    [ "${1:-}" = "--" ] && [ $# -gt 1 ] || die "usage: evidence cli NAME -- COMMAND [ARGS...]"
+    shift
+    load_state
+    need perl diff
+    for side in before after; do
+        tree="$(tree_for "$side")"; file="$OUT/$name.$side.txt"
+        set +e
+        (cd "$tree" && env NO_COLOR=1 TERM=dumb TZ=UTC COLUMNS=100 "$@") </dev/null >"$file.raw" 2>&1
+        echo "exit $?" >>"$file.raw"
+        set -e
+        normalise "$tree" <"$file.raw" >"$file"
+        rm -f "$file.raw"
+    done
+    {
+        printf '`%s`\n\n' "$*"
+        if cmp -s "$OUT/$name.before.txt" "$OUT/$name.after.txt"; then
+            warn "$name: output is identical before and after"
+            printf 'Output is unchanged:\n\n```\n'; cat "$OUT/$name.after.txt"; printf '```\n'
+        else
+            diff -U3 "$OUT/$name.before.txt" "$OUT/$name.after.txt" | tail -n +3 >"$OUT/$name.diff" || true
+            lines=$(($(wc -l <"$OUT/$name.diff")))
+            [ "$lines" -le 30 ] || printf '<details><summary>Output diff (%s lines)</summary>\n\n' "$lines"
+            printf '```diff\n'; cat "$OUT/$name.diff"; printf '```\n'
+            [ "$lines" -le 30 ] || printf '\n</details>\n'
+        fi
+    } >"$OUT/$name.md"
+    cat "$OUT/$name.md"
+}
+
+cmd_gif() {
+    local name="${1:-}" size="100x30" cols rows command side tree cast gif log help arg escaped sq apostrophe_escape asciinema_bin agg_bin
+    require_name "$name" gif; shift
+    while [ $# -gt 0 ] && [ "$1" != "--" ]; do
+        case "$1" in
+            --size) [ $# -gt 1 ] || die "gif: --size needs COLSxROWS"; size="$2"; shift 2 ;;
+            *) die "gif: unknown argument $1" ;;
+        esac
+    done
+    [ "${1:-}" = "--" ] && [ $# -gt 1 ] || die "usage: evidence gif NAME [--size COLSxROWS] -- COMMAND [ARGS...]"
+    shift
+    case "$size" in
+        *x*) cols="${size%%x*}"; rows="${size#*x}" ;;
+        *) die "gif: --size must be positive COLSxROWS" ;;
+    esac
+    case "$cols:$rows" in *[!0-9:]* | :* | *:) die "gif: --size must be positive COLSxROWS" ;; esac
+    [[ $cols =~ [1-9] && $rows =~ [1-9] ]] || die "gif: --size must be positive COLSxROWS"
+    load_state
+    asciinema_bin="$(resolve_tool asciinema)" || die "missing required tool: asciinema"
+    agg_bin="$(resolve_tool agg)" || die "missing required tool: agg"
+    if ! help="$("$asciinema_bin" rec --help 2>&1)"; then
+        die "gif: asciinema rec must support --cols and --rows; use a --cols/--rows-compatible recorder"
+    fi
+    if [[ ! $help =~ (^|[[:space:],])--cols([[:space:],=]|$) ]] ||
+        [[ ! $help =~ (^|[[:space:],])--rows([[:space:],=]|$) ]]; then
+        die "gif: asciinema rec must support --cols and --rows; use a --cols/--rows-compatible recorder"
+    fi
+    rm -f "$OUT/$name.before.cast" "$OUT/$name.after.cast" "$OUT/$name.before.gif" "$OUT/$name.after.gif"
+    command=""
+    sq="'"
+    apostrophe_escape="'\\''"
+    for arg in "$@"; do
+        escaped=${arg//"$sq"/$apostrophe_escape}
+        command+="'$escaped' "
+    done
+    tmp="$(mktemp -d "$STATE/.gif.XXXXXX")" || die "gif: cannot create temporary output"
+    trap 'rm -rf "$tmp"' EXIT
+    for side in before after; do
+        tree="$(tree_for "$side")"
+        cast="$tmp/$name.$side.cast"
+        gif="$tmp/$name.$side.gif"
+        log="$tmp/$side.log"
+        if ! (cd "$tree" && env TERM=xterm-256color TZ=UTC COLUMNS="$cols" LINES="$rows" \
+            "$asciinema_bin" rec -q --cols "$cols" --rows "$rows" -c "$command" "$cast") </dev/null >"$log" 2>&1; then
+            cat "$log" >&2
+            die "gif $side recording failed"
+        fi
+        if ! "$agg_bin" "$cast" "$gif" >"$log" 2>&1; then
+            cat "$log" >&2
+            die "gif $side rendering failed"
+        fi
+    done
+    for side in before after; do
+        mv "$tmp/$name.$side.cast" "$OUT/$name.$side.cast"
+        mv "$tmp/$name.$side.gif" "$OUT/$name.$side.gif"
+    done
+    printf '%s\n' "$OUT/$name.before.gif" "$OUT/$name.after.gif"
+}
+
+tm() { tmux -L "$TMUX_SOCKET" -f /dev/null "$@"; }
+
+# Poll the pane until two captures 0.3s apart match, for at most 15s.
+wait_stable() {
+    local prev="" cur i=0
+    sleep 0.3
+    while [ "$i" -lt 50 ]; do
+        cur="$(tm capture-pane -pe -t evidence)"
+        if [ -n "$cur" ] && [ "$cur" = "$prev" ]; then return 0; fi
+        prev="$cur"; sleep 0.3; i=$((i + 1))
+    done
+    warn "screen still changing after 15s; capturing anyway"
+}
+
+# freeze ignores reverse video and background colours: rewrite SGR 7 to bold
+# underlined cyan, drop tmux's "Pane is dead" line, and trim trailing blank rows.
+tui_filter() {
+    perl -0777 -pe '
+        s{\e\[([0-9;]*)m}{
+            my @p = split /;/, $1, -1; my @o;
+            while (@p) {
+                my $x = shift @p;
+                if ($x =~ /^[345]8$/) { my $m = shift(@p) // ""; push @o, $x, $m, splice(@p, 0, $m eq "5" ? 1 : 3) }
+                elsif ($x eq "7") { push @o, 1, 4, 36 }
+                else { push @o, $x }
+            }
+            "\e[" . join(";", @o) . "m"
+        }ge;
+        s/^.*Pane is dead.*$//mg;
+        s/(?:\n(?:[ \t]|\e\[[0-9;]*m)*)+\z/\n/;
+    '
+}
+
+shoot() {
+    local tree="$1" png="$2" cols="$3" rows="$4" px="$5" keys="$6" command="$7" freeze_bin="$8" key
+    tm kill-server 2>/dev/null || true
+    tm new-session -d -s evidence -x "$cols" -y "$rows" -c "$tree"
+    tm set-option -g remain-on-exit on
+    tm set-option -g status off
+    tm set-option -g default-terminal xterm-256color
+    tm respawn-pane -k -t evidence -c "$tree" "env TZ=UTC $command"
+    wait_stable
+    set -f
+    for key in $keys; do tm send-keys -t evidence "$key"; sleep 0.1; done
+    set +f
+    [ -z "$keys" ] || wait_stable
+    tm capture-pane -pe -t evidence | tui_filter | "$freeze_bin" -l ansi --window --width "$px" -o "$png" >/dev/null
+    tm kill-server
+}
+
+cmd_tui() {
+    local name="${1:-}" keys="" interactive=0 size="100x30" px=900 side tree png command freeze_bin
+    require_name "$name" tui; shift
+    while [ $# -gt 0 ] && [ "$1" != "--" ]; do
+        case "$1" in
+            --keys) keys="$2"; interactive=1; shift 2 ;;
+            --interactive) interactive=1; shift ;;
+            --size) size="$2"; shift 2 ;;
+            --width) px="$2"; shift 2 ;;
+            *) die "tui: unknown argument $1" ;;
+        esac
+    done
+    [ "${1:-}" = "--" ] && [ $# -gt 1 ] || die "usage: evidence tui NAME [options] -- COMMAND [ARGS...]"
+    shift
+    case "$size" in *x*) ;; *) die "tui: --size must look like 100x30" ;; esac
+    load_state
+    need perl
+    freeze_bin="$(resolve_tool freeze)" || die "missing required tool: freeze"
+    [ "$interactive" = 0 ] || need tmux
+    command="$(printf '%q ' "$@")"
+    for side in before after; do
+        tree="$(tree_for "$side")"; png="$OUT/$name.$side.png"
+        if [ "$interactive" = 1 ]; then
+            shoot "$tree" "$png" "${size%x*}" "${size#*x}" "$px" "$keys" "$command" "$freeze_bin"
+        else
+            (cd "$tree" && TZ=UTC "$freeze_bin" -x "$command" --window --width "$px" -o "$png") >/dev/null
+        fi
+        echo "$png"
+    done
+}
+
+pw() { npx -y "$PLAYWRIGHT_PKG" "$@"; }
+
+first_executable() {
+    local exe
+    for exe in "$@"; do [ -x "$exe" ] && { echo "$exe"; return 0; }; done
+    return 1
+}
+
+# Print the chrome-headless-shell binary for the pinned Playwright, installing it if needed.
+headless_shell() {
+    local dir
+    dir="$(pw install --dry-run --only-shell chromium 2>/dev/null |
+        awk '/Chrome Headless Shell/ { f = 1 } f && /Install location:/ { sub(/^[^:]*:[ \t]*/, ""); print; exit }')"
+    [ -n "$dir" ] || die "cannot resolve the Playwright browser location"
+    first_executable "$dir"/chrome-headless-shell-*/chrome-headless-shell && return
+    pw install --only-shell chromium >&2
+    first_executable "$dir"/chrome-headless-shell-*/chrome-headless-shell || die "chrome-headless-shell missing after install"
+}
+
+free_port() { python3 -c 'import socket; s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])'; }
+
+kill_tree() {
+    local child
+    for child in $(pgrep -P "$1" 2>/dev/null || true); do kill_tree "$child"; done
+    kill "$1" 2>/dev/null || true
+}
+
+SERVER_PID=""
+stop_server() {
+    [ -n "$SERVER_PID" ] || return 0
+    kill_tree "$SERVER_PID"
+    wait "$SERVER_PID" 2>/dev/null || true
+    SERVER_PID=""
+}
+
+wait_http() {
+    local url="$1" log="$2" i=0
+    while ! curl -s -o /dev/null --max-time 2 "$url"; do
+        i=$((i + 1))
+        if [ "$i" -ge 240 ] || ! kill -0 "$SERVER_PID" 2>/dev/null; then
+            tail -20 "$log" >&2
+            die "server did not answer $url"
+        fi
+        sleep 0.5
+    done
+}
+
+cmd_web() {
+    local name="${1:-}" serve="" before_url="" after_url="" path="/" selector="" viewport="1280x800" wait_ms="" full=0
+    local side tree port url png log
+    require_name "$name" web; shift
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --serve) serve="$2"; shift 2 ;;
+            --before-url) before_url="$2"; shift 2 ;;
+            --after-url) after_url="$2"; shift 2 ;;
+            --path) path="$2"; shift 2 ;;
+            --selector) selector="$2"; shift 2 ;;
+            --viewport) viewport="$2"; shift 2 ;;
+            --wait-ms) wait_ms="$2"; shift 2 ;;
+            --full-page) full=1; shift ;;
+            *) die "web: unknown argument $1" ;;
+        esac
+    done
+    [ -n "$serve" ] || { [ -n "$before_url" ] && [ -n "$after_url" ]; } ||
+        die "web: pass --serve CMD, or both --before-url and --after-url"
+    case "$viewport" in *x*) ;; *) die "web: --viewport must look like 1280x800" ;; esac
+    load_state
+    need npx curl
+    local args=(--viewport-size="${viewport%x*},${viewport#*x}")
+    [ -z "$selector" ] || args+=(--wait-for-selector "$selector")
+    [ -z "$wait_ms" ] || args+=(--wait-for-timeout "$wait_ms")
+    [ "$full" = 0 ] || args+=(--full-page)
+    headless_shell >/dev/null
+    trap stop_server EXIT
+    [ -z "$serve" ] || { need python3; port="$(free_port)"; }
+    for side in before after; do
+        png="$OUT/$name.$side.png"
+        if [ -n "$serve" ]; then
+            tree="$(tree_for "$side")"; log="$OUT/$name.$side.server.log"
+            (cd "$tree" && PORT="$port" exec bash -c "${serve//\{port\}/$port}") >"$log" 2>&1 &
+            SERVER_PID=$!
+            url="http://localhost:$port$path"
+            wait_http "$url" "$log"
+        elif [ "$side" = before ]; then url="$before_url$path"
+        else url="$after_url$path"
+        fi
+        pw screenshot "${args[@]}" "$url" "$png" >/dev/null
+        stop_server
+        echo "$png"
+    done
+}
+
+cmd_mermaid() {
+    local file="${1:-}" exe n=0 png failed=0
+    [ -f "$file" ] || die "usage: evidence mermaid FILE"
+    need npx perl jq
+    rm -f "$OUT"/mermaid-*
+    perl -ne 'BEGIN { $d = shift } if (/^\s*```mermaid\s*$/) { $n++; open $f, ">", "$d/mermaid-$n.mmd"; next }
+        if ($f && /^\s*```\s*$/) { close $f; undef $f; next } print {$f} $_ if $f' "$OUT" "$file"
+    [ -f "$OUT/mermaid-1.mmd" ] || die "no \`\`\`mermaid blocks in $file"
+    exe="$(headless_shell)"
+    jq -n --arg exe "$exe" '{executablePath: $exe, headless: "shell"}' >"$OUT/puppeteer.json"
+    while n=$((n + 1)) && [ -f "$OUT/mermaid-$n.mmd" ]; do
+        png="$OUT/mermaid-$n.png"
+        if npx -y -p "$MERMAID_PKG" mmdc -q -p "$OUT/puppeteer.json" -i "$OUT/mermaid-$n.mmd" -o "$png" >&2; then
+            echo "$png"
+        else
+            warn "mermaid block $n in $file does not render"; failed=1
+        fi
+    done
+    [ "$failed" = 0 ] || exit 1
+}
+
+detect_platform() {
+    case "$(git remote get-url origin 2>/dev/null || true)" in
+        *github.com[:/]*) echo github ;;
+        "") die "no origin remote" ;;
+        *) echo gitlab ;;
+    esac
+}
+
+REPO_ID=""
+upload_file() {
+    local file="$1" platform="$2" cache url media_type
+    cache="$OUT/uploads/$(git hash-object "$file").url"
+    if [ -s "$cache" ]; then cat "$cache"; return; fi
+    case "$platform" in
+        dry-run) echo "file://$file"; return ;;
+        gitlab)
+            url="$(glab api --method POST "projects/:id/uploads" --form "file=@$file" | jq -r '.url // empty')" ;;
+        github)
+            [ -n "$REPO_ID" ] || REPO_ID="$(gh api 'repos/{owner}/{repo}' --jq .id)"
+            case "$file" in *.gif) media_type=image/gif ;; *) media_type=image/png ;; esac
+            url="$(gh api -X POST "https://uploads.github.com/user-attachments/assets?name=$(basename "$file")&content_type=$media_type&repository_id=$REPO_ID" \
+                -H "Content-Type: application/octet-stream" --input "$file" --jq '.url // empty')" ;;
+    esac
+    [ -n "$url" ] || die "upload of $file returned no URL"
+    mkdir -p "$OUT/uploads"
+    echo "$url" | tee "$cache"
+}
+
+cmd_upload() {
+    local platform name side file cells extension
+    if [ "${1:-}" = "--dry-run" ]; then platform=dry-run; shift; else platform="$(detect_platform)"; fi
+    [ $# -gt 0 ] || die "usage: evidence upload [--dry-run] NAME..."
+    case "$platform" in gitlab) need glab jq ;; github) need gh ;; esac
+    for name in "$@"; do
+        if [ -f "$OUT/$name.before.gif" ] || [ -f "$OUT/$name.after.gif" ] ||
+            [ -f "$OUT/$name.before.png" ] || [ -f "$OUT/$name.after.png" ]; then
+            :
+        else
+            die "no $name.before.gif, $name.after.gif, $name.before.png, or $name.after.png in $OUT"
+        fi
+    done
+    printf '| Before | After |\n|---|---|\n'
+    for name in "$@"; do
+        if [ -f "$OUT/$name.before.gif" ] || [ -f "$OUT/$name.after.gif" ]; then extension=gif; else extension=png; fi
+        cells=""
+        for side in before after; do
+            file="$OUT/$name.$side.$extension"
+            if [ -f "$file" ]; then cells="$cells| ![$name $side]($(upload_file "$file" "$platform")) "
+            else cells="$cells| _none_ "
+            fi
+        done
+        printf '%s|\n' "$cells"
+    done
+}
+
+cmd_cleanup() {
+    command -v tmux >/dev/null 2>&1 && tm kill-server 2>/dev/null || true
+    BEFORE=""
+    if [ -f "$STATE/env" ]; then
+        # shellcheck disable=SC1091
+        . "$STATE/env"
+    fi
+    remove_before
+    rm -rf "$STATE"
+    echo "evidence: cleaned up"
+}
+
+if [ "${1:-}" = "-C" ]; then
+    [ $# -ge 2 ] || die "usage: evidence -C <repo> <command> [args]"
+    repo="$2"
+    [ -d "$repo" ] || die "not a directory: $repo"
+    cd "$repo" || die "cannot change directory to $repo"
+    shift 2
+fi
+command="${1:-help}"
+[ $# -eq 0 ] || shift
+case "$command" in
+    help)
+        if [ $# -eq 0 ]; then usage; exit 0; fi
+        [ $# -eq 1 ] || { usage >&2; exit 1; }
+        help_command "$1" || { usage >&2; exit 1; }
+        exit 0
+        ;;
+    -h | --help)
+        [ $# -eq 0 ] || { usage >&2; exit 1; }
+        usage
+        exit 0
+        ;;
+esac
+init_paths
+case "$command" in
+    init) cmd_init "$@" ;;
+    cli) cmd_cli "$@" ;;
+    gif) cmd_gif "$@" ;;
+    tui) cmd_tui "$@" ;;
+    web) cmd_web "$@" ;;
+    mermaid) cmd_mermaid "$@" ;;
+    upload) cmd_upload "$@" ;;
+    paths) cmd_paths ;;
+    cleanup) cmd_cleanup ;;
+    *) usage >&2; exit 1 ;;
+esac

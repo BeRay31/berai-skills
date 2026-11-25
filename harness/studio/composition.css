@@ -1,0 +1,150 @@
+/* Interactive SVG layer mounted only while Studio's composition editor is active. */
+.ec-composition-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: auto;
+  touch-action: none;
+}
+.ec-editing > .ea-shape-layer {
+  display: none;
+}
+.ec-shape {
+  cursor: move;
+  outline: none;
+}
+.ec-component-frame {
+  fill: rgb(48 209 88 / 4%);
+  stroke: #30d158;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  vector-effect: non-scaling-stroke;
+  cursor: move;
+  pointer-events: auto;
+}
+.ec-component-frame:not(.ec-selected) {
+  opacity: 0.45;
+}
+.ec-shape.ec-selected {
+  filter: drop-shadow(0 0 4px #30d158);
+}
+.ec-selection-box {
+  fill: none;
+  stroke: #30d158;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+.ec-shape:focus-visible {
+  stroke: #30d158;
+  stroke-dasharray: 6 4;
+}
+.ec-handle {
+  fill: #30d158;
+  stroke: #10141a;
+  stroke-width: 2;
+  cursor: nwse-resize;
+  vector-effect: non-scaling-stroke;
+}
+.ec-detached-source {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+.ec-handle[data-handle="start"],
+.ec-handle[data-handle="end"] {
+  cursor: crosshair;
+}
+
+/* Draw-on-canvas tools. While a tool is armed the whole slide surface is a
+   drawing area; committed shapes keep their own cursors. */
+.ec-tool-armed .ec-composition-layer,
+.ec-tool-armed .artifact {
+  cursor: crosshair;
+}
+.ec-draw-preview {
+  fill: rgb(48 209 88 / 6%);
+  stroke: #30d158;
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+line.ec-draw-preview,
+ellipse.ec-draw-preview {
+  fill: none;
+}
+
+/* Inline text prompt: opens at the draw point, commits on Enter or blur. */
+.ec-text-prompt {
+  position: absolute;
+  z-index: 30;
+  box-sizing: border-box;
+  min-width: 120px;
+  max-width: calc(100% - 16px);
+  padding: 3px 8px;
+  color: var(--st-ink, #e9e9e5);
+  background: #14161a;
+  border: 1px dashed #30d158;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 35%);
+  caret-color: #30d158;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  outline: none;
+  cursor: text;
+  white-space: pre;
+}
+.ec-text-prompt:empty::before {
+  content: attr(data-placeholder);
+  color: var(--st-muted, #a1a5ad);
+}
+
+/* Floating toolbar for the single selected shape: Studio dark chrome with
+   32px targets, so it reads as an editor control over any theme's slide. */
+.ec-shape-toolbar {
+  position: absolute;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 6px;
+  color: var(--st-ink, #e9e9e5);
+  background: #14161a;
+  border: 1px solid var(--st-line, #35383f);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 12px;
+}
+.ec-shape-toolbar input[type="color"] {
+  width: 36px;
+  height: 32px;
+  padding: 3px;
+  background: #0e1013;
+  border: 1px solid var(--st-line, #35383f);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.ec-shape-toolbar button {
+  height: 32px;
+  padding: 0 10px;
+  color: var(--st-ink, #e9e9e5);
+  background: #0e1013;
+  border: 1px solid var(--st-line, #35383f);
+  border-radius: 6px;
+  font:
+    600 12px/1 -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  cursor: pointer;
+}
+.ec-shape-toolbar button:hover {
+  border-color: #30d158;
+  color: #30d158;
+}

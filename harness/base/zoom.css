@@ -1,0 +1,150 @@
+/* ── Diagram zoom overlay ──────────────────────────────────────────────
+   Any [data-zoom] element gets an expand affordance and a full-viewport
+   wheel-zoom / drag-pan overlay. Works in read view and inside Present
+   mode (overlay z-index sits above the deck). */
+[data-zoom] {
+  position: relative;
+}
+.zoom-open {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 5;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border-strong);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--surface) 86%, transparent);
+  color: var(--text-dim);
+  cursor: zoom-in;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0;
+  transition:
+    opacity 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+  backdrop-filter: blur(6px);
+}
+[data-zoom]:hover .zoom-open,
+.zoom-open:focus-visible {
+  opacity: 1;
+}
+.zoom-open:hover,
+.zoom-open:focus-visible {
+  color: var(--accent);
+  border-color: var(--accent);
+  outline: none;
+}
+
+@media (hover: none) {
+  .zoom-open {
+    opacity: 0.75;
+  }
+}
+.zoom-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: var(--bg);
+  display: none;
+  overflow: hidden;
+  outline: none;
+  cursor: grab;
+}
+.zoom-overlay.open {
+  display: block;
+}
+.zoom-overlay.dragging {
+  cursor: grabbing;
+}
+.zoom-canvas {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.zoom-canvas > * {
+  transform-origin: center center;
+  will-change: transform;
+  max-width: none !important;
+}
+
+/* cloned SVGs lose their page classes — keep labels outside the viewBox visible */
+.zoom-canvas svg {
+  width: auto;
+  height: auto;
+  overflow: visible;
+}
+
+/* Cloned HTML containers (e.g. .kdf-canvas) keep their internal layout and
+   overflow so nodes and groups render correctly in the zoom overlay. */
+.zoom-canvas .kdf-canvas {
+  overflow: hidden;
+  border-radius: 12px;
+}
+.zoom-hud {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 410;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 100px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(12px);
+}
+.zoom-hud button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-dim);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  display: grid;
+  place-items: center;
+  transition: all 0.25s ease;
+}
+.zoom-hud button:hover {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+.zoom-level {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  min-width: 44px;
+  text-align: center;
+}
+.zoom-hint {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 410;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 18px;
+  backdrop-filter: blur(12px);
+  white-space: nowrap;
+}
+
+@media (width <= 720px) {
+  .zoom-hint {
+    display: none;
+  }
+}

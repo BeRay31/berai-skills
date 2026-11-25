@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en" data-theme="@THEME@">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+@CSP@
+<title>@TITLE@</title>
+<!-- @KIT_STAMP@ -->
+<style>
+/*@inject:STYLE_TOKENS@*/
+/*@inject:BASE_CSS@*/
+/*@inject:COMPONENTS_CSS@*/
+/*@inject:PRESENT_CSS@*/
+/*@inject:ZOOM_CSS@*/
+/* ── page-specific CSS ── */
+/*@inject:PAGE_CSS@*/
+</style>
+</head>
+<body data-style="@STYLE@" data-recipe="@RECIPE@">
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle theme" title="Toggle theme">◐</button>
+<button class="present-toggle" id="presentToggle" type="button" aria-label="Present (P)" title="Present (P)">▶</button>
+<!--@inject:SIMULATION_DISCLOSURE@-->
+
+<div class="shell">
+<!--@inject:CONTENT@-->
+</div><!-- /shell -->
+
+<div class="gloss-pop" id="glossPop" role="dialog" aria-label="Definition">
+  <div class="gloss-pop-term"></div>
+  <div class="gloss-pop-body"></div>
+</div>
+
+<script>/*@inject:MOTION_JS@*/</script>
+<script>
+/*@inject:APP_JS@*/
+/*@inject:COMPONENTS_JS@*/
+/*@inject:COMPAT_JS@*/
+/*@inject:PRESENT_JS@*/
+/* ── page-specific JS ── */
+/*@inject:PAGE_JS@*/
+/*@inject:AUTHORING_JS@*/
+/* zoom scans the DOM last, after page JS has rendered every component */
+/*@inject:ZOOM_JS@*/
+</script>
+<!-- the page's own content source, base64 — studio.py recovers it so any
+     copy of this file stays editable without the original _sources/ file -->
+<!--@inject:SOURCE_EMBED@-->
+</body>
+</html>

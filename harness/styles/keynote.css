@@ -1,0 +1,74 @@
+/* ── Style: keynote (default) ──────────────────────────────────────────
+   Big type, one idea per slide, minimal text, built to project in a room.
+   Dark by default. Every style file defines the same token contract:
+   colors (dark + light), fonts, eases, and the typographic scale knobs
+   that base.css consumes. default-theme: dark */
+:root {
+  color-scheme: dark;
+
+  --bg: #06060a;
+  --surface: #0e0e14;
+  --surface-hover: #14141c;
+  --border: #262638;
+  --border-strong: #3a3a54;
+  --text: #edeef5;
+  --text-dim: #9a9ab0;
+  --text-faint: #80809a;
+  --accent: #00d9ff;
+  --accent-dim: #00d9ff33;
+  --success: #00e676;
+  --success-dim: #00e67622;
+  --error: #ff5252;
+  --error-dim: #ff525222;
+  --warning: #ffd740;
+  --warning-dim: #ffd74022;
+  --violet: #b388ff;
+  --violet-dim: #b388ff22;
+  --mono: "SF Mono", "Fira Code", ui-monospace, sfmono-regular, menlo, monaco, consolas, monospace;
+  --sans: "Inter", -apple-system, blinkmacsystemfont, "Segoe UI", roboto, sans-serif;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* scale knobs — keynote runs big and sparse */
+  --fs-display: clamp(3.4rem, 9vw, 8rem);
+  --fs-claim: clamp(2.6rem, 6.2vw, 5.2rem);
+  --fs-sec: clamp(2rem, 4.2vw, 3.6rem);
+  --fs-lede: clamp(1.15rem, 1.9vw, 1.5rem);
+  --fs-body: 1.06rem;
+  --fs-detail: 0.95rem;
+  --measure: 52ch;
+  --radius: 8px;
+  --orb-opacity: 0.5;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #faf9f7;
+  --surface: #fff;
+  --surface-hover: #f5f4f2;
+  --border: #e0ddd8;
+  --border-strong: #c8c3bb;
+  --text: #0a0a0f;
+  --text-dim: #54545f;
+  --text-faint: #74747f;
+  /* stylelint-disable-next-line color-hex-length -- Review's color input requires 6 digits. */
+  --accent: #0066ff;
+  --accent-dim: #0066ff18;
+  --success: #00b34a;
+  --success-dim: #00c85318;
+  --error: #d50000;
+  --error-dim: #d5000018;
+  --warning: #b07000;
+  --warning-dim: #ffab0018;
+  --violet: #6200ea;
+  --violet-dim: #6200ea18;
+}
+
+/* keynote register: headlines carry the argument, prose stays short */
+body[data-style="keynote"] .sec-sub {
+  font-size: 1.12rem;
+}
+body[data-style="keynote"] .lede {
+  font-weight: 450;
+}

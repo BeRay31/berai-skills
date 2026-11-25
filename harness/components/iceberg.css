@@ -1,0 +1,357 @@
+/* Component: iceberg — panoramic callouts and a cutaway share one waterline.
+   The illustrative ocean palette remains legible in either page theme. */
+.kib {
+  margin: calc(52px * var(--content-space-scale)) 0 calc(8px * var(--content-space-scale));
+  max-width: none;
+}
+.kib svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+@media (width <= 900px) {
+  .kib {
+    max-width: 100%;
+  }
+}
+.pr-slide[data-layout="diagram"] .kib {
+  max-width: none;
+  margin: 0;
+}
+.pr-slide[data-layout="diagram"] .kib svg {
+  max-width: 100%;
+}
+.kib text {
+  font-family: var(--mono);
+}
+.kib-stamp {
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  fill: #4f8f6f;
+}
+.kib-waterlbl {
+  font-size: 11.5px;
+  letter-spacing: 0.3em;
+}
+
+/* the above-waterline caption sits on the page background, so it follows
+   the theme; the below-waterline caption sits on the fixed dark ocean and
+   stays light in either theme (its fill is set inline in JS) */
+.kib-waterlbl-up {
+  fill: #6fbf8f;
+}
+.kib-waterlbl-down {
+  fill: #5a8fc0;
+}
+.kib .kib-above-title {
+  font-family: var(--sans);
+  font-size: 26px;
+  font-weight: 700;
+  fill: #d8eefb;
+}
+.kib-above-line {
+  font-size: 17px;
+  fill: #6f9ec4;
+}
+
+/* light mode: the callouts and above-waterline captions float on a light
+   page background, so the dark-mode light fills (e.g. #d8eefb) become
+   invisible. Swap them for dark, readable tones. The below-waterline text
+   stays light because the ocean panel is fixed-dark in both themes. */
+[data-theme="light"] .kib-stamp {
+  fill: #2d6a4a;
+}
+[data-theme="light"] .kib-waterlbl-up {
+  fill: #2d7a4f;
+}
+[data-theme="light"] .kib-above-title {
+  fill: #1a3a5a;
+}
+[data-theme="light"] .kib-above-line {
+  fill: #4a6a8a;
+}
+.kib-leader {
+  stroke: #4a90d8;
+  stroke-width: 1;
+  opacity: 0.45;
+}
+.kib .kib-below {
+  font-family: var(--sans);
+  font-size: 21px;
+  font-weight: 600;
+}
+.kib-punch {
+  font-size: 24px;
+  font-weight: 700;
+}
+.kib .kib-unknown {
+  font-family: var(--sans);
+  font-size: 20px;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+
+/* the below-waterline rows, punch, and unknown line sit on the fixed dark
+   ocean panel — force light fills in either theme so dark-on-dark never
+   makes them unreadable. (CSS fill overrides the presentation attribute;
+   the per-row opacity ramp and the unknown's faintness stay inline.) */
+.kib-below {
+  fill: #bfe0f5;
+}
+.kib-punch {
+  fill: #eaf6ff;
+}
+.kib-unknown {
+  fill: #789ab6;
+}
+
+/* Cutaway: the iceberg stays visible while labels move onto a reading rail. */
+.kib[data-layout="briefing"] {
+  max-width: none;
+}
+.kib-cutaway {
+  --kib-waterline: 35.1613%;
+
+  position: relative;
+  display: grid;
+  min-height: calc(520px * var(--content-space-scale));
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: #061321;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+}
+.kib .kib-cutaway-art {
+  display: block;
+  align-self: stretch;
+  height: 100%;
+  min-height: 0;
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 33.3333%;
+  background: linear-gradient(var(--surface) 0 var(--kib-waterline), #061321 var(--kib-waterline));
+}
+.kib-cutaway-ocean {
+  fill: #061321;
+}
+.kib-cutaway-facet {
+  fill: none;
+  stroke: #2a6aaa;
+  stroke-width: 1;
+  opacity: 0.45;
+}
+.kib-cutaway::after {
+  content: "";
+  position: absolute;
+  top: var(--kib-waterline);
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: #4a90d8;
+  transform: translateY(-1px);
+  pointer-events: none;
+}
+.kib-cutaway-notes {
+  grid-column: 2;
+  display: grid;
+  grid-template-rows: var(--kib-waterline) 0 minmax(0, 1fr);
+}
+.kib-cutaway-zone {
+  padding: calc(28px * var(--content-space-scale)) calc(32px * var(--content-space-scale));
+}
+.kib-cutaway-visible {
+  background: var(--surface);
+}
+.kib-brief-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(20px * var(--content-space-scale));
+}
+.kib-brief-zone-label,
+.kib-brief-stamp {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.kib-brief-zone-label {
+  color: var(--accent);
+}
+.kib-brief-stamp {
+  color: var(--text-dim);
+  text-align: right;
+}
+.kib-cutaway-above {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(28px * var(--content-space-scale));
+  margin-top: calc(24px * var(--content-space-scale));
+  border-left: 1px solid var(--accent);
+  padding-left: calc(14px * var(--content-space-scale));
+}
+.kib-cutaway-callout,
+.kib-cutaway-row {
+  min-width: 0;
+  padding-left: calc(14px * var(--content-space-scale));
+}
+.kib-cutaway-callout {
+  border-left: 0;
+  padding-left: 0;
+}
+.kib-cutaway-callout strong {
+  display: block;
+  color: var(--text);
+  line-height: 1.3;
+  font-size: 1.15rem;
+}
+.kib-brief-lines {
+  display: grid;
+  gap: calc(4px * var(--content-space-scale));
+  margin-top: calc(7px * var(--content-space-scale));
+  color: var(--text-dim);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+}
+
+.kib-cutaway-hidden {
+  display: grid;
+  gap: calc(20px * var(--content-space-scale));
+  background: #061321;
+  color: #bfe0f5;
+  align-content: start;
+}
+.kib-cutaway-hidden .kib-brief-zone-label {
+  color: #5a8fc0;
+}
+.kib-cutaway-below {
+  display: grid;
+  gap: 0;
+}
+.kib-cutaway-row {
+  padding: calc(12px * var(--content-space-scale)) 0;
+  padding-left: calc(14px * var(--content-space-scale));
+  border-top: 1px solid color-mix(in srgb, #5a8fc0 28%, transparent);
+  border-left: 1px solid color-mix(in srgb, #5a8fc0 48%, transparent);
+}
+.kib-cutaway-cells {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: calc(12px * var(--content-space-scale)) calc(28px * var(--content-space-scale));
+  line-height: 1.35;
+  font-weight: 500;
+  font-size: 1.08rem;
+}
+.kib-cutaway-cells span:only-child {
+  grid-column: 1 / -1;
+}
+.kib-brief-punch {
+  color: #eaf6ff;
+  font-size: 1.08rem;
+}
+.kib-brief-bottom {
+  color: #5a7892;
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
+@media (width <= 640px) {
+  .kib-cutaway {
+    grid-template-columns: minmax(80px, 26%) minmax(0, 1fr);
+    min-height: calc(680px * var(--content-space-scale));
+  }
+  .kib-cutaway-above,
+  .kib-cutaway-cells {
+    grid-template-columns: 1fr;
+  }
+  .kib-cutaway-cells span:only-child {
+    grid-column: auto;
+  }
+  .kib-cutaway-zone {
+    padding-right: calc(16px * var(--content-space-scale));
+    padding-left: calc(16px * var(--content-space-scale));
+  }
+  .kib-brief-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: calc(6px * var(--content-space-scale));
+  }
+  .kib-brief-stamp {
+    text-align: left;
+  }
+}
+
+.pr-stage .kib[data-layout="briefing"] {
+  max-width: none;
+  margin: 0 auto;
+}
+
+/* Icebergs need a panoramic stage: the callouts flank, rather than cover,
+   the silhouette. Scope the wider composition to this component. */
+.pr-slide .pr-stage:has(.kib) {
+  width: min(1400px, 94vw);
+}
+
+@media (width <= 640px) {
+  .kib .kib-cutaway-art {
+    width: 26%;
+  }
+}
+
+.kib-mobile-reading {
+  display: none;
+}
+
+@media (width <= 640px) {
+  .kib[data-layout="iceberg"] > svg {
+    display: none;
+  }
+  .kib-mobile-reading {
+    display: grid;
+  }
+}
+
+.kib .kib-cutaway-mobile-art {
+  display: none;
+}
+
+@media (width <= 640px) {
+  .kib .kib-cutaway-art,
+  .kib-cutaway::after {
+    display: none;
+  }
+  .kib-cutaway-notes {
+    display: contents;
+  }
+  .kib .kib-cutaway-mobile-art {
+    display: block;
+    grid-column: 1 / 2;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    position: absolute;
+    overflow: hidden;
+    inset: 0;
+  }
+  .kib-cutaway-mobile-art.above {
+    grid-row: 1 / 2;
+    background: var(--surface);
+  }
+  .kib-cutaway-mobile-art.below {
+    grid-row: 3 / 4;
+  }
+  .kib-cutaway-visible {
+    grid-area: 1 / 2;
+  }
+  .kib-cutaway-hidden {
+    grid-area: 3 / 2;
+  }
+  .kib-cutaway-waterline {
+    grid-area: 2 / 1 / 3 / -1;
+    height: 2px;
+    background: #4a90d8;
+  }
+}

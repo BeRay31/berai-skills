@@ -1,0 +1,528 @@
+/* ── Present mode (kit, fixed) ─────────────────────────────────────────
+   Ships as-is with every explainer. Page CSS may add .pr-stage overrides
+   for topic-specific devices (restoring desktop layouts under zoom). */
+.present-toggle {
+  position: fixed;
+  top: 24px;
+  right: 80px;
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.4s var(--ease-out-expo);
+  font-size: 14px;
+}
+.present-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: scale(1.1);
+}
+body.presenting {
+  overflow: hidden;
+}
+body.presenting .theme-toggle,
+body.presenting .present-toggle,
+body.presenting .simulation-disclosure {
+  z-index: 300;
+}
+.pr-deck {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  display: none;
+  outline: none;
+}
+.pr-deck::before {
+  content: "";
+  position: absolute;
+  top: -220px;
+  right: -220px;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-dim), transparent 70%);
+  opacity: 0.25;
+  pointer-events: none;
+}
+.pr-deck::after {
+  content: "";
+  position: absolute;
+  bottom: -240px;
+  left: -220px;
+  width: 620px;
+  height: 620px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--violet-dim), transparent 70%);
+  opacity: 0.22;
+  pointer-events: none;
+}
+body.presenting .pr-deck {
+  display: block;
+}
+body.pr-exporting .pr-slide {
+  position: fixed !important;
+  inset: auto !important;
+  top: 0 !important;
+  left: -12000px !important;
+  display: flex !important;
+  width: 960px !important;
+  max-width: none !important;
+  height: 540px !important;
+  min-height: 540px !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: var(--bg) !important;
+  transform: none !important;
+  pointer-events: none !important;
+}
+body.pr-exporting .pr-slide *,
+body.pr-exporting .pr-slide *::before,
+body.pr-exporting .pr-slide *::after {
+  animation: none !important;
+  transition: none !important;
+}
+body.pr-exporting .kdf-dots,
+body.pr-exporting .kdf-controls,
+body.pr-exporting .kch-walk-dots,
+body.pr-exporting .kch-walk-controls,
+body.pr-exporting .krm-dots,
+body.pr-exporting .krm-controls {
+  display: none !important;
+}
+body.pr-exporting .kdf-walk,
+body.pr-exporting .kch-walk-guided,
+body.pr-exporting .krm-walk {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+/* Walkthrough controls carry the visual hierarchy in the live presentation.
+   Once export removes them, keep the authored explanation as a deliberate
+   native card instead of leaving a bare divider and loose text. Solid fills,
+   borders, and radii survive both PowerPoint and Google Slides conversion. */
+body.pr-exporting :is(.kdf-walk, .kch-walk-guided, .krm-walk) {
+  position: relative;
+  gap: 0 !important;
+  margin-top: 14px !important;
+  padding: 15px 20px 15px 24px !important;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--border)) !important;
+  border-left: 4px solid var(--accent) !important;
+  border-radius: 10px !important;
+  background: color-mix(in srgb, var(--surface) 88%, var(--accent) 12%) !important;
+}
+body.pr-exporting :is(.kdf-annotation, .kch-walk-annotation, .krm-annotation) {
+  min-height: 0 !important;
+}
+body.pr-exporting :is(.kdf-annotation, .kch-walk-annotation, .krm-annotation) strong {
+  color: var(--text) !important;
+}
+body.pr-exporting :is(.kdf-annotation, .kch-walk-annotation, .krm-annotation) p {
+  display: block !important;
+}
+
+/* Contextual free-form architecture already carries its essential labels in
+   the diagram. The reading-view reference list repeats overflow metadata and
+   makes a 16:9 export shrink the actual architecture. Leave it in reading
+   view, but remove the duplicate list from the static presentation handoff. */
+body.pr-exporting .kdf-architecture[data-detail="contextual"] > .kdf-reference-notes {
+  display: none !important;
+}
+body.pr-exporting .pr-slide:has(.kdf-architecture) {
+  padding: 32px 32px 48px !important;
+}
+body.pr-exporting .pr-stage:has(.kdf-architecture) > * + * {
+  margin-top: calc(18px * var(--content-space-scale)) !important;
+}
+body.pr-exporting .pr-stage:has(.kdf-architecture) > .pr-title {
+  margin-top: calc(10px * var(--content-space-scale)) !important;
+}
+body.pr-exporting .pr-slide:has(.kdf-architecture) .pr-title {
+  max-width: none !important;
+  font-size: 1.9rem !important;
+  line-height: 1.05 !important;
+}
+body.pr-exporting .kdf-architecture > .kdf-legend {
+  flex-wrap: nowrap !important;
+  gap: 6px 10px !important;
+  margin-top: 4px !important;
+  padding: 6px 10px !important;
+}
+body.pr-exporting .kdf-architecture > .kdf-legend .kdf-legend-num {
+  width: 20px !important;
+  height: 20px !important;
+  font-size: 0.66rem !important;
+}
+body.pr-exporting .kdf-architecture > .kdf-legend .kdf-legend-text {
+  font-size: 0.72rem !important;
+}
+body.pr-exporting .kdf-architecture > .kdf-walk {
+  margin-top: 8px !important;
+  padding: 10px 14px 10px 18px !important;
+}
+body.pr-exporting .kdf-architecture > .kdf-walk .kdf-annotation strong {
+  font-size: 0.9rem !important;
+}
+body.pr-exporting .kdf-architecture > .kdf-walk .kdf-annotation p {
+  font-size: 0.82rem !important;
+}
+
+/* Tables are naturally wide but comparatively shallow. The default slide
+   frame spends too much of their 16:9 canvas on outer whitespace, especially
+   when a walkthrough locks every exported state to the final row count. Give
+   the family a presentation-sized frame, then compact only the tall ledger
+   variant so its stable step geometry remains readable without scale jumps. */
+body.pr-exporting .pr-slide:has(.pr-stage .kt) {
+  padding: 32px 36px 48px !important;
+}
+body.pr-exporting .pr-stage:has(.kt) > * + * {
+  margin-top: calc(18px * var(--content-space-scale)) !important;
+}
+body.pr-exporting .pr-slide:has(.pr-stage .kt) .pr-title {
+  max-width: none !important;
+  font-size: 1.9rem !important;
+  line-height: 1.05 !important;
+}
+body.pr-exporting .pr-stage .kt-rows .kt-group {
+  padding: 16px 0 8px !important;
+}
+body.pr-exporting .pr-stage .kt-rows .kt-row {
+  padding: 10px 3px !important;
+}
+
+/* Slides substitutes fonts and gives each detached text run its own metrics.
+   Sequence actor cards are deliberately compact, so a wrapped actor name plus
+   its sublabel otherwise gains enough height during import to cross the card
+   edge. Reserve a little conversion tolerance without changing live Present. */
+body.pr-exporting .kseq-actor > strong {
+  font-size: 1rem !important;
+  line-height: 1.05 !important;
+}
+body.pr-exporting .kseq-actor > small {
+  margin-top: 3px !important;
+  font-size: 0.72rem !important;
+  line-height: 1.05 !important;
+}
+
+/* Big-stat values and units become separate native text boxes. Google Slides
+   renders the bold mono numeral wider than the browser-measured box, so leave
+   an explicit edit-safe gutter before the unit instead of allowing overlap. */
+body.pr-exporting .kch-stat-unit {
+  margin-left: 0.48em !important;
+}
+
+/* Loop and stepper detail panels use Motion to swap their children. An export
+   started during that short entrance can otherwise detach the inline opacity:0
+   frame and produce an empty native panel. Static capture always wants the
+   settled state. */
+body.pr-exporting :is(.klp-detail, .kst-panel) > * {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* Topic slats use tiny opposing rotations in the browser. They are decorative
+   and the office shape model cannot preserve their nested CSS transform, so
+   keep the editable slats parallel in the static handoff. */
+body.pr-exporting .kdf-node.topic .kdf-slats b {
+  transform: none !important;
+}
+
+/* Code panes scroll horizontally in the browser. A static slide cannot expose
+   that hidden text, so wrap long source lines into the available native text
+   box while retaining line numbers, diff marks, and editable tokens. */
+body.pr-exporting .kcd-lines {
+  overflow-x: visible !important;
+}
+body.pr-exporting .kcd-line {
+  grid-template-columns: 24px 36px minmax(0, 1fr) !important;
+}
+body.pr-exporting .kcd-source {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap !important;
+}
+
+/* Section slides use a translucent CSS gradient above their pattern and below
+   their copy. Editable presentation formats cannot preserve that gradient's
+   stacking and transparency: flattening it produces an opaque rectangle that
+   covers the finished slide after Google Slides conversion. Omit that veil and
+   replace it on centered slides with a native, background-colored quiet zone.
+   The rounded shape sits after the pattern and before the copy in DOM order, so
+   office importers preserve the intended layer order without obscuring text. */
+body.pr-exporting .ksc::after {
+  display: none !important;
+}
+body.pr-exporting .ksc[data-layout="centered"] .ksc-export-quiet-zone {
+  position: absolute;
+  inset: 16% 14%;
+  z-index: -1;
+  display: block;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 72%, var(--surface));
+}
+.pr-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 48px 96px;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.32s var(--ease-out-expo),
+    visibility 0s linear 0.32s;
+}
+.pr-slide.active {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.32s var(--ease-out-expo) 0.04s,
+    visibility 0s;
+}
+.pr-deck.pr-continuing .pr-slide,
+.pr-deck.pr-continuing .pr-slide.active {
+  transition: none;
+}
+.pr-stage {
+  width: min(1100px, 94vw);
+  transform-origin: center center;
+}
+
+@keyframes pr-stage-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+.pr-stage.pr-entering {
+  animation: pr-stage-in 0.45s var(--ease-out-expo);
+}
+.pr-deck.pr-continuing .pr-stage.pr-entering {
+  animation: none;
+}
+.pr-slide.pr-scroll {
+  align-items: flex-start;
+  overflow-y: auto;
+}
+.pr-slide.pr-scroll-x {
+  justify-content: flex-start;
+  overflow-x: auto;
+}
+.pr-slide.pr-scroll:focus-visible,
+.pr-slide.pr-scroll-x:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -4px;
+}
+.pr-slide[data-layout="wide"] .pr-stage {
+  width: min(1320px, 96vw);
+}
+.pr-stage > * + * {
+  margin-top: calc(30px * var(--content-space-scale)) !important;
+}
+.pr-stage > :first-child {
+  margin-top: 0 !important;
+}
+.pr-stage > .pr-title {
+  margin-top: calc(14px * var(--content-space-scale)) !important;
+}
+.pr-stage section {
+  padding: 0 !important;
+}
+.pr-stage section::before {
+  display: none !important;
+}
+.pr-stage .hero {
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+.pr-stage .artifact {
+  margin-top: calc(30px * var(--content-space-scale)) !important;
+}
+.pr-stage .muted-note {
+  display: none !important;
+}
+.pr-stage .sec-sub {
+  font-size: 1.08rem;
+}
+.pr-stage .tldr,
+.pr-stage .gloss-hint {
+  display: none !important;
+}
+
+/* a synthesized kicker replaces the section's own eyebrow (direct child of an
+   adopted head block only — component eyebrows sit deeper and survive) */
+.pr-stage.has-kicker > div > .eyebrow {
+  display: none;
+}
+.pr-stage .pair-grid {
+  grid-template-columns: 1fr 1fr;
+}
+.pr-kicker {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pr-kicker::before {
+  content: "";
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+}
+
+/* continuation tag: a slide split for the scale budget announces its part —
+   derived from the manifest chain (continues:true), never hand-authored */
+.pr-part {
+  margin-left: auto;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text-faint);
+  letter-spacing: 0.1em;
+}
+.pr-title {
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.pr-hud {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: none;
+  align-items: center;
+  gap: 4px;
+  padding: 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 100px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(12px);
+  transition: opacity 0.4s ease;
+}
+body.presenting .pr-hud {
+  display: flex;
+}
+.pr-hud.idle {
+  opacity: 0;
+  pointer-events: none;
+}
+.pr-hud button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--text-dim);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.95rem;
+  display: grid;
+  place-items: center;
+  transition: all 0.3s var(--ease-out-expo);
+}
+.pr-hud button:hover:not(:disabled) {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+.pr-hud button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.pr-count {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  padding: 0 10px;
+  min-width: 64px;
+  text-align: center;
+}
+.pr-hint {
+  position: fixed;
+  left: 50%;
+  top: 24px;
+  transform: translateX(-50%);
+  z-index: 300;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 100px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(12px);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  transition: opacity 0.4s ease;
+}
+body.presenting .pr-hint {
+  display: flex;
+}
+.pr-hint.idle {
+  opacity: 0;
+  pointer-events: none;
+}
+.pr-progress {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  z-index: 300;
+  display: none;
+  background: color-mix(in srgb, var(--border) 60%, transparent);
+}
+body.presenting .pr-progress {
+  display: block;
+}
+.pr-progress i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+  transition: width 0.45s var(--ease-out-expo);
+}
+.pr-progress b {
+  position: absolute;
+  top: -2px;
+  bottom: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: color-mix(in srgb, var(--text-dim) 55%, transparent);
+}
+.pr-deck .pr-frag {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.5s var(--ease-out-expo),
+    transform 0.5s var(--ease-out-expo);
+}
+.pr-deck .pr-frag.pr-on {
+  opacity: 1;
+  transform: none;
+}
+
+@media (width <= 900px) {
+  .present-toggle {
+    display: none;
+  }
+}

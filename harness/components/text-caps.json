@@ -1,0 +1,979 @@
+{
+  "schema": 1,
+  "rules": [
+    {
+      "id": "architecture-node-copy",
+      "component": "architecture",
+      "renderers": ["renderArchitecture", "renderDataFlow", "renderOperatingModel"],
+      "targets": [
+        {
+          "path": "nodes[].eyebrow",
+          "max": 20,
+          "measure": "passive-inline",
+          "hint": "Shorten the eyebrow to a compact category label."
+        },
+        {
+          "path": "nodes[].title",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reword the node title to fit one short card heading.",
+          "fallback": "id"
+        },
+        {
+          "path": "nodes[].sub",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reduce node subcopy to one short phrase."
+        },
+        {
+          "path": "edges[].filter",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Use a predicate fragment, not a sentence."
+        }
+      ]
+    },
+    {
+      "id": "architecture-operating-model-copy",
+      "component": "architecture",
+      "renderers": ["renderArchitecture", "renderOperatingModel"],
+      "when": {
+        "preset": ["operating-model", null]
+      },
+      "unlessAnyNonempty": ["groups", "nodes", "edges"],
+      "targets": [
+        {
+          "path": "stages[].title",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Keep operating-model copy concise enough for a presentation."
+        },
+        {
+          "path": "stages[].owner",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Keep operating-model copy concise enough for a presentation."
+        },
+        {
+          "path": "stages[].cadence",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Keep operating-model copy concise enough for a presentation."
+        },
+        {
+          "path": "stages[].decider",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Keep operating-model copy concise enough for a presentation."
+        },
+        {
+          "path": "stages[].partners",
+          "max": 60,
+          "measure": "plain",
+          "hint": "Keep operating-model copy concise enough for a presentation."
+        },
+        {
+          "path": "stages[].body",
+          "max": 140,
+          "measure": "plain",
+          "hint": "Keep operating-model copy concise enough for a presentation."
+        },
+        {
+          "path": "handoffs[].label",
+          "max": 36,
+          "measure": "plain",
+          "hint": "Keep operating-model copy concise enough for a presentation."
+        },
+        {
+          "path": "handoffs[].acceptance",
+          "max": 100,
+          "measure": "plain",
+          "hint": "Keep operating-model copy concise enough for a presentation."
+        },
+        {
+          "path": "stages[].audience",
+          "max": 60,
+          "measure": "plain",
+          "hint": "Name who can use the product in this phase."
+        },
+        {
+          "path": "handoffs[].approver",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Name the role that decides whether this gate passes."
+        },
+        {
+          "path": "handoffs[].hold",
+          "max": 80,
+          "measure": "plain",
+          "hint": "State what happens if the gate criteria are not met."
+        },
+        {
+          "path": "handoffs[].criteria[].label",
+          "max": 48,
+          "measure": "plain",
+          "hint": "State one exit criterion, not a paragraph."
+        },
+        {
+          "path": "handoffs[].criteria[].evidence",
+          "max": 72,
+          "measure": "plain",
+          "hint": "Name the evidence required to demonstrate the criterion."
+        },
+        {
+          "path": "progression.states[].label",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Name the capability state with a short, reusable label."
+        },
+        {
+          "path": "progression.capabilities[].label",
+          "max": 30,
+          "measure": "plain",
+          "hint": "Keep capability names concise and identical across phases."
+        },
+        {
+          "path": "progression.horizons[].label",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Name the delivery horizon without a paragraph."
+        },
+        {
+          "path": "progression.horizons[].owner",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Name the accountable owner for this delivery horizon."
+        },
+        {
+          "path": "progression.caption",
+          "max": 120,
+          "measure": "plain",
+          "hint": "Clarify whether these are target or observed states."
+        },
+        {
+          "path": "principle",
+          "max": 100,
+          "measure": "plain",
+          "hint": "Keep operating-model copy concise enough for a presentation."
+        },
+        {
+          "path": "policy[].eyebrow",
+          "max": 20,
+          "measure": "passive-inline",
+          "hint": "Shorten the policy eyebrow to a compact category label."
+        },
+        {
+          "path": "policy[].title",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reword the policy title to fit one short card heading."
+        },
+        {
+          "path": "policy[].sub",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reduce policy subcopy to one short phrase."
+        },
+        {
+          "path": "inputs[].eyebrow",
+          "max": 20,
+          "measure": "passive-inline",
+          "hint": "Shorten the input eyebrow to a compact category label."
+        },
+        {
+          "path": "inputs[].title",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reword the input title to fit one short card heading."
+        },
+        {
+          "path": "inputs[].sub",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reduce input subcopy to one short phrase."
+        },
+        {
+          "path": "decision.eyebrow",
+          "max": 20,
+          "measure": "passive-inline",
+          "hint": "Shorten the decision eyebrow to a compact category label."
+        },
+        {
+          "path": "decision.title",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reword the decision title to fit one short card heading."
+        },
+        {
+          "path": "decision.sub",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reduce decision subcopy to one short phrase.",
+          "fallback": "body"
+        },
+        {
+          "path": "outputs[].eyebrow",
+          "max": 20,
+          "measure": "passive-inline",
+          "hint": "Shorten the output eyebrow to a compact category label."
+        },
+        {
+          "path": "outputs[].title",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reword the output title to fit one short card heading."
+        },
+        {
+          "path": "outputs[].sub",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reduce output subcopy to one short phrase."
+        },
+        {
+          "path": "audit.eyebrow",
+          "max": 20,
+          "measure": "passive-inline",
+          "hint": "Shorten the audit eyebrow to a compact category label."
+        },
+        {
+          "path": "audit.title",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reword the audit title to fit one short card heading."
+        },
+        {
+          "path": "audit.sub",
+          "max": 30,
+          "measure": "passive-inline",
+          "hint": "Reduce audit subcopy to one short phrase."
+        }
+      ]
+    },
+    {
+      "id": "architecture-sequence-copy",
+      "component": "architecture",
+      "renderers": ["renderSequence"],
+      "targets": [
+        {
+          "path": "actors[].label",
+          "max": 16,
+          "measure": "plain",
+          "hint": "Use a short actor name without an inline list."
+        },
+        {
+          "path": "actors[].sub",
+          "max": 18,
+          "measure": "plain",
+          "hint": "Reduce the actor subtitle to a brief role."
+        },
+        {
+          "path": "messages[].label",
+          "max": 28,
+          "measure": "plain",
+          "hint": "Shorten the message to a compact action phrase."
+        },
+        {
+          "path": "messages[].filter",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Use a predicate fragment, not a sentence."
+        }
+      ]
+    },
+    {
+      "id": "architecture-erd-copy",
+      "component": "architecture",
+      "renderers": ["renderErd"],
+      "targets": [
+        {
+          "path": "entities[].label",
+          "max": 22,
+          "measure": "plain",
+          "hint": "Shorten the entity name to a compact heading."
+        },
+        {
+          "path": "entities[].attrs[].name",
+          "max": 18,
+          "measure": "plain",
+          "hint": "Use a shorter attribute name or abbreviation."
+        },
+        {
+          "path": "entities[].attrs[].type",
+          "max": 10,
+          "measure": "plain",
+          "hint": "Use a compact type name."
+        },
+        {
+          "path": "relations[].label",
+          "max": 20,
+          "measure": "plain",
+          "hint": "Use a short relationship verb."
+        }
+      ]
+    },
+    {
+      "id": "architecture-stack-flow-copy",
+      "component": "architecture",
+      "renderers": ["renderStack"],
+      "when": {
+        "mode": [null, "flow"]
+      },
+      "targets": [
+        {
+          "path": "lanes[].label",
+          "max": 22,
+          "measure": "plain",
+          "hint": "Shorten the lane heading."
+        },
+        {
+          "path": "lanes[].sub",
+          "max": 28,
+          "measure": "plain",
+          "hint": "Reduce the lane subtitle to one phrase."
+        },
+        {
+          "path": "lanes[].frames[].fn",
+          "max": 36,
+          "measure": "plain",
+          "hint": "Shorten the function signature shown in the frame."
+        },
+        {
+          "path": "lanes[].frames[].note",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Reduce the frame note to one concise phrase."
+        },
+        {
+          "path": "lanes[].frames[].file",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Shorten or abbreviate the displayed file path."
+        },
+        {
+          "path": "lanes[].frames[].code[]",
+          "max": 64,
+          "measure": "plain",
+          "hint": "Shorten the code line to 64 UTF-16 units or fewer."
+        },
+        {
+          "path": "lanes[].frames[].chips[].label",
+          "max": 22,
+          "measure": "plain",
+          "hint": "Shorten the side-effect chip label."
+        },
+        {
+          "path": "lanes[].frames[].guard",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Reduce the guard to a compact exit condition."
+        }
+      ]
+    },
+    {
+      "id": "architecture-stack-diff-copy",
+      "component": "architecture",
+      "renderers": ["renderStack"],
+      "when": {
+        "mode": "diff"
+      },
+      "targets": [
+        {
+          "path": "before.label",
+          "max": 14,
+          "measure": "plain",
+          "hint": "Use a short label for the before pane."
+        },
+        {
+          "path": "after.label",
+          "max": 14,
+          "measure": "plain",
+          "hint": "Use a short label for the after pane."
+        },
+        {
+          "path": "before.lanes[].label",
+          "max": 22,
+          "measure": "plain",
+          "hint": "Shorten the before-side lane heading."
+        },
+        {
+          "path": "before.lanes[].sub",
+          "max": 28,
+          "measure": "plain",
+          "hint": "Reduce the before-side lane subtitle to one phrase."
+        },
+        {
+          "path": "before.lanes[].frames[].fn",
+          "max": 36,
+          "measure": "plain",
+          "hint": "Shorten the before-side function signature."
+        },
+        {
+          "path": "before.lanes[].frames[].note",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Reduce the before-side frame note to one phrase."
+        },
+        {
+          "path": "before.lanes[].frames[].file",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Shorten the before-side displayed file path."
+        },
+        {
+          "path": "before.lanes[].frames[].code[]",
+          "max": 64,
+          "measure": "plain",
+          "hint": "Shorten the before-side code line to 64 UTF-16 units or fewer."
+        },
+        {
+          "path": "before.lanes[].frames[].chips[].label",
+          "max": 22,
+          "measure": "plain",
+          "hint": "Shorten the before-side side-effect chip label."
+        },
+        {
+          "path": "before.lanes[].frames[].guard",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Reduce the before-side guard to a compact exit condition."
+        },
+        {
+          "path": "after.lanes[].label",
+          "max": 22,
+          "measure": "plain",
+          "hint": "Shorten the after-side lane heading."
+        },
+        {
+          "path": "after.lanes[].sub",
+          "max": 28,
+          "measure": "plain",
+          "hint": "Reduce the after-side lane subtitle to one phrase."
+        },
+        {
+          "path": "after.lanes[].frames[].fn",
+          "max": 36,
+          "measure": "plain",
+          "hint": "Shorten the after-side function signature."
+        },
+        {
+          "path": "after.lanes[].frames[].note",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Reduce the after-side frame note to one phrase."
+        },
+        {
+          "path": "after.lanes[].frames[].file",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Shorten the after-side displayed file path."
+        },
+        {
+          "path": "after.lanes[].frames[].code[]",
+          "max": 64,
+          "measure": "plain",
+          "hint": "Shorten the after-side code line to 64 UTF-16 units or fewer."
+        },
+        {
+          "path": "after.lanes[].frames[].chips[].label",
+          "max": 22,
+          "measure": "plain",
+          "hint": "Shorten the after-side side-effect chip label."
+        },
+        {
+          "path": "after.lanes[].frames[].guard",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Reduce the after-side guard to a compact exit condition."
+        },
+        {
+          "path": "after.lanes[].frames[].was",
+          "max": 36,
+          "measure": "plain",
+          "hint": "Shorten the previous function name shown by the rename."
+        }
+      ]
+    },
+    {
+      "id": "trace-copy",
+      "component": "trace",
+      "renderers": ["renderChart", "renderTrace"],
+      "when": {
+        "kind": ["trace", null]
+      },
+      "targets": [
+        {
+          "path": "spans[].lane",
+          "max": 16,
+          "measure": "plain",
+          "hint": "Shorten the lane name."
+        },
+        {
+          "path": "spans[].label",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Shorten the span label to a compact action."
+        },
+        {
+          "path": "spans[].note",
+          "max": 28,
+          "measure": "plain",
+          "hint": "Reduce the span note to one brief phrase."
+        },
+        {
+          "path": "compare.before.label",
+          "max": 14,
+          "measure": "plain",
+          "hint": "Use a short label for the before trace."
+        },
+        {
+          "path": "compare.before.spans[].lane",
+          "max": 16,
+          "measure": "plain",
+          "hint": "Shorten the before-trace lane name."
+        },
+        {
+          "path": "compare.before.spans[].label",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Shorten the before-trace span label."
+        },
+        {
+          "path": "compare.before.spans[].note",
+          "max": 28,
+          "measure": "plain",
+          "hint": "Reduce the before-trace span note to one phrase."
+        },
+        {
+          "path": "compare.after.label",
+          "max": 14,
+          "measure": "plain",
+          "hint": "Use a short label for the after trace."
+        },
+        {
+          "path": "compare.after.spans[].lane",
+          "max": 16,
+          "measure": "plain",
+          "hint": "Shorten the after-trace lane name."
+        },
+        {
+          "path": "compare.after.spans[].label",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Shorten the after-trace span label."
+        },
+        {
+          "path": "compare.after.spans[].note",
+          "max": 28,
+          "measure": "plain",
+          "hint": "Reduce the after-trace span note to one phrase."
+        }
+      ]
+    },
+    {
+      "id": "flow-copy",
+      "component": "flow",
+      "renderers": ["renderFlow"],
+      "targets": [
+        {
+          "path": "items[].when",
+          "max": 22,
+          "measure": "plain",
+          "hint": "Shorten the timing or condition label."
+        },
+        {
+          "path": "items[].label",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Shorten the flow-card heading."
+        },
+        {
+          "path": "items[].subs[]",
+          "max": 30,
+          "measure": "plain",
+          "hint": "Use one short phrase per sub line.",
+          "fallback": "sub"
+        },
+        {
+          "path": "items[].outcomes[].text",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Shorten the gate outcome to a compact result."
+        }
+      ]
+    },
+    {
+      "id": "table-before-after-copy",
+      "component": "table",
+      "renderers": ["renderTable", "renderBeforeAfter"],
+      "when": {
+        "mode": ["before-after", null]
+      },
+      "targets": [
+        {
+          "path": "rows[].title",
+          "max": 40,
+          "measure": "passive-inline",
+          "hint": "Shorten the row title to one compact claim."
+        },
+        {
+          "path": "rows[].before",
+          "max": 60,
+          "measure": "plain",
+          "hint": "Reduce the before state to one concise line."
+        },
+        {
+          "path": "rows[].after",
+          "max": 60,
+          "measure": "plain",
+          "hint": "Reduce the after state to one concise line."
+        }
+      ]
+    },
+    {
+      "id": "loop-copy",
+      "component": "loop",
+      "renderers": ["renderLoop"],
+      "targets": [
+        {
+          "path": "stages[].num",
+          "max": 4,
+          "measure": "plain",
+          "hint": "Use a compact stage number or marker."
+        },
+        {
+          "path": "stages[].label",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Shorten the stage label."
+        },
+        {
+          "path": "stages[].tag",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Shorten the stage tag."
+        },
+        {
+          "path": "stages[].eyebrow",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Reduce the detail eyebrow to a compact category."
+        },
+        {
+          "path": "stages[].title",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Shorten the stage title to one line."
+        },
+        {
+          "path": "stages[].body",
+          "max": 180,
+          "measure": "plain",
+          "hint": "Condense the stage body to a brief explanation."
+        },
+        {
+          "path": "legend[].label",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Shorten the legend label."
+        },
+        {
+          "path": "return.label",
+          "max": 48,
+          "measure": "plain",
+          "hint": "Reduce the return-arc label to one concise phrase."
+        }
+      ]
+    },
+    {
+      "id": "stepper-copy",
+      "component": "stepper",
+      "renderers": ["renderStepper"],
+      "targets": [
+        {
+          "path": "steps[].label",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Shorten the step label."
+        },
+        {
+          "path": "steps[].title",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Shorten the step title to one line."
+        },
+        {
+          "path": "steps[].body",
+          "max": 180,
+          "measure": "plain",
+          "hint": "Condense the step body to a brief explanation."
+        },
+        {
+          "path": "steps[].code.filename",
+          "max": 64,
+          "measure": "plain",
+          "hint": "Shorten or abbreviate the displayed filename."
+        }
+      ]
+    },
+    {
+      "id": "pyramid-copy",
+      "component": "pyramid",
+      "renderers": ["renderPyramid"],
+      "targets": [
+        {
+          "path": "layers[].name",
+          "max": 20,
+          "measure": "plain",
+          "hint": "Shorten the layer name."
+        },
+        {
+          "path": "layers[].count",
+          "max": 18,
+          "measure": "plain",
+          "hint": "Shorten the displayed layer quantity."
+        },
+        {
+          "path": "layers[].flag.label",
+          "max": 18,
+          "measure": "plain",
+          "hint": "Shorten the layer flag label."
+        }
+      ]
+    },
+    {
+      "id": "section-copy",
+      "component": "section",
+      "renderers": ["renderSection"],
+      "targets": [
+        {
+          "path": "kicker[]",
+          "max": 36,
+          "measure": "plain",
+          "hint": "Shorten each kicker line to a compact event or section label."
+        },
+        {
+          "path": "kicker",
+          "max": 36,
+          "measure": "plain",
+          "hint": "Shorten the kicker to a compact event or section label."
+        },
+        {
+          "path": "number",
+          "max": 8,
+          "measure": "plain",
+          "hint": "Use a compact chapter number."
+        },
+        {
+          "path": "title",
+          "max": 56,
+          "measure": "plain",
+          "hint": "Copyedit the section title into a short, room-readable phrase."
+        },
+        {
+          "path": "sub",
+          "max": 120,
+          "measure": "plain",
+          "hint": "Condense the subtitle to one sentence."
+        },
+        {
+          "path": "details[]",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Shorten each presenter-detail line."
+        }
+      ]
+    },
+    {
+      "id": "roadmap-copy",
+      "component": "roadmap",
+      "renderers": ["renderRoadmap"],
+      "targets": [
+        {
+          "path": "periods[].label",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Use a short phase heading; put dates in start/end and explanation in the walkthrough."
+        },
+        {
+          "path": "lanes[].label",
+          "max": 22,
+          "measure": "plain",
+          "hint": "Shorten the workstream heading."
+        },
+        {
+          "path": "lanes[].sub",
+          "max": 32,
+          "measure": "plain",
+          "hint": "Reduce the workstream subtitle to one phrase."
+        },
+        {
+          "path": "lanes[].items[].label",
+          "max": 28,
+          "measure": "plain",
+          "hint": "Shorten the roadmap item to a compact outcome."
+        },
+        {
+          "path": "lanes[].items[].note",
+          "max": 52,
+          "measure": "plain",
+          "hint": "Reduce the roadmap note to one concise line."
+        },
+        {
+          "path": "todayLabel",
+          "max": 12,
+          "measure": "plain",
+          "hint": "Use a compact today marker."
+        },
+        {
+          "path": "walkthrough[].title",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Shorten the walkthrough title to one claim."
+        },
+        {
+          "path": "walkthrough[].note",
+          "max": 120,
+          "measure": "plain",
+          "hint": "Condense the walkthrough note to one sentence."
+        }
+      ]
+    },
+    {
+      "id": "code-diff-copy",
+      "component": "code",
+      "renderers": ["renderCode"],
+      "when": { "mode": ["diff", null] },
+      "targets": [
+        {
+          "path": "before.label",
+          "max": 14,
+          "measure": "plain",
+          "hint": "Use a short before-pane label."
+        },
+        {
+          "path": "after.label",
+          "max": 14,
+          "measure": "plain",
+          "hint": "Use a short after-pane label."
+        },
+        {
+          "path": "before.file",
+          "max": 48,
+          "measure": "plain",
+          "hint": "Shorten or abbreviate the before filename."
+        },
+        {
+          "path": "after.file",
+          "max": 48,
+          "measure": "plain",
+          "hint": "Shorten or abbreviate the after filename."
+        },
+        {
+          "path": "before.lines[]",
+          "max": 88,
+          "measure": "plain",
+          "hint": "Shorten the displayed before-code line."
+        },
+        {
+          "path": "before.lines[].text",
+          "max": 88,
+          "measure": "plain",
+          "hint": "Shorten the displayed before-code line."
+        },
+        {
+          "path": "after.lines[]",
+          "max": 88,
+          "measure": "plain",
+          "hint": "Shorten the displayed after-code line."
+        },
+        {
+          "path": "after.lines[].text",
+          "max": 88,
+          "measure": "plain",
+          "hint": "Shorten the displayed after-code line."
+        },
+        {
+          "path": "walkthrough[].title",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Shorten the diff walkthrough title."
+        },
+        {
+          "path": "walkthrough[].note",
+          "max": 120,
+          "measure": "plain",
+          "hint": "Condense the diff walkthrough note to one sentence."
+        }
+      ]
+    },
+    {
+      "id": "chart-dots-copy",
+      "component": "chart",
+      "renderers": ["renderChart"],
+      "when": { "kind": "dots" },
+      "targets": [
+        {
+          "path": "parts[].label",
+          "max": 24,
+          "measure": "plain",
+          "hint": "Shorten the dot-group label."
+        },
+        {
+          "path": "walkthrough[].title",
+          "max": 40,
+          "measure": "plain",
+          "hint": "Shorten the walkthrough title to one claim."
+        },
+        {
+          "path": "walkthrough[].note",
+          "max": 120,
+          "measure": "plain",
+          "hint": "Condense the walkthrough note to one sentence."
+        }
+      ]
+    },
+    {
+      "id": "iceberg-copy",
+      "component": "iceberg",
+      "renderers": ["renderIceberg"],
+      "targets": [
+        {
+          "path": "above[].title",
+          "max": 22,
+          "measure": "plain",
+          "hint": "Shorten the tip callout title."
+        },
+        {
+          "path": "above[].lines[]",
+          "max": 26,
+          "measure": "plain",
+          "hint": "Use a short fragment for each tip callout line."
+        },
+        {
+          "path": "below[][]",
+          "max": 34,
+          "measure": "plain",
+          "hint": "Shorten the below-water cell to one fragment."
+        },
+        {
+          "path": "punch",
+          "max": 44,
+          "measure": "plain",
+          "hint": "Reduce the punch line to one sharp claim."
+        },
+        {
+          "path": "bottom",
+          "max": 60,
+          "measure": "plain",
+          "hint": "Condense the bottom line to one concise thought."
+        },
+        {
+          "path": "stamp",
+          "max": 48,
+          "measure": "plain",
+          "hint": "Shorten the ownership stamp."
+        }
+      ]
+    }
+  ]
+}

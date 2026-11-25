@@ -1,0 +1,30 @@
+.st-canvas-editing .kdf-node {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  overflow: visible;
+}
+.st-canvas-editing .kdf-node:hover {
+  outline: 1px solid var(--accent);
+  outline-offset: 3px;
+}
+.st-canvas-editing .kdf-node.st-node-selected,
+.st-canvas-editing .kdf-node:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.st-canvas-editing .kdf-node .st-node-resize {
+  display: block !important;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 18px;
+  height: 18px;
+  background: var(--accent);
+  border: 3px solid var(--bg);
+  cursor: nwse-resize;
+  margin: 0;
+}
+body.presenting .st-node-resize {
+  display: none !important;
+}

@@ -1,0 +1,34 @@
+# Ruff config for this kit's stdlib-only scripts (review.py, studio.py,
+# assemble.py). Ruff resolves the *nearest* config per file and does not
+# merge with a parent unless it says `extend`, so this file intentionally
+# stands alone: the repo-root pyproject.toml's select list (and every other
+# tree it governs) is untouched, while these three scripts get a full
+# `select = ["ALL"]` sweep with a short, justified ignore list.
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "T201",  # review.py/studio.py/assemble.py are CLI tools — printing IS the UI
+    "TRY003",  # die() intentionally carries a full sentence — that's the UX, not a lazy message
+    "D105",  # magic-method docstrings — the dunder itself is the contract
+    "D107",  # __init__ docstrings — documented on the class instead
+    "D203",  # numpy convention picks D211 (no blank line before class docstring)
+    "D213",  # numpy convention picks D212 (summary on the line right after """)
+    "COM812",  # formatter-owned (trailing comma placement)
+    "ISC001",  # formatter-owned (implicit str concat joins)
+    "E501",  # formatter doesn't wrap string literals; matches the root config's stance
+    "N802",  # do_GET/do_POST/log_message names are mandated by http.server's BaseHTTPRequestHandler
+    "S603",  # subprocess.run() here always takes a static, code-built argv (shell=False); matches root
+    "RUF001",  # ambiguous-unicode: × · — … are deliberate typography in this prose-heavy kit
+    "RUF002",  # ambiguous-unicode in docstrings, same reason as RUF001
+    "RUF003",  # ambiguous-unicode in comments, same reason as RUF001
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.format]
+docstring-code-format = true

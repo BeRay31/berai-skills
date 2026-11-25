@@ -1,0 +1,1230 @@
+/* Component: roadmap — multi-lane time map with numbered evidence key. */
+.krm {
+  --krm-planned: color-mix(in srgb, var(--text-dim) 78%, var(--text));
+
+  position: relative;
+  width: 100%;
+}
+.krm-canvas {
+  margin: 0;
+  overflow-x: auto;
+  border-block: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 76%, transparent);
+}
+.krm-canvas svg {
+  display: block;
+  width: 100%;
+  min-width: 980px;
+  height: auto;
+  font-family: var(--sans);
+  shape-rendering: geometricprecision;
+}
+.krm-card-canvas {
+  overflow: visible;
+}
+.krm-card-item {
+  --krm-card-state: var(--text-faint);
+
+  position: relative;
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  margin-top: 10px;
+  padding: 11px 12px 12px;
+  overflow: visible;
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--krm-card-state);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.32s,
+    transform 0.42s var(--ease-out-expo),
+    border-color 0.25s;
+}
+.krm-live .krm-card-item {
+  opacity: 1;
+  transform: none;
+}
+.krm-card-item.krm-state-done {
+  --krm-card-state: var(--success);
+}
+.krm-card-item.krm-state-now {
+  --krm-card-state: var(--accent);
+}
+.krm-card-item.krm-state-planned {
+  --krm-card-state: var(--krm-planned);
+
+  border-top-style: dashed;
+}
+.krm-card-item.krm-state-risk {
+  --krm-card-state: var(--warning);
+}
+.krm-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.krm-card-num,
+.krm-card-lane,
+.krm-card-dependency {
+  color: var(--text-faint);
+  font-family: var(--mono);
+  font-size: calc(var(--krm-meta-size, 16px) * 0.7);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.krm-card-lane {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.krm-card-title {
+  color: var(--text);
+  font-size: calc(var(--krm-item-label-size, 20px) * 0.72);
+  font-weight: var(--krm-item-label-weight, 560);
+  line-height: 1.25;
+}
+.krm-card-milestone .krm-card-title::before {
+  margin-right: 6px;
+  color: var(--krm-card-state);
+  content: "◆";
+}
+.krm-card-dependency {
+  display: block;
+  margin-top: 2px;
+  transition:
+    opacity 0.25s,
+    color 0.25s;
+}
+.krm-card-dependency.krm-focus {
+  color: var(--accent);
+}
+.krm-card-item.krm-dim,
+.krm-card-dependency.krm-dim {
+  opacity: 0.18;
+}
+.krm-card-item.krm-focus {
+  border-color: var(--krm-card-state);
+  border-top-width: 4px;
+}
+.krm-card-lane.krm-lane-focus,
+.krm-workstream-row.krm-lane-focus .krm-workstream-label {
+  color: var(--accent);
+}
+.krm-workstream-board {
+  display: grid;
+}
+.krm-workstream-columns,
+.krm-workstream-row {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.82fr) minmax(0, 3.18fr);
+  gap: 18px;
+}
+.krm-workstream-columns {
+  grid-template-columns: minmax(170px, 0.82fr) repeat(4, minmax(0, 0.795fr));
+  padding: 0 18px 10px;
+  color: var(--text-faint);
+  font: 700 11px/1.2 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.krm-workstream-row {
+  align-items: center;
+  min-height: calc(100px * var(--content-space-scale));
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.krm-workstream-row:last-child {
+  border-bottom: 0;
+}
+.krm-workstream-label {
+  display: grid;
+  gap: 4px;
+  color: var(--text);
+  font-size: calc(var(--krm-lane-label-size, 22px) * 0.72);
+}
+.krm-workstream-label strong {
+  font-weight: 650;
+}
+.krm-workstream-label small {
+  color: var(--text-dim);
+  font-size: calc(var(--krm-meta-size, 16px) * 0.76);
+}
+.krm-workstream-flow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  min-width: 0;
+}
+.krm-workstream-bucket {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-width: 0;
+}
+.krm-workstream-empty {
+  padding-top: 16px;
+  color: var(--text-faint);
+}
+.krm-workstream-flow .krm-card-item {
+  margin-top: 0;
+}
+.krm-period {
+  fill: color-mix(in srgb, var(--surface-hover) 44%, transparent);
+}
+.krm-period.alt {
+  fill: color-mix(in srgb, var(--surface) 18%, transparent);
+}
+.krm-period-rule,
+.krm-lane-rule {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.krm-period-label,
+.krm-today-label {
+  fill: var(--text-faint);
+  font-family: var(--mono);
+  font-size: var(--krm-meta-size, 16px);
+  font-weight: 750;
+  letter-spacing: 0.12em;
+}
+.krm-lane-label {
+  fill: var(--text);
+  font-size: var(--krm-lane-label-size, 22px);
+  font-weight: 560;
+}
+.krm-lane-sub {
+  fill: var(--text-dim);
+  font-size: var(--krm-meta-size, 16px);
+}
+.krm-mark,
+.krm-terminal {
+  vector-effect: non-scaling-stroke;
+  shape-rendering: geometricprecision;
+}
+.krm-state-done .krm-mark {
+  fill: var(--success);
+  stroke: none;
+}
+.krm-state-now .krm-mark {
+  fill: var(--accent);
+  stroke: none;
+}
+.krm-state-planned .krm-mark {
+  fill: none;
+  stroke: var(--krm-planned);
+  stroke-width: 3;
+  stroke-dasharray: 9 5;
+}
+.krm-state-risk .krm-mark {
+  fill: var(--warning);
+  stroke: none;
+}
+.krm-terminal {
+  stroke: currentcolor;
+  stroke-width: 1.35;
+  stroke-linecap: square;
+}
+.krm-state-planned .krm-terminal {
+  stroke: var(--krm-planned);
+}
+.krm-number text {
+  fill: var(--text-faint);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+}
+
+/* Canvas type is sized in viewBox units, so it shrinks with the drawing twice:
+   once by the viewBox mapping and again by Present's fit scale. The renderer
+   uses this same preset value for deterministic label placement. */
+.krm-item-label {
+  fill: var(--text);
+  font-size: var(--krm-item-label-size, 20px);
+  font-weight: var(--krm-item-label-weight, 560);
+}
+.krm-label-below {
+  fill: var(--text-dim);
+}
+.krm-state-done {
+  color: var(--success);
+}
+.krm-state-now {
+  color: var(--accent);
+}
+.krm-state-planned {
+  color: var(--krm-planned);
+}
+.krm-state-risk {
+  color: var(--warning);
+}
+.krm-item {
+  opacity: 0;
+  transform: translateY(7px);
+  transition:
+    opacity 0.42s var(--ease-out-expo),
+    transform 0.55s var(--ease-out-expo);
+}
+.krm-live .krm-item {
+  opacity: 1;
+  transform: none;
+}
+.krm-context-refresh .krm-item {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+.krm-item.krm-dim,
+.krm-legend-item.krm-dim,
+.krm-dependency.krm-dim {
+  opacity: 0.2;
+}
+.krm-item.krm-focus {
+  opacity: 1;
+}
+.krm-item.krm-focus .krm-mark,
+.krm-item.krm-focus .krm-terminal {
+  stroke: currentcolor;
+  stroke-width: 2;
+  paint-order: stroke fill;
+}
+.krm-dependency {
+  fill: none;
+  stroke: var(--text-faint);
+  stroke-width: 1.5;
+  opacity: 0.55;
+  transition:
+    opacity 0.3s,
+    stroke 0.3s;
+}
+.krm-dependency.krm-focus {
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  opacity: 1;
+}
+.krm-arrow-head {
+  fill: var(--text-faint);
+}
+.krm-today {
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-dasharray: 3 7;
+}
+.krm-today-label {
+  fill: var(--accent);
+}
+.krm-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 30px;
+  margin-top: 18px;
+  border-top: 1px solid var(--border);
+}
+.krm-legend-item {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  transition: opacity 0.3s;
+}
+.krm-legend-num {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+.krm-legend-copy {
+  display: grid;
+  gap: 2px;
+}
+.krm-legend-copy b {
+  font-size: 0.82rem;
+}
+.krm-legend-copy small {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+/* The key is Present's replacement for the rail, so it stays out of the way in
+   a scrolling read where the rail already carries every item. */
+.krm-key {
+  display: none;
+}
+.krm-lane-pages {
+  display: none;
+}
+.krm-key-item {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+}
+.krm-key-swatch {
+  position: relative;
+  flex: none;
+  width: 24px;
+  height: 5px;
+  border: 0;
+  border-radius: 1px;
+  background: currentcolor;
+}
+.krm-state-planned .krm-key-swatch {
+  height: 0;
+  border: 0;
+  border-top: 1.35px dashed currentcolor;
+  background: none;
+}
+.krm-key-swatch::before,
+.krm-key-swatch::after {
+  position: absolute;
+  top: -3px;
+  width: 1px;
+  height: 11px;
+  background: currentcolor;
+  content: "";
+}
+.krm-key-swatch::before {
+  left: 0;
+}
+.krm-key-swatch::after {
+  right: 0;
+}
+.krm-key-text {
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: var(--krm-key-size, 0.9rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.krm-walk {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.krm-dots {
+  display: flex;
+  gap: 8px;
+}
+.krm-dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: transparent;
+}
+.krm-dot.done {
+  background: var(--text-faint);
+}
+.krm-dot.current {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-dim);
+}
+.krm-annotation {
+  display: grid;
+  min-width: 0;
+}
+.krm-annotation-copy {
+  grid-area: 1 / 1;
+}
+.krm-annotation-reserve {
+  visibility: hidden;
+  pointer-events: none;
+}
+.krm-annotation strong {
+  display: block;
+  font-size: var(--krm-walk-title-size, 0.9rem);
+}
+.krm-annotation p {
+  margin: 3px 0 0;
+  color: var(--text-dim);
+  font-size: var(--krm-walk-note-size, 0.85rem);
+  line-height: 1.4;
+}
+.krm[data-walkthrough-text="false"] .krm-annotation {
+  display: none;
+}
+body:not(.presenting) .krm {
+  width: min(1440px, calc(100vw - 48px));
+  margin-left: calc((100% - min(1440px, calc(100vw - 48px))) /2);
+}
+
+/* A time map is the widest artifact the kit draws, so it claims the frame rather
+   than sitting in the default 1100px stage and paying for it in fit scale. */
+body.presenting .pr-slide .pr-stage:has(> .krm) {
+  width: min(1600px, calc(100vw - 32px));
+}
+body.presenting .pr-slide:has(.pr-stage > .krm) {
+  padding: 30px 20px 64px;
+}
+body.presenting:has(.pr-slide.active .pr-stage > .krm) .pr-hud {
+  bottom: 4px;
+}
+body.presenting .pr-stage .krm {
+  display: grid;
+  grid-template-areas:
+    "walk"
+    "canvas";
+  grid-template-columns: 1fr;
+  column-gap: 20px;
+  align-items: start;
+  width: 100%;
+}
+body.presenting .pr-stage .krm-canvas {
+  grid-area: canvas;
+}
+body.presenting .pr-stage .krm-canvas svg {
+  min-width: 0;
+}
+body.presenting .pr-stage .krm-legend {
+  display: none;
+}
+body.presenting .pr-stage .krm-number {
+  display: none;
+}
+body.presenting .pr-stage .krm-key {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px 22px;
+  align-items: center;
+  margin: 0 0 0 auto;
+  padding: 0;
+  border: 0;
+  white-space: nowrap;
+}
+body.presenting .pr-stage .krm-walk {
+  grid-area: walk;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  margin: 0 0 14px;
+  padding: 10px 0;
+  border-block: 1px solid var(--border);
+}
+
+@media (width <= 760px) {
+  .krm-legend {
+    grid-template-columns: 1fr;
+  }
+  .krm-walk {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  body.presenting .pr-slide:has(.pr-stage > .krm) {
+    padding: 22px 14px 96px;
+  }
+  body.presenting .pr-stage .krm {
+    grid-template-areas:
+      "canvas"
+      "key"
+      "walk";
+    grid-template-columns: 1fr;
+  }
+  body.presenting .pr-stage .krm-key {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+  .krm-workstream-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .krm-workstream-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width <= 480px) {
+  .krm-workstream-flow {
+    grid-template-columns: 1fr;
+  }
+  .krm-workstream-flow .krm-card-item::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .krm-item,
+  .krm-dependency,
+  .krm-card-item {
+    transition: none !important;
+  }
+}
+
+/* Three readings of the same facts: dated spans, phase commitments, and
+   ownership rows. The latter two use open typography, not a card collection. */
+.krm-card-canvas {
+  border: 0;
+  background: transparent;
+}
+.krm-card-item {
+  margin: 0;
+  padding: 20px 0;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+}
+.krm-card-item.krm-focus {
+  border-width: 0 0 1px;
+}
+.krm-card-head {
+  justify-content: flex-start;
+  gap: 12px;
+}
+.krm-card-num {
+  font: 500 11px/1.4 var(--mono);
+}
+.krm-card-lane {
+  font: 500 12px/1.4 var(--sans);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-dim);
+}
+.krm-card-title {
+  font-size: clamp(18px, 1.7vw, var(--krm-item-label-size));
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+.krm-card-date {
+  font: 500 12px/1.5 var(--sans);
+  color: var(--krm-card-state);
+}
+.krm-card-note {
+  margin: 5px 0 0;
+  font: 400 14px/1.5 var(--sans);
+  color: var(--text-dim);
+}
+.krm-card-dependency {
+  font: 400 11px/1.5 var(--sans);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.krm-workstream-row {
+  grid-template-columns: minmax(170px, 0.82fr) minmax(0, 3.18fr);
+  gap: 28px;
+  padding: calc(10px * var(--content-space-scale)) 0;
+  border-bottom: 1px solid var(--border);
+}
+.krm-workstream-columns {
+  grid-template-columns: minmax(170px, 0.82fr) repeat(4, minmax(0, 0.795fr));
+  gap: 28px;
+  padding: 0 0 10px;
+}
+.krm-workstream-label {
+  border: 0;
+  padding: 0;
+}
+.krm-workstream-label strong {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.krm-workstream-label small {
+  margin-top: 8px;
+  font-size: 13px;
+}
+.krm-workstream-flow {
+  gap: 24px;
+  align-items: start;
+}
+.krm-workstream-flow .krm-card-item {
+  flex: 1;
+  padding: calc(8px * var(--content-space-scale)) 0;
+  border-bottom: 0;
+  border-top: 2px solid var(--krm-card-state);
+}
+.krm-layout-workstreams .krm-card-title {
+  font-size: 22px;
+  line-height: 1.15;
+}
+body.presenting .krm-layout-workstreams .krm-card-note,
+body.presenting .krm-layout-workstreams .krm-card-dependency {
+  display: none;
+}
+body.presenting
+  .krm-layout-workstreams
+  .krm-workstream-bucket:has(.krm-card-item + .krm-card-item)
+  .krm-card-date {
+  display: none;
+}
+body.presenting
+  .krm-layout-workstreams
+  .krm-workstream-bucket:has(.krm-card-item + .krm-card-item)
+  .krm-card-item {
+  padding-block: calc(5px * var(--content-space-scale));
+}
+body.presenting
+  .krm-layout-workstreams
+  .krm-workstream-bucket:has(.krm-card-item + .krm-card-item)
+  .krm-card-title {
+  font-size: 20px;
+}
+.krm-card-item.krm-dim {
+  opacity: 0.45;
+}
+.krm-context {
+  margin: 18px 0;
+  border-block: 1px solid var(--border);
+}
+.krm-context summary {
+  padding: 12px 0;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 12px;
+}
+.krm-context .krm-legend {
+  border: 0;
+  margin: 0;
+}
+.krm-context[hidden],
+body.presenting .krm-context {
+  display: none;
+}
+
+@media (width < 700px) {
+  .krm-workstream-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .krm-workstream-columns {
+    display: none;
+  }
+  .krm-workstream-flow {
+    gap: 20px;
+  }
+}
+.krm-controls {
+  display: flex;
+  gap: 8px;
+  flex: none;
+  margin-left: auto;
+}
+.krm-controls button {
+  padding: 9px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font: 600 12px/1.3 var(--sans);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.krm-controls button:not(:disabled):first-child {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+}
+.krm-controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.krm-controls button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+body.presenting .krm-controls {
+  display: none;
+}
+.krm-walk {
+  flex-wrap: wrap;
+}
+.krm-annotation {
+  flex: 1;
+}
+body.presenting .pr-stage .krm:not(.krm-layout-timeline) {
+  grid-template-columns: 1fr;
+  grid-template-areas: "walk" "canvas";
+}
+body.presenting .pr-stage .krm:not(.krm-layout-timeline) .krm-key {
+  display: none;
+}
+
+/* A schedule with its own label column: dates never compete with titles. */
+.krm-layout-timeline .krm-canvas {
+  border: 0;
+  background: transparent;
+}
+.krm-periods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  padding: 8px 0;
+  color: var(--text-dim);
+  font: 500 12px/1.4 var(--sans);
+}
+.krm-periods span + span {
+  padding-left: 24px;
+  border-left: 1px solid var(--border);
+}
+.krm-layout-timeline .krm-period {
+  fill: transparent;
+}
+.krm-layout-timeline .krm-period.alt {
+  fill: transparent;
+}
+.krm-layout-timeline .krm-period-rule {
+  stroke: var(--border);
+  opacity: 0.5;
+}
+.krm-row-guide {
+  stroke: var(--border);
+  stroke-width: 1;
+  opacity: 0.18;
+}
+.krm-layout-timeline .krm-lane-label {
+  font-size: 23px;
+  font-weight: 650;
+  fill: var(--text);
+}
+.krm-layout-timeline .krm-lane-sub {
+  font-size: var(--krm-meta-size);
+}
+.krm-layout-timeline .krm-item-label {
+  font-size: calc(var(--krm-item-label-size, 32px) * 0.875);
+  font-weight: 400;
+}
+.krm-layout-timeline .krm-dependency {
+  opacity: 0.12;
+}
+.krm-layout-timeline .krm-dependency.krm-focus {
+  opacity: 1;
+}
+.krm-layout-timeline .krm-terminal {
+  display: none;
+}
+
+.krm-scope {
+  margin: 0 0 16px;
+  font: 400 12px/1.5 var(--sans);
+  color: var(--text-dim);
+}
+
+.krm-layout-timeline .krm-lane-label {
+  font-size: var(--krm-lane-label-size);
+}
+.krm-card-title {
+  font-size: calc(var(--krm-item-label-size) * 0.88);
+}
+.krm-card-date {
+  font-size: calc(var(--krm-meta-size) * 0.75);
+}
+.krm-workstream-label strong {
+  font-size: var(--krm-lane-label-size);
+}
+.krm-risk-signal {
+  margin: 0 0 18px;
+  padding-left: 12px;
+  border-left: 2px solid var(--warning);
+  color: var(--text);
+  font: 500 16px/1.5 var(--sans);
+}
+.krm-month-label {
+  fill: var(--text-dim);
+  font-size: 17px;
+}
+.krm-month-rule {
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 2 7;
+  opacity: 0.5;
+}
+.krm-context summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 12px 0;
+  display: flex;
+  justify-content: space-between;
+}
+.krm-context summary::-webkit-details-marker {
+  display: none;
+}
+.krm-context summary::after {
+  content: "+";
+  color: var(--text-dim);
+}
+.krm-context[open] summary::after {
+  content: "−";
+}
+.krm-dot {
+  position: relative;
+}
+.krm-dot::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+}
+.krm-dot:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 5px;
+}
+
+.krm-context[hidden] {
+  display: none !important;
+}
+.krm[data-dependencies="false"] :is(.krm-dependency, .krm-card-dependency) {
+  visibility: hidden;
+}
+
+.krm-summary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px 20px;
+  margin-bottom: 18px;
+}
+.krm-summary > p {
+  margin: 0;
+}
+body.presenting .pr-stage .krm {
+  grid-template-areas: "summary" "walk" "canvas";
+}
+body.presenting .pr-stage .krm-summary {
+  grid-area: summary;
+}
+body.presenting .pr-stage .krm:not(.krm-layout-timeline) {
+  grid-template-areas: "summary" "walk" "canvas";
+}
+
+@media (width <= 760px) {
+  body.presenting .pr-stage .krm {
+    grid-template-areas: "summary" "walk" "canvas";
+  }
+}
+
+@media (width <= 480px) {
+  body.presenting .pr-stage .krm-layout-timeline {
+    grid-template-areas: "summary" "walk" "canvas" "lane-pages";
+  }
+}
+
+@media (width <= 1100px) {
+  body.presenting .krm-layout-workstreams .krm-workstream-row {
+    min-height: calc(62px * var(--content-space-scale));
+    padding-block: calc(3px * var(--content-space-scale));
+  }
+  body.presenting .krm-layout-workstreams .krm-walk {
+    margin-bottom: 6px;
+    padding-block: 8px;
+  }
+  body.presenting .krm-layout-workstreams .krm-card-title {
+    font-size: 20px;
+    line-height: 1.1;
+  }
+}
+
+body.presenting .pr-stage .krm-layout-timeline[data-lane-paging="true"] .krm-lane-pages {
+  grid-area: lane-pages;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  align-items: center;
+  margin-top: 10px;
+}
+.krm-lane-pages button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font: 600 11px/1.3 var(--sans);
+  cursor: pointer;
+}
+.krm-explore-label {
+  color: var(--text-dim);
+  font: 600 11px/1.3 var(--sans);
+  margin-right: 4px;
+}
+.krm-lane-pages button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.krm-lane-pages button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.krm-lane-status {
+  color: var(--text-dim);
+  font: 700 11px/1.3 var(--mono);
+  white-space: nowrap;
+}
+.krm-lane-cues {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 12px;
+  color: var(--text-dim);
+  font: 600 11px/1.4 var(--sans);
+  text-align: center;
+}
+.krm-lane-cues span:empty {
+  display: none;
+}
+body.presenting .krm-lane.krm-page-readable .krm-item.krm-dim {
+  opacity: 1;
+}
+
+.krm-lane-pages [hidden] {
+  display: none;
+}
+.krm-full-timeline {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+body.presenting .pr-stage .krm-layout-timeline[data-lane-paging="true"] {
+  grid-template-areas: "summary" "walk" "canvas" "lane-pages";
+}
+
+.krm-scale-note {
+  margin: 0 0 12px;
+  color: var(--text-dim);
+  font: 400 12px/1.5 var(--sans);
+}
+.krm-scale-break {
+  stroke: var(--text-dim);
+  stroke-width: 2;
+  stroke-dasharray: 3 5;
+  opacity: 0.6;
+}
+.krm-scale-break-label {
+  fill: var(--text);
+  font: 700 22px var(--sans);
+  text-anchor: middle;
+}
+
+body.presenting .pr-stage:has(> .krm) > * + * {
+  margin-top: calc(16px * var(--content-space-scale));
+}
+body.presenting .pr-stage:has(> .krm) .sec-sub {
+  max-width: none;
+}
+
+/* Phases is a briefing, with a persistent horizon and one readable chapter.
+   Inactive pages reserve their space so navigation never changes the frame. */
+.krm-chapters {
+  container: roadmap-phases / inline-size;
+}
+.krm-chapter-rail {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.krm-chapter-tab {
+  flex: 1 0 100px;
+  display: grid;
+  gap: 6px;
+  padding: 10px 0;
+  border: 0;
+  border-top: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-dim);
+  text-align: left;
+  font: 400 14px/1.35 var(--sans);
+  cursor: pointer;
+}
+.krm-chapter-tab[aria-current="step"] {
+  border-top-color: var(--accent);
+  color: var(--text);
+}
+.krm-chapter-tab:hover,
+.krm-chapter-footer button:hover {
+  color: var(--accent);
+}
+.krm-chapter-tab:focus-visible,
+.krm-chapter-footer button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+.krm-chapter-index,
+.krm-chapter-tab small {
+  color: var(--text-dim);
+  font: 400 11px/1.4 var(--sans);
+}
+.krm-chapter-focused .krm-chapter-index {
+  color: var(--accent);
+}
+.krm-chapter-deck {
+  display: grid;
+}
+.krm-chapter {
+  grid-area: 1 / 1;
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.7fr);
+  gap: 48px;
+  padding: 32px 0;
+  visibility: hidden;
+}
+.krm-chapter.current {
+  visibility: visible;
+}
+.krm-chapter-eyebrow,
+.krm-chapter-scope {
+  color: var(--text-dim);
+  font: 400 13px/1.5 var(--sans);
+}
+.krm-chapter-title {
+  margin: 12px 0 18px;
+  color: var(--text);
+  font: 500 clamp(26px, 3.2cqw, 40px)/1.15 var(--sans);
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+}
+.krm-chapter-list {
+  display: grid;
+  grid-template-rows: repeat(4, minmax(74px, auto));
+  align-content: start;
+}
+.krm-chapter-item {
+  position: relative;
+  padding: 12px 0 12px 18px;
+  border-top: 1px solid var(--border);
+}
+.krm-chapter-item:first-child {
+  border-top: 0;
+}
+.krm-chapter-item-title {
+  margin: 0;
+  color: var(--text);
+  font: 450 calc(var(--krm-item-label-size, 24px) * 0.8)/1.3 var(--sans);
+  letter-spacing: -0.015em;
+}
+.krm-chapter-meta,
+.krm-chapter-state {
+  margin: 6px 0 0;
+  color: var(--text-dim);
+  font: 400 12px/1.5 var(--sans);
+}
+.krm-chapter-state {
+  display: block;
+}
+.krm-chapter-item.krm-state-risk .krm-chapter-state {
+  color: var(--warning);
+}
+.krm-chapter-item.krm-focus {
+  box-shadow: inset 2px 0 var(--accent);
+}
+.krm-chapter-item.krm-dim {
+  opacity: 0.35;
+}
+.krm-chapter-detail {
+  display: none;
+  color: var(--text-dim);
+  font: 400 14px/1.5 var(--sans);
+}
+.krm-chapter-detail p {
+  margin: 8px 0 0;
+}
+.krm-chapter-detailed .krm-chapter-detail {
+  display: block;
+}
+.krm-chapter-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border);
+}
+.krm-chapter-footer button {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: 400 13px/1.4 var(--sans);
+  cursor: pointer;
+}
+.krm-chapter-footer button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.krm-chapter-footer .krm-chapter-secondary,
+.krm-chapter-position,
+.krm-chapter-empty {
+  color: var(--text-dim);
+  font: 400 12px/1.5 var(--sans);
+}
+.krm-chapter-footer .krm-chapter-secondary:first-of-type {
+  margin-left: auto;
+}
+.krm-chapter-all .krm-chapter {
+  grid-area: auto;
+  border-bottom: 1px solid var(--border);
+}
+
+@container roadmap-phases (width < 650px) {
+  .krm-chapter {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .krm-chapter-title {
+    margin: 6px 0;
+  }
+}
+
+body.presenting .pr-stage .krm.krm-layout-phases {
+  grid-template-areas: "summary" "canvas" "walk";
+}
+.krm-chapter-all .krm-chapter-list {
+  grid-template-rows: none;
+}
+
+.krm-chapter-all .krm-chapter-deck,
+.krm-chapter-detailed .krm-chapter-deck {
+  max-height: 440px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* Lead a projected timeline with the timeline itself. Selection, risk, and
+   narration remain available below; the non-uniform scale stays by the axis. */
+body.presenting .pr-stage .krm.krm-layout-timeline {
+  grid-template-areas: "canvas" "walk" "summary";
+}
+body.presenting .pr-stage .krm.krm-layout-timeline[data-lane-paging="true"] {
+  grid-template-areas: "canvas" "lane-pages" "walk" "summary";
+}
+body.presenting .krm-layout-timeline:has(.krm-month-label) .krm-periods {
+  display: none;
+}
+body.presenting .krm-layout-timeline .krm-summary {
+  margin: 8px 0 0;
+}
+body.presenting .krm-layout-timeline .krm-scale-note {
+  font-size: 14px;
+}
+
+/* Appearance spacing changes internal rhythm; it never scales text or dates. */
+.krm-layout-phases .krm-chapter {
+  padding-block: calc(32px * var(--content-space-scale));
+  column-gap: calc(48px * var(--content-space-scale));
+}
+.krm-layout-phases .krm-chapter-item {
+  padding-block: calc(12px * var(--content-space-scale));
+}
+.krm-layout-phases .krm-chapter-list {
+  row-gap: max(0px, calc(8px * (var(--content-space-scale) - 1)));
+}

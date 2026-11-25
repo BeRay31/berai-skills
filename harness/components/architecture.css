@@ -1,0 +1,4396 @@
+/* component: architecture family chrome — sequence + erd.
+   architecture.js's own renderArchitecture is a thin layer over data-flow
+   (all its markup/CSS lives in data-flow.css/data-flow.js). renderSequence
+   and renderErd reuse that same kdf-* vocabulary verbatim wherever the
+   pieces are generic (kdf-canvas, kdf-node, kdf-edge/-path, kdf-arrow-head,
+   kdf-edge-marker, kdf-legend*, kdf-walk/-dots/-dot/-annotation/-controls,
+   kdf-pulse-*, kdf-filter*) — no new rules needed for any of that, it just
+   works. What follows is only the genuinely new chrome: kseq-* (sequence
+   lifelines, activation bars, actor kind glyphs, open arrowheads) and
+   kerd-* (entity cards, attribute rows, pk/fk glyphs, crow's-foot
+   terminals), plus a couple of Present-mode sizing rules the two new
+   canvases need that data-flow.css's own presenting rules don't cover. */
+
+/* ── operating model ───────────────────────────────────────────────────
+   Not a system boundary: five reserved zones on an open stage. The quiet
+   vertical rules make alignment visible without putting the model inside
+   the large generic box that this preset used to inherit. */
+.kom {
+  margin-top: 24px;
+}
+.kom-canvas {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 23.25%,
+      var(--border) 23.3%,
+      transparent 23.4% 76.55%,
+      var(--border) 76.6%,
+      transparent 76.7%
+    ),
+    radial-gradient(
+      circle at 50% 51%,
+      color-mix(in srgb, var(--accent) 11%, transparent),
+      transparent 26%
+    );
+}
+.kom-canvas::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 19.7%;
+  bottom: 18.8%;
+  z-index: -1;
+  width: 1px;
+  background: linear-gradient(
+    transparent,
+    color-mix(in srgb, var(--accent) 44%, var(--border)),
+    transparent
+  );
+}
+.kom-wires {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.kom-edge-path {
+  fill: none;
+  stroke: var(--text-faint);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  transition:
+    opacity 0.3s ease,
+    stroke 0.3s ease,
+    filter 0.3s ease;
+}
+.kom-edge.accent .kom-edge-path {
+  stroke: var(--accent);
+}
+.kom-edge.success .kom-edge-path {
+  stroke: var(--success);
+}
+.kom-edge.warning .kom-edge-path {
+  stroke: var(--warning);
+}
+.kom-edge.violet .kom-edge-path {
+  stroke: var(--violet);
+}
+.kom-arrow-head {
+  fill: var(--text-faint);
+}
+.kom-zone-label {
+  position: absolute;
+  z-index: 3;
+  color: var(--text-faint);
+  font: 750 0.62rem/1 var(--mono);
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+}
+.kom-card {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 13px 16px 12px;
+  border: 1px solid var(--border-strong);
+  border-left-width: 3px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--bg) 26%, transparent);
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.48s var(--ease-out-expo) calc(var(--kom-order) * 45ms),
+    transform 0.58s var(--ease-out-expo) calc(var(--kom-order) * 45ms),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.kom-live .kom-card {
+  opacity: 1;
+  transform: none;
+}
+.kom-card.accent {
+  border-left-color: var(--accent);
+}
+.kom-card.success {
+  border-left-color: var(--success);
+}
+.kom-card.warning {
+  border-left-color: var(--warning);
+}
+.kom-card.violet {
+  border-left-color: var(--violet);
+}
+.kom-eyebrow {
+  overflow: hidden;
+  margin-bottom: 5px;
+  color: var(--text-faint);
+  font: 720 0.62rem/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.kom-title {
+  overflow: hidden;
+  color: var(--text);
+  font: 680 0.93rem/1.12 var(--sans);
+  letter-spacing: -0.018em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kom-sub {
+  overflow: hidden;
+  margin-top: 5px;
+  color: var(--text-dim);
+  font: 500 0.71rem/1.15 var(--sans);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kom-decision {
+  align-items: center;
+  padding: 26px 34px;
+  border: 1px solid color-mix(in srgb, var(--accent) 72%, var(--border-strong));
+  border-left-width: 1px;
+  background:
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in srgb, var(--accent) 17%, transparent),
+      transparent 63%
+    ),
+    color-mix(in srgb, var(--surface) 96%, transparent);
+  box-shadow: 0 0 44px color-mix(in srgb, var(--accent) 16%, transparent);
+  text-align: center;
+}
+.kom-decision .kom-eyebrow {
+  color: var(--accent);
+}
+.kom-decision .kom-title {
+  font-size: 1.72rem;
+  letter-spacing: -0.045em;
+}
+.kom-decision .kom-sub {
+  font-size: 0.83rem;
+}
+.kom-core-ring {
+  position: absolute;
+  inset: 13px;
+  border: 1px solid color-mix(in srgb, var(--accent) 24%, transparent);
+  border-radius: 3px;
+  pointer-events: none;
+}
+.kom-policy {
+  border-width: 1px 1px 2px;
+  border-bottom-color: var(--violet);
+  border-left-width: 1px;
+  background: color-mix(in srgb, var(--violet-dim) 31%, var(--surface));
+}
+.kom-audit {
+  border-left-color: var(--text-faint);
+  background:
+    repeating-linear-gradient(
+      -45deg,
+      transparent 0 8px,
+      color-mix(in srgb, var(--text-faint) 5%, transparent) 8px 9px
+    ),
+    var(--surface);
+}
+.kom-canvas[data-detail] .kom-card {
+  box-shadow: none;
+}
+.kom-canvas[data-detail="minimal"] .kom-eyebrow,
+.kom-canvas[data-detail="minimal"] .kom-sub {
+  display: none;
+}
+.kom-canvas.walking .kom-card,
+.kom-canvas.walking .kom-edge {
+  opacity: 0.16;
+}
+.kom-canvas.walking .kom-card.active,
+.kom-canvas.walking .kom-edge.active {
+  opacity: 1;
+}
+.kom-canvas.walking .kom-card.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 22px var(--accent-dim);
+}
+.kom-canvas.walking .kom-edge.active .kom-edge-path {
+  stroke: var(--accent);
+  stroke-width: 2.8;
+  filter: drop-shadow(0 0 5px var(--accent-dim));
+}
+.pr-stage .kom-canvas {
+  width: 100%;
+}
+
+@media (width <= 900px) {
+  .kom {
+    overflow-x: auto;
+  }
+  .kom-canvas,
+  .kom > .kdf-walk {
+    min-width: var(--kdf-floor, 1120px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kom-card,
+  .kom-edge-path {
+    transition: none !important;
+  }
+}
+
+/* ── sequence ── */
+.kseq-lifeline {
+  fill: none;
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 5;
+  opacity: 0.9;
+}
+.kseq-arrow-open {
+  fill: none;
+  stroke: var(--text-dim);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.kseq-arrow-open.muted {
+  stroke: var(--text-faint);
+  stroke-width: 1.5;
+}
+.kseq-msg-return .kdf-edge-path {
+  stroke: var(--text-faint);
+  stroke-width: 1.6;
+  opacity: 0.85;
+}
+.kseq-activation {
+  fill: var(--accent);
+  opacity: 0;
+  transition:
+    opacity 0.25s ease,
+    filter 0.25s ease;
+}
+.kseq-activation.on {
+  opacity: 0.9;
+  filter: drop-shadow(0 0 4px var(--accent-dim));
+}
+.kdf[data-motion-preset="off"] .kseq-activation {
+  opacity: 0 !important;
+}
+
+/* actor kind glyphs — queue/topic reuse kdf-slats verbatim; actor (person)
+   and store (cylinder) are new, same left-edge slot/padding convention. */
+.kdf-node.kseq-actor-person,
+.kdf-node.kseq-actor-store {
+  padding-left: 32px;
+}
+.kdf-node.small.kseq-actor-person,
+.kdf-node.small.kseq-actor-store {
+  padding-left: 24px;
+}
+.kseq-glyph {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  width: 15px;
+  height: 15px;
+  transform: translateY(-50%);
+  fill: none;
+  stroke: var(--text-dim);
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.kdf-node.small .kseq-glyph {
+  left: 9px;
+  width: 11px;
+  height: 11px;
+}
+.kdf-node.accent .kseq-glyph {
+  stroke: var(--accent);
+}
+.kdf-node.success .kseq-glyph {
+  stroke: var(--success);
+}
+.kdf-node.warning .kseq-glyph {
+  stroke: var(--warning);
+}
+.kdf-node.violet .kseq-glyph {
+  stroke: var(--violet);
+}
+
+/* ── Fix 3 — the carry-over device: a continued part connects upward ──────
+   Three quiet moves, all derived from numberFrom (see architecture.js), none
+   of them touching column geometry: the lifelines run up to the canvas TOP
+   EDGE and fade out there (the gradient stop below is what the stroke
+   references), a marker names the range already covered, and the actor
+   headers drop to a RECAP tone — same position, same width, no tone fill,
+   smaller sub — so they read as a reminder, not an introduction. The recap
+   selectors carry one class more than .kdf-node.accent & friends, so they
+   win on specificity rather than on load order. */
+.kseq-carry-stop {
+  stop-color: var(--border-strong);
+}
+.kseq-carry-mark {
+  position: absolute;
+  left: 14px;
+  top: 9px;
+  z-index: 4;
+  font: 600 0.62rem/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+.pr-stage .kseq-carry-mark {
+  font-size: 0.72rem;
+  left: 18px;
+  top: 12px;
+}
+.kdf-node.kseq-actor.kseq-recap {
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: none;
+}
+.kdf-node.kseq-actor.kseq-recap > strong {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.kdf-node.kseq-actor.kseq-recap > small {
+  margin-top: 4px;
+  font-size: 0.68rem;
+  color: var(--text-faint);
+}
+.kdf-node.kseq-actor.kseq-recap .kseq-glyph {
+  stroke: var(--text-faint);
+}
+.kdf-node.kseq-actor.kseq-recap .kdf-slats b {
+  background: var(--text-faint);
+}
+body.presenting .pr-slide[data-layout] .pr-stage:has(> .kseq-compact) {
+  width: min(1600px, calc(100vw - 32px));
+}
+.pr-stage .kseq-compact > .kseq-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  align-items: center;
+  gap: 24px;
+  height: 92px;
+  box-sizing: border-box;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.pr-stage .kseq-compact .kseq-footer > .kdf-legend {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  gap: 5px 12px;
+}
+.pr-stage .kseq-compact .kseq-footer > .kdf-walk {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.pr-stage .kseq-compact .kseq-footer .kdf-controls {
+  display: none;
+}
+.pr-stage .kseq-compact .kseq-footer .kdf-annotation {
+  min-height: 0;
+}
+.pr-stage .kseq-compact .kseq-footer .kdf-annotation strong {
+  font-size: 0.9rem;
+}
+.pr-stage .kseq-compact .kseq-footer .kdf-annotation p {
+  margin-top: 3px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+.pr-stage .kseq-compact .kseq-footer .kdf-dot {
+  width: 8px;
+  height: 8px;
+}
+.kseq[data-type-scale="large"] .kseq-actor > strong {
+  font-size: 1.5rem;
+}
+.kseq[data-type-scale="large"] .kdf-legend-text {
+  font-size: 1.08rem;
+}
+.kseq[data-type-scale="large"] .kseq-actor > small,
+.kseq[data-type-scale="large"] .kdf-annotation p {
+  font-size: 0.92rem;
+}
+.kseq-parts {
+  display: grid;
+  gap: 12px;
+}
+.kseq-part-stage {
+  min-width: 0;
+}
+.kseq-part-picker {
+  display: flex;
+  justify-content: center;
+  gap: calc(8px * var(--content-space-scale));
+}
+.kseq-part-button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font: 700 0.72rem/1 var(--mono);
+  cursor: pointer;
+}
+.kseq-part-button.active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--accent);
+}
+
+/* Message briefing: authored time order as readable sender/receiver rows. */
+.kseq-brief-roster {
+  margin-bottom: calc(24px * var(--content-space-scale));
+}
+.kseq-briefing .kseq-brief-heading {
+  margin: 0 0 calc(10px * var(--content-space-scale));
+  color: var(--text-dim);
+  font: 600 0.75rem/1.3 var(--sans);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.kseq-brief-actors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: calc(12px * var(--content-space-scale));
+}
+.kseq-brief-actor-card {
+  padding: calc(10px * var(--content-space-scale)) calc(12px * var(--content-space-scale));
+  border-left: 2px solid var(--border-strong);
+}
+.kseq-brief-actor-card[data-kind="queue"],
+.kseq-brief-actor-card[data-kind="topic"] {
+  border-left-style: dashed;
+  border-left-color: var(--accent);
+}
+.kseq-brief-actor-card strong,
+.kseq-brief-actor-card span {
+  display: block;
+}
+.kseq-brief-actor-card strong {
+  color: var(--text);
+  font-size: 0.8rem;
+}
+.kseq-brief-actor-card span {
+  margin-top: calc(3px * var(--content-space-scale));
+  color: var(--text-dim);
+  font-size: 0.68rem;
+}
+.kseq-brief-board {
+  display: grid;
+  border-top: 1px solid var(--border-strong);
+}
+.kseq-brief-row {
+  display: grid;
+  grid-template-columns: 44px minmax(210px, 0.8fr) minmax(0, 1.2fr);
+  gap: calc(20px * var(--content-space-scale));
+  align-items: center;
+  min-height: calc(70px * var(--content-space-scale));
+  padding: calc(12px * var(--content-space-scale)) 0;
+  border-bottom: 1px solid var(--border);
+  transition: opacity 0.25s ease;
+  padding-left: 12px;
+}
+.kseq-brief-num {
+  color: var(--accent);
+  font: 700 0.68rem/1 var(--mono);
+  letter-spacing: 0.08em;
+}
+.kseq-brief-route {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
+  gap: calc(8px * var(--content-space-scale));
+  align-items: center;
+}
+.kseq-brief-actor {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.84rem;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.kseq-brief-arrow {
+  color: var(--text-dim);
+  font-family: var(--mono);
+  text-align: center;
+}
+.kseq-brief-async .kseq-brief-arrow {
+  color: var(--violet);
+}
+.kseq-brief-return .kseq-brief-arrow {
+  color: var(--text-faint);
+}
+.kseq-brief-copy {
+  display: grid;
+  gap: calc(4px * var(--content-space-scale));
+  min-width: 0;
+}
+.kseq-brief-copy strong {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+.kseq-brief-meta,
+.kseq-brief-note {
+  color: var(--text-dim);
+  font: 0.7rem/1.35 var(--mono);
+}
+.kseq-brief-row.dim {
+  opacity: 0.28;
+}
+.kseq-brief-row.active {
+  box-shadow: inset 3px 0 var(--accent);
+}
+.kseq[data-type-scale="large"] .kseq-brief-actor,
+.kseq[data-type-scale="large"] .kseq-brief-copy strong {
+  font-size: 1.08rem;
+}
+
+@media (width <= 720px) {
+  .kseq-brief-row {
+    grid-template-columns: 34px minmax(0, 1fr);
+  }
+  .kseq-brief-copy {
+    grid-column: 2;
+  }
+}
+
+/* ── erd ── */
+.kerd-entity {
+  position: absolute;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--bg) 28%, transparent);
+  transition:
+    opacity 0.35s ease,
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+.kerd-entity.accent {
+  border-color: color-mix(in srgb, var(--accent) 68%, var(--border-strong));
+}
+.kerd-entity.success {
+  border-color: color-mix(in srgb, var(--success) 68%, var(--border-strong));
+}
+.kerd-entity.warning {
+  border-color: color-mix(in srgb, var(--warning) 68%, var(--border-strong));
+}
+.kerd-entity.violet {
+  border-color: color-mix(in srgb, var(--violet) 68%, var(--border-strong));
+}
+.kerd-head {
+  flex: none;
+  padding: calc(10px * var(--content-space-scale)) 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+  font: 700 1rem/1.2 var(--sans);
+  background: color-mix(in srgb, var(--surface) 88%, var(--text) 4%);
+  border-bottom: 1px solid var(--border);
+}
+.kerd-entity.accent .kerd-head {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+}
+.kerd-entity.success .kerd-head {
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 16%, var(--surface));
+}
+.kerd-entity.warning .kerd-head {
+  color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 16%, var(--surface));
+}
+.kerd-entity.violet .kerd-head {
+  color: var(--violet);
+  background: color-mix(in srgb, var(--violet) 16%, var(--surface));
+}
+.kerd-attrs {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.kerd-attr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: calc(5px * var(--content-space-scale)) 14px;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font: 500 0.88rem/1.3 var(--mono);
+}
+.kerd-attr.pk .kerd-attr-name {
+  color: var(--text);
+  font-weight: 700;
+}
+.kerd-attr-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kerd-attr-type {
+  flex: none;
+  margin-left: auto;
+  color: var(--text-faint);
+  font-size: 0.76rem;
+  text-transform: lowercase;
+}
+.kerd-key,
+.kerd-fk {
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
+.kerd-key {
+  color: var(--accent);
+}
+.kerd-fk {
+  color: var(--text-dim);
+}
+.kdf-canvas.walking .kerd-entity {
+  opacity: 0.2;
+}
+.kdf-canvas.walking .kerd-entity.active {
+  opacity: 1;
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent),
+    0 14px 34px color-mix(in srgb, var(--bg) 36%, transparent);
+}
+
+/* crow's-foot terminals: bar = 1, circle+bar = 0..1, crow = N, circle+crow = 0..N */
+.kerd-terminal {
+  pointer-events: none;
+}
+.kerd-term-bar {
+  stroke: var(--text-dim);
+  stroke-width: 1.6;
+}
+.kerd-term-circle {
+  fill: var(--surface);
+  stroke: var(--text-dim);
+  stroke-width: 1.6;
+}
+.kerd-term-crow {
+  fill: none;
+  stroke: var(--text-dim);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+
+.kerd-dense .kerd-canvas {
+  min-height: 428px;
+}
+
+/* Columnar (dependency-ordered) dense board: relationships attach to the
+   key rows they join; the label shows when the relation is in focus. */
+.kerd-columnar .kerd-entity {
+  height: auto !important;
+  overflow: visible;
+}
+.kerd-columnar .kdf-edge-path {
+  stroke-width: 1.6;
+}
+.kerd-columnar .kdf-edge.hover .kdf-edge-path,
+.kerd-columnar .kdf-edge.active .kdf-edge-path {
+  stroke-width: 2.4;
+}
+.kerd-rel-label {
+  position: absolute;
+  z-index: 4;
+  padding: 1px 7px;
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  font: 600 12px/1.4 var(--sans);
+  white-space: nowrap;
+  transform: translate(-50%, calc(-100% - 4px));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.kerd-rel-label.hover,
+.kerd-rel-label.active {
+  opacity: 1;
+}
+.kerd-attr.kerd-attr-hot,
+.kerd-attr.kerd-attr-lit {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.kerd-attr.kerd-attr-hot .kerd-attr-name,
+.kerd-attr.kerd-attr-lit .kerd-attr-name {
+  color: var(--text);
+}
+.kdf-canvas.walking .kerd-entity.active .kerd-attr.kerd-attr-lit {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.pr-stage .kerd-rel-label {
+  font-size: 14px;
+}
+.kerd-dense .kerd-head {
+  padding: calc(8px * var(--content-space-scale)) 10px;
+  font-size: 1rem;
+}
+.kerd-dense .kerd-attr {
+  padding: calc(4px * var(--content-space-scale)) 10px;
+  font-size: 0.78rem;
+}
+.pr-stage .kerd-dense .kerd-attr:not(.kerd-present) {
+  display: none;
+}
+.kerd-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.kerd-footer > .kdf-walk {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.kerd-dense .kerd-footer .kdf-legend-item {
+  align-items: flex-start;
+  min-width: 0;
+}
+.kerd-dense .kerd-footer .kdf-legend-text {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+.kerd-cardinality {
+  color: var(--text);
+  font: 700 0.72rem/1.2 var(--mono);
+  white-space: nowrap;
+}
+.kerd-relation-label {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--text-dim);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.kdf-step-count {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--text-faint);
+  font: 700 0.68rem/1.2 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pr-stage .kerd-dense .kerd-head {
+  font-size: 1rem;
+}
+.pr-stage .kerd-dense .kerd-attr {
+  font-size: 0.9rem;
+}
+.pr-stage .kerd-dense > .kerd-canvas {
+  width: 100%;
+}
+.pr-stage .kerd-dense .kerd-footer > .kdf-walk {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+}
+.pr-stage .kerd-dense .kerd-footer .kdf-controls {
+  display: none;
+}
+.pr-stage .kerd-dense .kerd-footer .kdf-annotation {
+  min-height: 0;
+}
+
+/* ── Present-mode sizing (mirrors data-flow.css's own .pr-stage rules —
+   the `:has(.kdf)` wide-stage and overflow-x rules already apply to these
+   canvases for free since both hosts also carry the shared .kdf marker) ── */
+.pr-stage .kerd-head {
+  font-size: 1.18rem;
+}
+.pr-stage .kerd-attr {
+  font-size: 1.05rem;
+}
+.pr-stage .kerd-attr-type {
+  font-size: 0.9rem;
+}
+.pr-stage .kdf-edge-marker-num {
+  font-size: 15px;
+}
+
+@media (height <= 600px) {
+  /* data-flow.css force-fits every .kdf-canvas to a 1200/380 aspect ratio
+     in short Present viewports — sane for architecture's own wide system
+     maps, but sequence/erd both need their own data-driven proportions
+     (a tall lifeline diagram, a squarer entity grid), so keep them auto
+     and let present.js's own fit() scale the whole stage instead. */
+  .pr-stage .kseq-canvas,
+  .pr-stage .kerd-canvas {
+    aspect-ratio: auto !important;
+  }
+  .pr-stage .kerd-head {
+    font-size: 0.9rem;
+    padding: 6px 10px;
+  }
+  .pr-stage .kerd-attr {
+    font-size: 0.8rem;
+    padding: 3px 10px;
+  }
+  .pr-stage .kerd-dense .kerd-canvas {
+    height: 340px;
+    min-height: 340px;
+  }
+  .pr-stage .kerd-dense .kerd-footer {
+    grid-template-columns: minmax(0, 2fr) minmax(230px, 1fr);
+    gap: 16px;
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+  .pr-stage .kerd-dense .kerd-footer .kdf-walk {
+    display: grid;
+  }
+  .pr-stage .kerd-dense .kerd-footer .kdf-annotation p {
+    display: block;
+  }
+  .pr-stage .kerd-dense .kerd-footer .kdf-legend {
+    min-width: 0;
+    gap: 5px 10px;
+  }
+  .pr-stage .kerd-dense .kerd-footer .kdf-legend-num {
+    width: 22px;
+    height: 22px;
+    font-size: 0.68rem;
+  }
+  .pr-stage .kerd-dense .kerd-footer .kdf-legend-text,
+  .pr-stage .kerd-dense .kerd-footer .kdf-annotation p {
+    font-size: 0.78rem;
+  }
+}
+
+/* ── stack ── built in plain HTML flow, not the kdf-canvas coordinate
+   system (see architecture.js's own family comment): frames are real
+   block elements so the whole thing reflows down to mobile width instead
+   of floor-and-scroll. Reuses kdf-legend/kdf-legend-item/kdf-legend-num
+   verbatim for the handoff+kind legend and kdf-walk (via kdfBuildWalk)
+   for the panel — no new rules needed for either. Everything below is
+   genuinely new chrome, kstk-* throughout. */
+
+/* Request spine: audience outcomes first, frame evidence on demand. */
+.kcs-journey {
+  --ksp-gap: calc(18px * var(--content-space-scale));
+}
+.ksp-board {
+  position: relative;
+  min-height: 356px;
+  overflow: hidden;
+  padding: calc(48px * var(--content-space-scale)) calc(22px * var(--content-space-scale))
+    calc(20px * var(--content-space-scale));
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--surface) 78%, var(--bg));
+}
+.ksp-boundaries {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--ksp-lanes), minmax(0, 1fr));
+  pointer-events: none;
+}
+.ksp-boundary {
+  position: relative;
+  border-left: 1px dashed color-mix(in srgb, var(--text) 28%, transparent);
+}
+.ksp-boundary:first-child {
+  border-left: 0;
+}
+.ksp-boundary > span {
+  position: absolute;
+  top: 15px;
+  left: 14px;
+  color: var(--text-dim);
+  font: 700 0.72rem/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.ksp-spine {
+  position: absolute;
+  top: 112px;
+  left: 22px;
+  right: 22px;
+  border-top: 2px solid var(--accent);
+}
+.ksp-stops {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(var(--ksp-stops), minmax(0, 1fr));
+  grid-template-rows: minmax(118px, auto) auto auto;
+  align-items: start;
+  gap: 12px var(--ksp-gap);
+}
+.ksp-stop {
+  position: relative;
+  min-width: 0;
+  min-height: calc(118px * var(--content-space-scale));
+  container-type: inline-size;
+  padding: calc(14px * var(--content-space-scale)) calc(8px * var(--content-space-scale));
+  border: 1.5px solid var(--border-strong);
+  border-radius: 6px;
+  background: var(--surface);
+  transition:
+    opacity 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+.ksp-stop:not(.is-last)::after {
+  content: "→";
+  position: absolute;
+  top: 40px;
+  right: calc(-1 * var(--ksp-gap));
+  width: var(--ksp-gap);
+  color: var(--accent);
+  font-size: 19px;
+  text-align: center;
+}
+.ksp-ordinal {
+  display: block;
+  margin-bottom: calc(15px * var(--content-space-scale));
+  color: var(--accent);
+  font: 700 0.72rem/1 var(--mono);
+}
+.ksp-stop > strong {
+  display: block;
+  font-size: clamp(12px, 19cqw, 18px);
+  line-height: 1.18;
+  overflow-wrap: normal;
+}
+.ksp-guards {
+  position: absolute;
+  top: 128px;
+  left: 0;
+  right: 0;
+  display: grid;
+  gap: 5px;
+}
+.ksp-guards .kstk-guard {
+  padding: 5px 7px;
+  font-size: 0.64rem;
+}
+.ksp-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(5px * var(--content-space-scale));
+  margin-top: calc(42px * var(--content-space-scale));
+}
+.ksp-evidence {
+  display: none;
+  min-width: 0;
+  margin-top: 8px;
+}
+.ksp-evidence.active {
+  display: block;
+}
+.ksp-evidence .kstk-path-bar {
+  padding: 6px 8px;
+  font-size: 0.64rem;
+}
+.ksp-evidence .kstk-code-line {
+  padding-inline: 8px;
+  font-size: 0.66rem;
+}
+.ksp-return {
+  position: relative;
+  z-index: 1;
+  margin: calc(20px * var(--content-space-scale)) calc(12px * var(--content-space-scale)) 0;
+  padding-top: calc(8px * var(--content-space-scale));
+  border-top: 2px dashed color-mix(in srgb, var(--accent) 55%, var(--border));
+  color: var(--text-dim);
+  font-size: 14px;
+  text-align: center;
+}
+.ksp-start {
+  display: none;
+  position: absolute;
+  z-index: 1;
+  top: 88px;
+  left: 22px;
+  max-width: 360px;
+  padding: calc(10px * var(--content-space-scale)) calc(14px * var(--content-space-scale));
+  border-left: 3px solid var(--accent);
+  color: var(--text-dim);
+  font-size: 15px;
+}
+.ksp-board.walking .ksp-stop,
+.ksp-board.walking .ksp-effects,
+.ksp-board.walking .ksp-evidence,
+.ksp-board.walking .ksp-return {
+  opacity: 0.25;
+}
+.ksp-board.walking .ksp-stop.active,
+.ksp-board.walking .ksp-effects.active,
+.ksp-board.walking .ksp-evidence.active,
+.ksp-board.walking .ksp-return.active {
+  opacity: 1;
+}
+.ksp-stop.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.kcs-journey[data-progression="build"] .ksp-stop.future,
+.kcs-journey[data-progression="build"] .ksp-effects:not(.active),
+.kcs-journey[data-progression="build"] .ksp-evidence:not(.active),
+.kcs-journey[data-progression="build"] .ksp-return:not(.active) {
+  display: none;
+}
+.kcs-journey[data-progression="build"] .ksp-spine {
+  width: var(--ksp-progress);
+  right: auto;
+}
+.kcs-journey[data-progression="build"][data-step="0"] .ksp-start {
+  display: block;
+}
+.kcs-journey[data-progression="build"] .ksp-stop::after {
+  display: none;
+}
+.kcs-journey[data-progression="build"] .ksp-stop.past {
+  min-height: 42px;
+  margin-top: 38px;
+  padding: 9px 8px;
+  border-color: color-mix(in srgb, var(--success) 55%, var(--border));
+  background: color-mix(in srgb, var(--success) 7%, var(--surface));
+}
+.kcs-journey[data-progression="build"] .ksp-stop.past .ksp-ordinal,
+.kcs-journey[data-progression="build"] .ksp-stop.past > strong {
+  display: inline;
+  margin: 0;
+  font-size: 14px;
+}
+.kcs-journey[data-progression="build"] .ksp-stop.past .ksp-ordinal {
+  margin-right: 5px;
+  color: var(--success);
+}
+.kcs-journey[data-progression="build"] .ksp-stop.past .ksp-guards {
+  display: none;
+}
+
+body.presenting .pr-slide[data-layout] .pr-stage:has(> .kcs-journey) {
+  width: min(1480px, calc(100vw - 32px));
+}
+.pr-stage .kcs-journey .kdf-walk {
+  margin-top: 12px;
+  padding-top: 10px;
+}
+.pr-stage .kcs-journey .ksp-stop > strong {
+  font-size: 18px;
+}
+.pr-stage .kcs-journey[data-progression="build"] .ksp-stop.past .ksp-ordinal,
+.pr-stage .kcs-journey[data-progression="build"] .ksp-stop.past > strong {
+  font-size: 16px;
+}
+.pr-stage .kcs-journey .ksp-boundary > span,
+.pr-stage .kcs-journey .ksp-ordinal,
+.pr-stage .kcs-journey .kstk-chip,
+.pr-stage .kcs-journey .ksp-evidence .kstk-path-bar,
+.pr-stage .kcs-journey .ksp-evidence .kstk-code-line,
+.pr-stage .kcs-journey .ksp-guards .kstk-guard,
+.pr-stage .kcs-journey .ksp-return,
+.pr-stage .kcs-journey .ksp-start,
+.pr-stage .kcs-journey .kdf-next,
+.pr-stage .kcs-journey .kdf-reset {
+  font-size: 16px;
+}
+
+@media (width <= 900px) {
+  .kcs-journey {
+    min-width: 920px;
+    overflow-x: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ksp-stop {
+    transition: none;
+  }
+}
+
+.kstk-canvas {
+  position: relative;
+  padding: 24px 42px 24px 24px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--surface) 94%, var(--accent) 6%),
+    color-mix(in srgb, var(--bg) 96%, var(--surface) 4%)
+  );
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--bg) 45%, transparent);
+}
+.kstk-lane {
+  position: relative;
+  padding: 16px 18px 18px;
+  margin-top: 16px;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 8px;
+  transition: opacity 0.35s ease;
+}
+.kstk-lane:first-child {
+  margin-top: 0;
+}
+.kstk-lane.accent {
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+}
+.kstk-lane.success {
+  background: color-mix(in srgb, var(--success) 7%, transparent);
+}
+.kstk-lane.warning {
+  background: color-mix(in srgb, var(--warning) 7%, transparent);
+}
+.kstk-lane.violet {
+  background: color-mix(in srgb, var(--violet) 7%, transparent);
+}
+.kstk-lane-head {
+  margin-bottom: calc(12px * var(--content-space-scale));
+}
+.kstk-lane-head span {
+  display: block;
+  font: 700 0.64rem/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.kstk-lane.accent .kstk-lane-head span {
+  color: var(--accent);
+}
+.kstk-lane.success .kstk-lane-head span {
+  color: var(--success);
+}
+.kstk-lane.warning .kstk-lane-head span {
+  color: var(--warning);
+}
+.kstk-lane.violet .kstk-lane-head span {
+  color: var(--violet);
+}
+.kstk-lane-head small {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.76rem;
+  color: var(--text-faint);
+}
+.kstk-lane-frames {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--content-space-scale));
+}
+.kstk-map > .kstk-handoff {
+  display: none;
+}
+
+@media (width >= 901px) {
+  .kstk-canvas.kstk-map {
+    display: grid;
+    align-items: stretch;
+    gap: 24px;
+  }
+  .kstk-map > .kstk-carry-mark {
+    grid-column: 1/-1;
+  }
+  .kstk-map > .kstk-lane {
+    min-width: 0;
+    margin-top: 0;
+    margin-left: var(--kstk-gutter, 0);
+    border: 0;
+    border-radius: 0;
+    background: none !important;
+  }
+  .kstk-map > .kstk-lane ~ .kstk-lane::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -12px;
+    width: 1px;
+    background: color-mix(in srgb, var(--border-strong) 68%, transparent);
+  }
+  .kstk-map > .kstk-lane .kstk-frame,
+  .kstk-map > .kstk-lane .kstk-guard {
+    max-width: none;
+  }
+}
+
+/* handoff banner — numbered same as the legend, rendered above the lane it
+   crosses into (never the first). */
+.kstk-handoff {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 8px;
+  font: 600 0.72rem/1 var(--mono);
+  color: var(--text-dim);
+}
+.kstk-canvas > .kstk-handoff:first-child {
+  margin-top: 0;
+}
+.kstk-handoff-rule {
+  order: 2;
+  flex: 1;
+  height: 0;
+  border-top: 2px solid color-mix(in srgb, var(--text-dim) 45%, transparent);
+}
+.kstk-handoff-label {
+  order: 1;
+}
+.kstk-handoff > .kdf-legend-num {
+  order: 3;
+  margin-left: 10px;
+}
+.kstk-handoff.hover .kdf-legend-num,
+.kstk-handoff.kstk-handoff-on .kdf-legend-num {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+.kstk-handoff.hover .kstk-handoff-label,
+.kstk-handoff.kstk-handoff-on .kstk-handoff-label {
+  color: var(--text);
+}
+.kstk-handoff.kstk-handoff-on .kstk-handoff-rule {
+  border-top-color: color-mix(in srgb, var(--accent) 60%, transparent);
+}
+
+/* frame — the calldiff move: a path bar + up to 4 mono code lines above
+   the fn row, collapsible; chips/guard stay visually prominent (never
+   demoted — the two most-loved pieces of the mock). */
+.kstk-frame-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: calc(8px * var(--content-space-scale));
+  position: relative;
+}
+.kstk-frame {
+  container-type: inline-size;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  max-width: 680px;
+  padding: calc(9px * var(--content-space-scale)) calc(14px * var(--content-space-scale));
+  border: 1.5px solid var(--border-strong);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    opacity 0.3s ease;
+}
+.kstk-frame.kstk-has-code {
+  cursor: pointer;
+}
+.kstk-frame.kstk-has-code:hover {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border-strong));
+}
+.kstk-frame.kstk-has-code:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.kstk-frame.kstk-async {
+  border-style: dashed;
+}
+.kstk-fn {
+  font: 650 0.78rem/1.3 var(--mono);
+  color: var(--text);
+}
+.kstk-note {
+  font-size: 0.74rem;
+  color: var(--text-dim);
+}
+.kstk-enter {
+  flex: none;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+.kstk-async-tag {
+  flex: none;
+  padding: 2px 6px;
+  border: 1px dashed color-mix(in srgb, var(--text-dim) 55%, transparent);
+  border-radius: 4px;
+  font: 700 0.6rem/1 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.kstk-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-left: auto;
+}
+.kstk-chip {
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  font: 700 0.64rem/1 var(--mono);
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.kstk-chip.write {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 50%, transparent);
+  background: color-mix(in srgb, var(--success) 8%, transparent);
+}
+.kstk-chip.kill {
+  color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 50%, transparent);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  text-decoration: line-through;
+}
+
+@container (max-width:500px) {
+  .kstk-chips {
+    flex-basis: 100%;
+    margin-left: 0;
+    margin-top: 2px;
+  }
+}
+
+/* code context card — the calldiff move: a path bar (dirs dimmed, filename
+   bright, extension dot colored by the fixed ext→tone map) above ≤4 mono
+   code lines, one `hot` line highlighted. Collapsed by default; toggled by
+   clicking the frame, or slid open by the active walkthrough step's
+   `show`. max-height/opacity is the whole slide mechanism — the kit's own
+   global reduced-motion rule (`transition:none!important`) turns it into
+   an instant toggle for free, no separate branch needed here. */
+.kstk-code-card {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  border-radius: 6px;
+  transition:
+    max-height 0.35s var(--ease-out-expo),
+    opacity 0.3s ease;
+}
+.kstk-code-card.kstk-open {
+  max-height: 260px;
+  opacity: 1;
+}
+.kstk-path-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-strong);
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  background: color-mix(in srgb, var(--surface) 92%, var(--text) 4%);
+  font: 600 0.72rem/1 var(--mono);
+}
+.kstk-path-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kstk-path-dir {
+  color: var(--text-faint);
+}
+.kstk-path-file {
+  color: var(--text);
+  font-weight: 700;
+}
+.kstk-ext-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-left: auto;
+  border-radius: 50%;
+}
+.kstk-ext-dot.accent {
+  background: var(--accent);
+}
+.kstk-ext-dot.success {
+  background: var(--success);
+}
+.kstk-ext-dot.warning {
+  background: var(--warning);
+}
+.kstk-ext-dot.violet {
+  background: var(--violet);
+}
+.kstk-ext-dot.neutral {
+  background: var(--text-faint);
+}
+.kstk-code-lines {
+  margin: 0;
+  padding: 8px 0;
+  border: 1px solid var(--border-strong);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  background: var(--surface);
+  overflow: auto;
+}
+.kstk-code-line {
+  display: block;
+  padding: 2px 14px;
+  font: 500 0.76rem/1.6 var(--mono);
+  color: var(--text-dim);
+  white-space: pre;
+}
+.kstk-code-line.hot {
+  border-left: 3px solid var(--accent);
+  padding-left: 11px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+/* guard — the early-exit stub. Kept deliberately loud: a saturated warning
+   fill, a bold border, and the ⤴ glyph up front. Never demoted. */
+.kstk-guard {
+  position: relative;
+  max-width: 420px;
+  padding: 8px 14px;
+  border: 1.5px dashed color-mix(in srgb, var(--warning) 60%, transparent);
+  border-radius: 6px;
+  font: 700 0.72rem/1.4 var(--mono);
+  color: color-mix(in srgb, var(--warning) 82%, var(--text) 18%);
+  background: color-mix(in srgb, var(--warning) 12%, transparent);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--warning) 10%, transparent);
+}
+.kstk-guard-glyph {
+  margin-right: 4px;
+}
+
+/* depth rail — flame-graph style: a continuous vertical vein per nesting
+   level (kstk-kids), each child stubbed onto it with a short elbow drawn
+   on the frame itself so it tracks the frame regardless of whether that
+   frame's own code card is open. An async child's elbow (and only the
+   elbow — the shared vein stays solid for sync siblings) goes dashed. */
+.kstk-kids {
+  position: relative;
+  margin-left: 22px;
+  padding-left: 16px;
+  border-left: 2px solid var(--border-strong);
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--content-space-scale));
+}
+.kstk-kids > .kstk-frame-wrap > .kstk-frame {
+  position: relative;
+}
+.kstk-kids > .kstk-frame-wrap > .kstk-frame::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 24px;
+  width: 16px;
+  border-top: 2px solid var(--border-strong);
+}
+.kstk-kids > .kstk-frame-wrap > .kstk-frame.kstk-async::before {
+  border-top-style: dashed;
+}
+
+/* side effects already covered above (kstk-chip); the descent-path SVG
+   overlay below is the STRUCTURE — no free-floating dot, and no draw-on.
+   Each frame with a caller owns one <path> (built in architecture.js,
+   geometry laid out on demand from real getBoundingClientRect() rects,
+   exactly the mode:'diff' ribbon overlay's own technique below). A line
+   here means "this call goes here", which is a fact, not a motion: every
+   route is painted the moment its geometry is known and stays painted at
+   its resting tone. Only EMPHASIS moves — .kstk-path-lit is a walkthrough
+   step's active route, .kstk-path-pass is ambient's attention passing
+   through — and both are pure restyles of a line that was already there.
+   Sync solid, async dashed: the family's grammar, now plain CSS, so no
+   inline dash state exists to go stale after a relayout. */
+.kstk-descent-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+.kstk-descent-path {
+  fill: none;
+  stroke-width: 2;
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.3;
+  transition:
+    opacity 0.3s ease,
+    stroke-width 0.3s ease;
+}
+
+/* a path either reaches its target frame or it does not render. display:none
+   (not a zeroed `d`) is what "does not render" means: a zero-length path
+   still paints its marker-end, which is exactly the stub arrowhead that was
+   floating beside a frame with no line attached to it. */
+.kstk-descent-path.kstk-path-hidden {
+  display: none;
+}
+.kstk-descent-path.async {
+  stroke: var(--violet);
+  stroke-dasharray: 7 5;
+}
+.kstk-descent-path.kstk-path-lit,
+.kstk-descent-path.kstk-path-pass,
+.kstk-descent-path.kstk-path-hover {
+  opacity: 1;
+  stroke-width: 2.4;
+  filter: drop-shadow(0 0 5px var(--accent-dim));
+}
+.kstk-descent-path.async.kstk-path-lit,
+.kstk-descent-path.async.kstk-path-pass,
+.kstk-descent-path.async.kstk-path-hover {
+  filter: drop-shadow(0 0 5px var(--violet-dim));
+}
+.kstk-arrow-head {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.kstk-arrow-head.async {
+  fill: none;
+  stroke: var(--violet);
+}
+.kstk-route-marker {
+  transition: opacity 0.2s ease;
+}
+.kstk-route-marker.kstk-route-marker-hidden {
+  display: none;
+}
+.kstk-route-marker-badge {
+  fill: var(--surface);
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+}
+.kstk-route-marker-text {
+  fill: var(--text-dim);
+  font: 700 10px/1 var(--mono);
+}
+.kstk-route-marker.hover .kstk-route-marker-badge,
+.kstk-route-marker.active .kstk-route-marker-badge {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+.kstk-route-marker.hover .kstk-route-marker-text,
+.kstk-route-marker.active .kstk-route-marker-text {
+  fill: var(--bg);
+}
+.kcs[data-motion-preset="calm"] .kstk-descent-path.kstk-path-pass {
+  opacity: 0.8;
+}
+
+/* motion 'off' silences the ambient pass, never the structure it passes over */
+.kcs[data-motion-preset="off"] .kstk-descent-path.kstk-path-pass {
+  opacity: 0.3;
+  stroke-width: 2;
+  filter: none;
+}
+
+/* Fix 3 — the carry-over rail: in a continued part the first frame's route
+   comes down from the canvas top edge, fading in there (the gradient is on
+   the stroke, see architecture.js), so the descent visibly arrives from
+   off-screen above. The marker names the range the earlier parts covered
+   and clears the rail's own x, and the lane heads read as a recap. */
+.kstk-carry-stop {
+  stop-color: var(--accent);
+}
+.kstk-carry-mark {
+  padding: 0 0 2px 44px;
+  font: 600 0.62rem/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.pr-stage .kstk-carry-mark {
+  font-size: 0.72rem;
+  padding-left: 38px;
+}
+.kstk-carry-mark + .kstk-handoff,
+.kstk-carry-mark + .kstk-lane {
+  margin-top: 10px;
+}
+.kstk-canvas.kstk-recap .kstk-lane {
+  background: none;
+}
+.kstk-canvas.kstk-recap .kstk-lane-head span {
+  color: var(--text-faint);
+}
+.kstk-canvas.kstk-recap .kstk-lane-head small {
+  margin-top: 3px;
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
+/* unwind rail — dashed, up the right edge, always present (legible at
+   rest, not just mid-animation). Ambient's return trip lights it; nothing
+   is drawn, the rail was already there. */
+.kstk-unwind {
+  position: absolute;
+  top: 20px;
+  bottom: 20px;
+  right: 16px;
+  width: 0;
+  border-right: 2px dashed color-mix(in srgb, var(--text-dim) 50%, transparent);
+  pointer-events: none;
+  transition: border-right-color 0.3s ease;
+}
+.kstk-unwind::after {
+  content: "unwind ⤴";
+  position: absolute;
+  top: -20px;
+  right: -8px;
+  font: 600 0.6rem/1 var(--mono);
+  color: var(--text-dim);
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+.kstk-unwind.kstk-unwind-on {
+  border-right-color: color-mix(in srgb, var(--accent) 75%, transparent);
+}
+.kstk-unwind.kstk-unwind-on::after {
+  color: var(--accent);
+}
+.kcs[data-motion-preset="off"] .kstk-unwind.kstk-unwind-on {
+  border-right-color: color-mix(in srgb, var(--text-dim) 50%, transparent);
+}
+.kcs[data-motion-preset="off"] .kstk-unwind.kstk-unwind-on::after {
+  color: var(--text-dim);
+}
+
+/* ambient sync light + async continuous glow (data-flow's async-edge
+   convention, in miniature: sync frames light only in passing, async
+   frames glow the whole time ambient runs). */
+.kstk-frame.kstk-lit {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border-strong));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+@keyframes kstk-async-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--text-dim) 22%, transparent);
+  }
+}
+.kstk-frame.kstk-async.kstk-async-live {
+  animation: kstk-async-glow 1.7s ease-in-out infinite;
+}
+.kcs[data-motion-preset="calm"] .kstk-frame.kstk-async.kstk-async-live {
+  animation-duration: 2.8s;
+}
+.kstk-map .kstk-unwind {
+  display: none;
+}
+.kstk-map .kstk-frame.kstk-async.kstk-async-live {
+  animation: none;
+}
+.kstk-map .kstk-descent-path.kstk-path-lit,
+.kstk-map .kstk-descent-path.kstk-path-pass,
+.kstk-map .kstk-descent-path.kstk-path-hover {
+  filter: none;
+  stroke-width: 2.2;
+}
+
+/* walkthrough: touched frames highlight, the rest dim — same focus/dim
+   convention the whole family uses. */
+.kstk-canvas.walking .kstk-frame {
+  opacity: 0.32;
+}
+.kstk-canvas.walking .kstk-frame.active {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border-strong));
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent),
+    0 14px 34px color-mix(in srgb, var(--bg) 36%, transparent);
+}
+
+/* ── Fix 3 — the legend tracks the walk. No new chrome: .kdf-legend-item's
+   own .active/.dim states (data-flow.css, used by data-flow/sequence/erd
+   the same way) are what a step switches on, so the key below the canvas
+   says which number the step is on instead of sitting inert. The two
+   additions here are family-consistent, not new vocabulary: an active
+   entry gets a touch more weight than hover does, and a diff entry keeps
+   its own change tone when it lights (a tone is a role — an "added" number
+   must not turn accent just because it is the active one). */
+.kcs .kdf-legend-item.active {
+  opacity: 1;
+}
+.kcs .kdf-legend-item.active .kdf-legend-text {
+  font-weight: 600;
+}
+.kcs-diff .kdf-legend-item.success.active .kdf-legend-num {
+  background: var(--success);
+  border-color: var(--success);
+  color: var(--bg);
+}
+.kcs-diff .kdf-legend-item.error.active .kdf-legend-num {
+  background: var(--error);
+  border-color: var(--error);
+  color: var(--bg);
+}
+.kcs-diff .kdf-legend-item.violet.active .kdf-legend-num {
+  background: var(--violet);
+  border-color: var(--violet);
+  color: var(--bg);
+}
+
+/* mixed-kind legend entry: a tiny solid-over-dashed swatch inside the
+   usual numbered-circle slot. */
+.kdf-legend-item.kstk-kind-legend .kdf-legend-num {
+  position: relative;
+}
+
+.kdf-legend-item.kstk-kind-legend .kdf-legend-num::before,
+.kdf-legend-item.kstk-kind-legend .kdf-legend-num::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  height: 0;
+  border-top: 1.6px solid currentcolor;
+}
+.kdf-legend-item.kstk-kind-legend .kdf-legend-num::before {
+  top: 8px;
+}
+.kdf-legend-item.kstk-kind-legend .kdf-legend-num::after {
+  top: 13px;
+  border-top-style: dashed;
+}
+
+@media (width <= 520px) {
+  .kstk-canvas {
+    padding: 18px 30px 18px 16px;
+  }
+  .kstk-kids {
+    margin-left: 16px;
+    padding-left: 12px;
+  }
+  .kstk-kids > .kstk-frame-wrap > .kstk-frame::before {
+    left: -12px;
+    width: 12px;
+  }
+}
+body.presenting .pr-slide[data-layout] .pr-stage:has(> .kcs) {
+  width: min(1480px, 98vw);
+}
+.pr-stage .kstk-fn {
+  font-size: 1rem;
+}
+.pr-stage .kstk-note {
+  font-size: 0.86rem;
+}
+.pr-stage .kstk-guard {
+  font-size: 0.82rem;
+}
+
+/* ── Fix 1 — Present mode always fits, without shrinking text ───────────
+   Inactive lanes collapse to a compact strip (label + frame-count chip +
+   one dot per frame, hollow for async) while presenting; the lane(s) the
+   active step touches render in full. Both representations sit in the DOM
+   from the start (architecture.js's kstkBuildCollapsedStrip, built
+   alongside kstk-lane-frames, never lazily) — swapping is a display flip,
+   NOT an eased max-height: a clipped box is still a clipped box while it
+   eases, present.js measures the worst-case step height synchronously
+   (measureSteps) and would read a mid-ease number, and a collapsed lane
+   must contribute exactly zero height, not "zero height with 300px of
+   content hidden inside it". Scroll mode is untouched: every rule below is
+   scoped .pr-stage (this file's own established Present-only convention,
+   e.g. .pr-stage .kerd-head above), which only ever matches while
+   presenting adopts the host into the stage. */
+.kstk-lane-collapsed {
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+.pr-stage .kstk-lane.kstk-lane-untouched {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* the strip carries the lane's own label + count, so the full lane head
+   would only repeat it — one compact line per collapsed lane, no echo */
+.pr-stage .kstk-lane.kstk-lane-untouched > .kstk-lane-head {
+  display: none;
+}
+.pr-stage .kstk-lane.kstk-lane-untouched > .kstk-lane-frames {
+  display: none;
+}
+.pr-stage .kstk-lane.kstk-lane-untouched > .kstk-lane-collapsed {
+  display: flex;
+}
+.kstk-lane-collapsed-label {
+  font: 700 0.64rem/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.kstk-lane-collapsed-count {
+  flex: none;
+  padding: 2px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font: 700 0.64rem/1 var(--mono);
+  color: var(--text-faint);
+}
+.kstk-lane-collapsed-dots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: auto;
+  max-width: 220px;
+}
+.kstk-lane-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+.kstk-lane-dot.async {
+  background: transparent;
+  border: 1.3px solid var(--text-dim);
+}
+
+/* Present-only spacing tightened (never font-size — the whole point of
+   this fix) so a real deck's own lane collapse has room to bring the
+   stage under present.js's own fit() floor without ever needing its
+   last-resort page-scroll fallback. */
+.pr-stage .kstk-canvas {
+  padding: 16px 26px 16px 16px;
+}
+.pr-stage .kstk-canvas.kstk-present-wide {
+  display: grid;
+  grid-template-columns: repeat(var(--kstk-lanes), minmax(0, 1fr));
+  align-items: start;
+  gap: 14px;
+  padding: 16px 28px 16px 16px;
+}
+.pr-stage .kstk-present-wide > .kstk-handoff {
+  display: none;
+}
+.pr-stage .kstk-present-wide > .kstk-lane {
+  min-width: 0;
+  margin-top: 0;
+}
+.pr-stage .kstk-present-wide .kstk-lane-head {
+  min-height: 30px;
+}
+.pr-stage .kstk-present-wide .kstk-frame {
+  max-width: none;
+}
+.pr-stage .kstk-present-wide .kstk-guard {
+  max-width: none;
+}
+.pr-stage .kstk-present-wide .kstk-kids {
+  margin-left: 12px;
+  padding-left: 10px;
+}
+.pr-stage .kstk-present-wide .kstk-kids > .kstk-frame-wrap > .kstk-frame::before {
+  left: -10px;
+  width: 10px;
+}
+.pr-stage .kstk-diff-canvas {
+  padding: 16px;
+}
+.pr-stage .kstk-lane {
+  padding: 10px 14px 12px;
+  margin-top: 10px;
+}
+.pr-stage .kstk-lane-frames {
+  gap: 6px;
+}
+.pr-stage .kstk-handoff {
+  margin: 10px 0 6px;
+}
+
+/* kdf-legend/kdf-walk are shared family markup (sequence/erd/architecture
+   use them too) — scoped through .kcs (stack's own bare host marker) so
+   this tightening never leaks into a sibling component's Present sizing. */
+.pr-stage .kcs .kdf-legend {
+  padding: 10px 16px;
+  gap: 6px 14px;
+}
+.pr-stage .kcs .kdf-walk {
+  margin-top: 14px;
+}
+body.presenting .pr-slide[data-layout] .pr-stage:has(> .kcs:has(> .kstk-map)) {
+  width: min(1600px, calc(100vw - 32px));
+}
+.pr-stage .kcs:has(> .kstk-map) > .kstk-map {
+  width: 100%;
+  padding: 24px 42px 24px 24px;
+}
+.pr-stage .kcs:has(> .kstk-map) > .kstk-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  align-items: center;
+  gap: 24px;
+  height: 96px;
+  box-sizing: border-box;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.pr-stage .kcs:has(> .kstk-map) .kstk-footer > .kdf-legend {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  gap: 5px 12px;
+}
+.pr-stage .kcs:has(> .kstk-map) .kstk-footer > .kdf-walk {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.pr-stage .kcs:has(> .kstk-map) .kstk-footer .kdf-controls {
+  display: none;
+}
+.pr-stage .kcs:has(> .kstk-map) .kstk-footer .kdf-annotation {
+  min-height: 0;
+}
+.pr-stage .kcs:has(> .kstk-map) .kstk-footer .kdf-annotation strong {
+  font-size: 0.9rem;
+}
+.pr-stage .kcs:has(> .kstk-map) .kstk-footer .kdf-annotation p {
+  margin-top: 3px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+.pr-stage .kcs:has(> .kstk-map) .kstk-footer .kdf-dot {
+  width: 8px;
+  height: 8px;
+}
+.pr-stage .kstk-map .kstk-lane-collapsed {
+  display: none !important;
+}
+.pr-stage .kstk-map .kstk-lane-frames {
+  display: flex !important;
+}
+.pr-stage .kstk-map .kstk-lane-head {
+  display: block !important;
+}
+
+@media (width >= 901px) {
+  .pr-stage .kstk-map > .kstk-lane {
+    padding: 16px 18px 18px;
+    margin-top: 0;
+    margin-left: var(--kstk-gutter, 0);
+  }
+  .pr-stage .kstk-map .kstk-lane-head {
+    min-height: 0;
+  }
+  .pr-stage .kstk-map .kstk-lane-frames {
+    gap: 10px;
+  }
+  .pr-stage .kstk-map .kstk-kids {
+    margin-left: 22px;
+    padding-left: 16px;
+  }
+  .pr-stage .kstk-map .kstk-kids > .kstk-frame-wrap > .kstk-frame::before {
+    left: -16px;
+    width: 16px;
+  }
+}
+
+/* NEVER clip, NEVER self-cap, NEVER scroll. A presenter cannot scroll a
+   deck, so anything a max-height hides is simply lost — and a component
+   that caps itself also lies to present.js's fit(), which then leaves the
+   stage short of the viewport it was supposed to fill. The component's job
+   is to REDUCE CONTENT until it fits at a good scale (collapse the lanes
+   this step does not touch → close every code card but the step's focus →
+   kstk-tight's one type step-down, set at runtime by architecture.js's
+   fitStage); the stage's job is the final scaling. A lane that cannot fit
+   even alone never reaches any of that: kstkCheckHeightBudgets throws for
+   it at authoring time, naming the lane. */
+.pr-stage .kcs .kstk-canvas,
+.pr-stage .kcs .kstk-diff-canvas {
+  overflow: visible;
+}
+
+/* code cards in Present are all-or-nothing too: the step's focus card is
+   open at its natural height, every other card is absent (display:none),
+   never a zero-height box with its content clipped inside */
+.pr-stage .kstk-code-card {
+  display: none;
+  max-height: none;
+  overflow: visible;
+  opacity: 1;
+  transition: none;
+}
+.pr-stage .kstk-code-card.kstk-open {
+  display: block;
+}
+
+/* The type step-down: one coherent density notch — type, padding and the
+   vertical rhythm together, so a tightened stack still reads as the same
+   component rather than shrunken text inside unchanged boxes. Present-only,
+   like every rule around it: the class is set while presenting and scroll
+   mode must never inherit it (nor keep it after an exit). */
+.pr-stage .kstk-tight .kstk-fn {
+  font-size: 0.76rem;
+}
+.pr-stage .kstk-tight .kstk-note {
+  font-size: 0.72rem;
+}
+.pr-stage .kstk-tight .kstk-guard {
+  font-size: 0.7rem;
+  padding: 5px 12px;
+}
+.pr-stage .kstk-tight .kstk-frame {
+  padding: 6px 12px;
+}
+.pr-stage .kstk-tight .kstk-frame-wrap {
+  gap: 5px;
+}
+.pr-stage .kstk-tight .kstk-lane-frames {
+  gap: 5px;
+}
+.pr-stage .kstk-tight .kstk-lane {
+  padding: 8px 12px 10px;
+  margin-top: 8px;
+}
+.pr-stage .kstk-tight .kstk-lane-head {
+  margin-bottom: 8px;
+}
+.pr-stage .kstk-tight .kstk-code-line {
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+.pr-stage .kstk-tight .kstk-handoff {
+  margin: 8px 0 4px;
+}
+.pr-stage .kstk-tight.kstk-canvas {
+  padding: 12px 22px 12px 12px;
+}
+.pr-stage .kstk-tight.kstk-diff-canvas {
+  padding: 14px;
+}
+.pr-stage .kstk-tight .kstk-diff-pane {
+  gap: 10px;
+}
+.pr-stage .kstk-tight .kstk-diff-pane .kstk-lane + .kstk-lane {
+  margin-top: 8px;
+}
+.pr-stage .kstk-tight .kstk-diff-rename {
+  padding: 2px 9px;
+}
+.pr-stage .kstk-tight .kstk-diff-path-bar {
+  padding: 4px 10px;
+}
+
+/* ── stack mode:'diff' — the refactor story: two panes + move ribbons.
+   Each pane reuses kstk-lane/-frame/-chip/-guard/-code-card chrome verbatim
+   (kstkBuildFrame is the shared seam, see architecture.js); only the
+   diff-specific decoration (badges, path-bar diff, rename pill, ribbons,
+   pane shell) is new, kstk-diff-* throughout. */
+.kstk-diff-canvas {
+  position: relative;
+  padding: 24px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--surface) 94%, var(--accent) 6%),
+    color-mix(in srgb, var(--bg) 96%, var(--surface) 4%)
+  );
+  box-shadow: 0 18px 48px color-mix(in srgb, var(--bg) 45%, transparent);
+  container-type: inline-size;
+}
+.kstk-diff-panes {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.kstk-diff-pane {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.kstk-diff-pane .kstk-lane {
+  margin-top: 0;
+}
+.kstk-diff-pane .kstk-lane + .kstk-lane {
+  margin-top: 16px;
+}
+.kstk-diff-pane-head {
+  display: flex;
+}
+.kstk-diff-pane-chip {
+  padding: 4px 12px;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 999px;
+  font: 700 0.68rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--surface);
+}
+.kstk-diff-pane-after .kstk-diff-pane-chip {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border-strong));
+  color: var(--accent);
+}
+
+/* ribbons: side-by-side panes above ~900px container width, before left —
+   the ribbon overlay only makes sense in that layout, so it stays hidden
+   (and the panes stack) below it; the numbered badges shared by both panes
+   carry the before<->after correspondence instead ("paired numbered
+   markers", the mobile degrade the draft spec left to this round's call). */
+.kstk-diff-ribbons {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  display: none;
+}
+
+@container (min-width:900px) {
+  .kstk-diff-panes {
+    flex-direction: row;
+    gap: 56px;
+  }
+  .kstk-diff-ribbons {
+    display: block;
+  }
+}
+
+/* a ribbon is structure too ("this frame is that frame, moved"): painted
+   with the panes, restyled — never redrawn, never travelled — by a step
+   (.kstk-ribbon-lit) or by ambient's attention pass (.kstk-ribbon-pass). */
+.kstk-diff-ribbon-line {
+  fill: none;
+  stroke-width: 2;
+  stroke: var(--accent);
+  opacity: 0.45;
+  transition:
+    opacity 0.25s ease,
+    stroke-width 0.25s ease;
+}
+.kstk-diff-ribbon-line.violet {
+  stroke: var(--violet);
+}
+
+/* Stack outline: lane and frame evidence become a vertical reading surface. */
+.kcs[data-layout="briefing"] .kstk-canvas.kstk-map {
+  display: grid;
+  gap: calc(24px * var(--content-space-scale)) calc(36px * var(--content-space-scale));
+  padding: calc(22px * var(--content-space-scale));
+}
+.kcs[data-layout="briefing"] .kstk-map > .kstk-lane {
+  margin: 0;
+  padding: calc(18px * var(--content-space-scale)) 0 0;
+  border: 0;
+  border-top: 1px solid var(--border-strong);
+  background: transparent !important;
+}
+.kcs[data-layout="briefing"] .kstk-map > .kstk-lane:first-of-type {
+  margin-top: 0;
+}
+.kcs[data-layout="briefing"] .kstk-map > .kstk-lane ~ .kstk-lane::after,
+.kcs[data-layout="briefing"] .kstk-descent-svg,
+.kcs[data-layout="briefing"] .kstk-unwind {
+  display: none;
+}
+.kcs[data-layout="briefing"] .kstk-map > .kstk-handoff {
+  display: flex;
+  margin-top: calc(22px * var(--content-space-scale));
+}
+.kcs[data-layout="briefing"] .kstk-frame {
+  max-width: none;
+  border-width: 0 0 0 2px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.kcs[data-layout="briefing"] .kstk-diff-panes {
+  gap: calc(30px * var(--content-space-scale));
+}
+.kcs[data-layout="briefing"] .kstk-diff-ribbons {
+  display: none;
+}
+.kstk-brief-calls {
+  gap: calc(8px * var(--content-space-scale));
+  margin-top: calc(24px * var(--content-space-scale));
+  padding-top: calc(18px * var(--content-space-scale));
+  border-top: 1px solid var(--border-strong);
+}
+.kstk-brief-calls summary {
+  margin: 0 0 calc(6px * var(--content-space-scale));
+  color: var(--text-dim);
+  font: 700 0.66rem/1 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.kstk-brief-call {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30px minmax(0, 1fr);
+  gap: calc(10px * var(--content-space-scale));
+  align-items: center;
+  min-height: calc(34px * var(--content-space-scale));
+  color: var(--text-dim);
+  font: 0.72rem/1.3 var(--mono);
+}
+.kstk-brief-call i {
+  color: var(--accent);
+  font-style: normal;
+  text-align: center;
+}
+.kstk-brief-call.async i {
+  color: var(--violet);
+}
+.kstk-brief-call strong {
+  color: var(--text);
+}
+.kstk-diff-ribbon-line.hover {
+  opacity: 1;
+  stroke-width: 2.8;
+}
+.kstk-diff-ribbon-line.kstk-ribbon-lit,
+.kstk-diff-ribbon-line.kstk-ribbon-pass {
+  opacity: 1;
+  stroke-width: 2.8;
+  filter: drop-shadow(0 0 5px var(--accent-dim));
+}
+.kstk-diff-ribbon-line.violet.kstk-ribbon-lit,
+.kstk-diff-ribbon-line.violet.kstk-ribbon-pass {
+  filter: drop-shadow(0 0 5px var(--violet-dim));
+}
+.kcs[data-motion-preset="calm"] .kstk-diff-ribbon-line.kstk-ribbon-pass {
+  opacity: 0.75;
+}
+.kcs[data-motion-preset="off"] .kstk-diff-ribbon-line.kstk-ribbon-pass {
+  opacity: 0.45;
+  stroke-width: 2;
+  filter: none;
+}
+
+/* data-flow.css floors any .kdf-legend to min-width:920px below 900px
+   (its own canvases float-and-scroll there) — stack reflows instead (see
+   the family comment atop the stack section), so override for diff mode's
+   own changes legend with higher specificity, regardless of load order. */
+@media (width <= 900px) {
+  .kcs-diff .kdf-legend {
+    min-width: 0;
+  }
+}
+
+/* numbered change badge — kdf-legend-num's circle, diff-toned. */
+.kstk-diff-num {
+  margin-right: 2px;
+}
+.kstk-diff-num.kstk-diff-num-accent {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.kstk-diff-num.kstk-diff-num-success {
+  border-color: var(--success);
+  color: var(--success);
+}
+.kstk-diff-num.kstk-diff-num-error {
+  border-color: var(--error);
+  color: var(--error);
+}
+.kstk-diff-num.kstk-diff-num-violet {
+  border-color: var(--violet);
+  color: var(--violet);
+}
+
+/* added/removed weight: added gets a success rule; removed stays visible at
+   full structure but struck + error-toned — the eye counts what died
+   without reading. unchanged stays permanently muted, no badge (never just
+   during a walkthrough step, unlike the family's usual dim convention). */
+.kstk-diff-added {
+  border-left: 3px solid var(--success);
+}
+.kstk-diff-removed {
+  border-left: 3px solid var(--error);
+  opacity: 0.75;
+}
+.kstk-diff-removed .kstk-fn {
+  color: var(--error);
+  text-decoration: line-through;
+}
+.kstk-diff-unchanged {
+  opacity: 0.5;
+}
+.kstk-diff-changed {
+  border-left: 3px solid var(--accent);
+}
+.kstk-diff-changed.kstk-diff-is-renamed {
+  border-left-color: var(--violet);
+}
+
+/* rename pill — violet, "oldFn → fn", composable alongside the moved rule
+   above (both classes can land on the same frame). */
+.kstk-diff-rename {
+  align-self: flex-start;
+  padding: 3px 10px;
+  border: 1px dashed color-mix(in srgb, var(--violet) 55%, transparent);
+  border-radius: 999px;
+  font: 700 0.68rem/1.3 var(--mono);
+  color: var(--violet);
+  background: color-mix(in srgb, var(--violet) 10%, transparent);
+}
+.kstk-diff-rename-arrow {
+  margin: 0 2px;
+}
+
+/* path-bar diff — a standalone bar, independent of any code card (a moved
+   frame need not carry code): unchanged segments stay dimmed, the segment
+   that actually differs from the other side wears that side's tone. */
+.kstk-diff-path-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 92%, var(--text) 4%);
+  font: 600 0.7rem/1 var(--mono);
+  max-width: 100%;
+}
+.kstk-diff-path-seg {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-faint);
+}
+.kstk-diff-path-seg.kstk-diff-seg-error {
+  color: var(--error);
+  font-weight: 700;
+}
+.kstk-diff-path-seg.kstk-diff-seg-success {
+  color: var(--success);
+  font-weight: 700;
+}
+
+/* walkthrough: touched frames highlight, the rest dim — same convention the
+   whole family uses, scoped to the diff canvas. Ambient/fire flash reuses
+   the same accent glow the flow branch's own descent-lit frames use. */
+.kstk-diff-canvas.kstk-diff-walking .kstk-frame {
+  opacity: 0.32;
+}
+.kstk-diff-canvas.kstk-diff-walking .kstk-frame.active {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border-strong));
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--accent) 14%, transparent),
+    0 14px 34px color-mix(in srgb, var(--bg) 36%, transparent);
+}
+.kstk-diff-canvas .kstk-frame.hover {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border-strong));
+}
+.kstk-diff-canvas .kstk-frame.kstk-diff-lit {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
+}
+
+@media (width <= 520px) {
+  .kstk-diff-canvas {
+    padding: 18px 16px;
+  }
+}
+.pr-stage .kstk-diff-pane-chip {
+  font-size: 0.78rem;
+}
+
+/* An operating model reads as an open decision brief, without decorative cores. */
+.kom-canvas {
+  background: none;
+}
+.kom-canvas::before,
+.kom-core-ring {
+  display: none;
+}
+.kom-card {
+  border: 0;
+  border-top: 1px solid var(--border-strong);
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--bg);
+  padding: 10px 12px;
+}
+.kom-policy,
+.kom-audit {
+  background: var(--bg);
+  border: 0;
+  border-top: 1px solid var(--border-strong);
+}
+.kom-decision {
+  background: var(--bg);
+  border: 0;
+  border-block: 2px solid var(--accent);
+  box-shadow: none;
+  padding: 12px;
+}
+.kom-title {
+  white-space: normal;
+  overflow: visible;
+  line-height: 1.25;
+  font-size: clamp(12px, 1.2vw, 22px);
+}
+.kom-decision .kom-title {
+  font-size: clamp(18px, 2.1vw, 34px);
+}
+.kom-sub {
+  white-space: normal;
+  line-height: 1.4;
+}
+.kom-zone-label {
+  font-family: var(--sans);
+  letter-spacing: 0.03em;
+  font-weight: 500;
+}
+
+/* Keep operating-model participants visible; the decision remains dominant. */
+.kom-card,
+.kom-policy,
+.kom-audit {
+  background: color-mix(in srgb, var(--surface) 84%, var(--text) 8%);
+  border: 1px solid color-mix(in srgb, var(--text) 32%, var(--border));
+  border-radius: 6px;
+}
+.kom-decision {
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent) 8%);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+}
+
+/* Program rhythm: ownership is always visible; supporting prose is optional. */
+.kom-program {
+  margin-top: 28px;
+}
+.kom-program-board {
+  padding: calc(12px * var(--content-space-scale)) 0 calc(24px * var(--content-space-scale));
+}
+.kom-principle {
+  margin: 0 0 calc(32px * var(--content-space-scale));
+  padding: calc(12px * var(--content-space-scale)) 0 calc(12px * var(--content-space-scale))
+    calc(18px * var(--content-space-scale));
+  border-left: 3px solid var(--accent);
+  color: var(--text-dim);
+  font-size: 18px;
+}
+.kom-stages {
+  display: grid;
+  grid-template-columns: repeat(var(--kom-columns), minmax(0, 1fr));
+  gap: 28px;
+}
+.kom-stage {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border-top: 2px solid var(--border-strong);
+  padding: 20px 0 0;
+  transition: opacity 0.18s ease;
+}
+.kom-stage-number {
+  display: block;
+  color: var(--accent);
+  font: 500 15px var(--mono);
+  letter-spacing: 0.06em;
+  margin-bottom: calc(22px * var(--content-space-scale));
+}
+.kom-stage h3 {
+  margin: 0;
+  font-size: clamp(22px, 2.1vw, 32px);
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+.kom-responsibility {
+  min-height: 130px;
+}
+.kom-stage-body {
+  color: var(--text-dim);
+  font-size: 17px;
+  line-height: 1.5;
+  margin: calc(16px * var(--content-space-scale)) 0 calc(20px * var(--content-space-scale));
+}
+.kom-program[data-operating-detail="minimal"] .kom-stage-body {
+  display: none;
+}
+.kom-owner {
+  margin-top: auto;
+  font-size: 19px;
+}
+.kom-field-label {
+  display: block;
+  color: var(--text-dim);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.035em;
+  margin-bottom: calc(8px * var(--content-space-scale));
+}
+.kom-cadence {
+  margin-top: calc(20px * var(--content-space-scale));
+  font-size: 16px;
+}
+.kom-handoffs {
+  border-top: 1px solid var(--border-strong);
+  margin-top: calc(26px * var(--content-space-scale));
+  padding-top: calc(18px * var(--content-space-scale));
+}
+.kom-handoff {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(10px * var(--content-space-scale));
+  font-size: 16px;
+  line-height: 1.35;
+  margin-bottom: calc(14px * var(--content-space-scale));
+}
+.kom-handoff-arrow {
+  color: var(--accent);
+  font-size: 23px;
+  line-height: 1;
+}
+.kom-handoff small {
+  display: block;
+  color: var(--text-dim);
+  margin-top: calc(6px * var(--content-space-scale));
+  font-size: 13px;
+}
+.kom-handoff.is-feedback .kom-handoff-arrow {
+  color: var(--accent);
+}
+.kom-program-board.is-walking .kom-stage:not(.active) {
+  opacity: 0.38;
+}
+.kom-program-board.is-walking .kom-stage.active {
+  border-top-color: var(--accent);
+}
+.kom-handoff.active strong {
+  color: var(--accent);
+}
+.kom-program[data-operating-layout="roles"] .kom-stages {
+  display: block;
+}
+.kom-program[data-operating-layout="roles"] .kom-stage,
+.kom-role-head {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 0.85fr 1.15fr;
+  gap: calc(24px * var(--content-space-scale));
+  align-items: start;
+  padding: calc(20px * var(--content-space-scale)) 0;
+}
+.kom-role-head {
+  padding: 0 0 calc(12px * var(--content-space-scale));
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.kom-program[data-operating-layout="roles"] .kom-stage {
+  border-top-width: 1px;
+}
+.kom-program[data-operating-layout="roles"] .kom-stage h3 {
+  font-size: 24px;
+}
+.kom-program[data-operating-layout="roles"] .kom-stage-number {
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+.kom-program[data-operating-layout="roles"] .kom-responsibility {
+  min-height: 0;
+}
+.kom-program[data-operating-layout="roles"] .kom-owner,
+.kom-program[data-operating-layout="roles"] .kom-cadence,
+.kom-program[data-operating-layout="roles"] .kom-handoffs {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.kom-program[data-operating-layout="roles"] .kom-field-label {
+  display: none;
+}
+
+/* Responsibilities on a slide: same table, held at true size with tighter rows. */
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-stage,
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-role-head {
+  grid-template-columns: 1.4fr 1fr 0.8fr 1.2fr;
+  gap: clamp(24px, 2.4vw, 40px);
+  padding-top: calc(14px * var(--content-space-scale));
+  padding-bottom: calc(14px * var(--content-space-scale));
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-role-head {
+  padding-top: 0;
+  padding-bottom: calc(10px * var(--content-space-scale));
+  font: 500 13px/1.3 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-stage-number {
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-stage h3 {
+  font-size: clamp(22px, 1.55vw, 26px);
+  line-height: 1.15;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-responsibility .kom-stage-body {
+  margin: 8px 0 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-owner {
+  font-size: 19px;
+  line-height: 1.25;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-decision-right,
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-owner .kom-stage-body {
+  margin-top: 6px;
+  font-size: 15px;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-cadence {
+  font-size: 16px;
+  line-height: 1.4;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-cadence > span {
+  font-size: inherit;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-handoff {
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-handoff-arrow {
+  font-size: 20px;
+  line-height: 1.2;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-handoff small {
+  margin-top: 3px;
+  font-size: 14px;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-handoff small.kom-stage-body {
+  display: none;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kom-handoffs > .kom-field-label {
+  display: block;
+  color: var(--text-faint);
+  font-size: 14px;
+  letter-spacing: 0;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] > .kdf-walk {
+  margin-top: 18px;
+  padding-top: 12px;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kdf-controls {
+  display: none;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kdf-annotation {
+  min-height: 0;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kdf-annotation strong {
+  font-size: 18px;
+}
+.pr-stage .kom-program[data-operating-layout="roles"] .kdf-annotation p {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+@media (width <= 1100px) {
+  .pr-stage .kom-program[data-operating-layout="roles"] .kom-stage {
+    grid-template-columns: 1.2fr 1fr;
+    row-gap: 14px;
+  }
+  .pr-stage .kom-program[data-operating-layout="roles"] .kom-role-head {
+    display: none;
+  }
+  .pr-stage .kom-program[data-operating-layout="roles"] .kom-field-label {
+    display: block;
+  }
+}
+
+.kom-program[data-operating-layout="lanes"] .kom-stages {
+  display: block;
+}
+body.presenting
+  .pr-slide[data-layout]
+  .pr-stage:has(
+    > .kom-program:is(
+      [data-operating-layout="lanes"],
+      [data-operating-layout="progression"],
+      [data-operating-layout="flow"],
+      [data-operating-layout="roles"]
+    )
+  ) {
+  /* Roomy models scale a little before they spill; dense ones further. */
+  --pr-min-scale: 0.85;
+
+  width: min(1360px, calc(100vw - 96px));
+}
+body.presenting .pr-slide[data-layout] .pr-stage:has(> .kom-program[data-kom-density="dense"]) {
+  --pr-min-scale: 0.72;
+
+  width: min(1480px, calc(100vw - 96px));
+}
+body.presenting
+  .pr-slide[data-layout]
+  .pr-stage:has(> .kom-program[data-operating-layout="progression"]) {
+  /* Four phase columns stay readable at this floor while still clearing the
+     presenter HUD on the common 1280×720 demo viewport. */
+  --pr-min-scale: 0.78;
+}
+body.presenting
+  .pr-slide:has(
+    > .pr-stage
+      > .kom-program:is(
+        [data-operating-layout="lanes"],
+        [data-operating-layout="progression"],
+        [data-operating-layout="flow"],
+        [data-operating-layout="roles"]
+      )
+  ) {
+  padding: 24px 48px 92px;
+}
+.pr-stage
+  > .kom-program:is(
+    [data-operating-layout="lanes"],
+    [data-operating-layout="progression"],
+    [data-operating-layout="flow"],
+    [data-operating-layout="roles"]
+  ) {
+  margin-top: 12px !important;
+}
+.pr-stage
+  .kom-program:is(
+    [data-operating-layout="lanes"],
+    [data-operating-layout="progression"],
+    [data-operating-layout="flow"],
+    [data-operating-layout="roles"]
+  )
+  .kom-program-board {
+  padding: 0;
+}
+.pr-stage
+  .kom-program:is(
+    [data-operating-layout="lanes"],
+    [data-operating-layout="progression"],
+    [data-operating-layout="flow"],
+    [data-operating-layout="roles"]
+  )
+  .kom-principle {
+  margin-bottom: calc(18px * var(--content-space-scale));
+  padding: 0;
+  border-left: 0;
+  color: var(--text-dim);
+  font-size: 17px;
+  font-style: italic;
+}
+body.presenting
+  .pr-slide[data-layout]
+  .pr-stage:has(> .kom-program[data-operating-layout="lanes"]) {
+  width: min(1240px, calc(100vw - 96px));
+}
+.pr-stage .kom-program[data-operating-layout="flow"] .kom-principle {
+  margin-bottom: calc(36px * var(--content-space-scale));
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kdf-controls {
+  display: none;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-owner strong {
+  font-size: 20px;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-owner small {
+  display: none;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-number {
+  font-size: 12px;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-card h3 {
+  margin: 6px 0;
+  font-size: 21px;
+  text-wrap: balance;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-card .kom-stage-body {
+  font-size: 14px;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-cadence,
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-decider {
+  font-size: 14px;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-edge circle {
+  r: 16px;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-edge text {
+  font-size: 14px;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-key {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px 20px;
+  margin-top: 14px;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-key-item {
+  align-items: center;
+  gap: 10px;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-key-number {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+.pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-key-item strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+.pr-stage
+  .kom-program[data-operating-layout="lanes"]
+  .kom-lane-key-item
+  small:not(.kom-stage-body) {
+  display: none;
+}
+.pr-stage
+  .kom-program:is([data-operating-layout="lanes"], [data-operating-layout="progression"])
+  > .kdf-walk {
+  margin-top: 14px;
+  padding-top: 12px;
+}
+.pr-stage
+  .kom-program:is([data-operating-layout="lanes"], [data-operating-layout="progression"])
+  .kdf-annotation {
+  min-height: 0;
+}
+
+@media (width <= 1000px) {
+  .pr-stage .kom-program[data-operating-layout="lanes"] .kom-lane-key {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Working flow: a spine of numbered stages. The artifact that moves sits on
+   the spine between stages; a return decision arcs back over the top. */
+.kom-flow {
+  --kom-flow-gutter: clamp(28px, 3vw, 56px);
+  --kom-flow-node: 40px;
+  --kom-flow-col: calc(
+    (100% - (var(--kom-columns) - 1) * var(--kom-flow-gutter)) / var(--kom-columns)
+  );
+
+  gap: 0 var(--kom-flow-gutter);
+}
+.kom-flow-return {
+  position: relative;
+  grid-column: 1 / -1;
+  box-sizing: border-box;
+  height: calc(34px + var(--kom-flow-lift, 0) * 20px);
+  margin: 0
+    calc(
+      (var(--kom-columns) - 1 - var(--kom-flow-from)) *
+        (var(--kom-flow-col) + var(--kom-flow-gutter)) + var(--kom-flow-col) -
+        var(--kom-flow-node) / 2
+    )
+    0
+    calc(
+      var(--kom-flow-to) * (var(--kom-flow-col) + var(--kom-flow-gutter)) + var(--kom-flow-node) / 2
+    );
+  border: 1.5px solid var(--text-dim);
+  border-bottom: 0;
+  border-radius: 14px 14px 0 0;
+  color: var(--text-dim);
+  transition: opacity 0.18s ease;
+}
+.kom-flow-return.is-feedback {
+  border-style: dashed;
+  color: var(--violet);
+  border-color: var(--violet);
+}
+.kom-flow-return::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: -6px;
+  border: 5px solid transparent;
+  border-top: 7px solid currentcolor;
+  border-bottom: 0;
+}
+.kom-flow-return-label {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  max-width: 90%;
+  padding: 0 12px;
+  background: var(--bg);
+  color: inherit;
+  font: 500 13px/22px var(--sans);
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+.kom-flow-return-mark {
+  font-size: 15px;
+}
+.kom-flow-return-label strong {
+  font-weight: 600;
+}
+.kom-flow-return-label small {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+.kom-flow-stage {
+  position: relative;
+  padding: 0;
+  border-top: 0;
+}
+.kom-flow-head {
+  position: relative;
+  height: var(--kom-flow-node);
+}
+.kom-flow-head::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: calc(-1 * var(--kom-flow-gutter));
+  left: var(--kom-flow-node);
+  border-top: 1.5px solid var(--border-strong);
+}
+.kom-flow-stage:last-of-type .kom-flow-head::before {
+  display: none;
+}
+.kom-flow-node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--kom-flow-node);
+  height: var(--kom-flow-node);
+  border: 1.5px solid var(--text);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--text);
+  font: 600 14px var(--mono);
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+}
+.kom-flow-carry {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - var(--kom-flow-node) - 14px);
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 100px;
+  background: var(--bg);
+  color: var(--text);
+  font: 500 13px/28px var(--sans);
+  transform: translateY(-50%);
+  transition:
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+.kom-flow-carry strong {
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kom-flow-carry-arrow {
+  color: var(--text-dim);
+}
+.kom-flow-stage h3 {
+  margin: 22px 0 0;
+  font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+.kom-flow-stage > .kom-stage-body {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.45;
+}
+.kom-flow-owner {
+  --kom-tone: var(--accent);
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+.kom-flow-monogram {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid color-mix(in srgb, var(--kom-tone) 40%, var(--border));
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--kom-tone) 12%, var(--surface));
+  color: var(--kom-tone);
+  font: 600 14px var(--sans);
+}
+.kom-flow-who {
+  min-width: 0;
+}
+.kom-flow-who strong {
+  display: block;
+  font-size: 17px;
+  line-height: 1.25;
+}
+.kom-flow-who small {
+  display: block;
+  margin-top: 2px;
+  color: var(--text-dim);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.kom-flow-cadence {
+  display: block;
+  margin-top: 12px;
+  padding-left: 46px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.kom-flow-cadence::before {
+  content: "Cadence · ";
+  color: var(--text-faint);
+}
+.kom-program-board.is-walking .kom-flow-stage.active .kom-flow-node {
+  background: var(--text);
+  color: var(--bg);
+}
+.kom-program-board.is-walking .kom-flow-carry.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.kom-program-board.is-walking .kom-flow-carry.active .kom-flow-carry-arrow {
+  color: var(--accent);
+}
+.kom-program-board.is-walking .kom-flow-return:not(.active) {
+  opacity: 0.38;
+}
+.kom-program-board.is-walking .kom-flow-return.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.pr-stage .kom-flow {
+  --kom-flow-node: 48px;
+}
+.pr-stage .kom-flow-return {
+  height: calc(46px + var(--kom-flow-lift, 0) * 24px);
+}
+.pr-stage .kom-flow-return-label {
+  font-size: 16px;
+  line-height: 26px;
+}
+.pr-stage .kom-flow-return-label small {
+  font-size: 14px;
+}
+.pr-stage .kom-flow-node {
+  font-size: 16px;
+}
+.pr-stage .kom-flow-carry {
+  font-size: 15px;
+  line-height: 32px;
+}
+.pr-stage .kom-flow-stage h3 {
+  margin-top: 30px;
+  font-size: clamp(26px, 1.9vw, 34px);
+}
+.pr-stage .kom-flow-stage > .kom-stage-body {
+  margin-top: 12px;
+  font-size: 17px;
+}
+.pr-stage .kom-flow-owner {
+  gap: 14px;
+  margin-top: 30px;
+}
+.pr-stage .kom-flow-monogram {
+  width: 44px;
+  height: 44px;
+  font-size: 17px;
+}
+.pr-stage .kom-flow-who strong {
+  font-size: 21px;
+}
+.pr-stage .kom-flow-who small,
+.pr-stage .kom-flow-cadence {
+  font-size: 16px;
+}
+.pr-stage .kom-flow-cadence {
+  margin-top: 14px;
+  padding-left: 58px;
+}
+.pr-stage .kom-program[data-operating-layout="flow"] > .kdf-walk {
+  margin-top: 22px;
+  padding-top: 12px;
+}
+.pr-stage .kom-program[data-operating-layout="flow"] .kdf-controls {
+  display: none;
+}
+.pr-stage .kom-program[data-operating-layout="flow"] .kdf-annotation {
+  min-height: 0;
+}
+.pr-stage .kom-program[data-operating-layout="flow"] .kdf-annotation strong {
+  font-size: 18px;
+}
+.pr-stage .kom-program[data-operating-layout="flow"] .kdf-annotation p {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+@media (width <= 760px) {
+  .kom-flow-return,
+  .kom-flow-head::before {
+    display: none;
+  }
+  .kom-flow-carry {
+    position: static;
+    margin-top: 10px;
+    transform: none;
+  }
+  .kom-flow-head {
+    height: auto;
+  }
+}
+.kom-lane-viewport {
+  overflow-x: auto;
+}
+.kom-lane-canvas {
+  position: relative;
+  width: 100%;
+  isolation: isolate;
+}
+.kom-lane,
+.kom-lane-card,
+.kom-gate-phase {
+  --kom-tone: var(--accent);
+}
+.kom-lane {
+  position: absolute;
+  border-top: 1px solid var(--border);
+  background: transparent;
+}
+.kom-lane:nth-child(even) {
+  background: color-mix(in srgb, var(--text) 2%, transparent);
+}
+.kom-lane-owner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 14px 14px 18px;
+  color: var(--text);
+}
+.kom-lane-owner strong {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.kom-lane-owner strong::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border-radius: 50%;
+  background: var(--kom-tone);
+}
+.kom-lane-owner small {
+  padding-left: 20px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.kom-lane-card {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 12px 14px 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--kom-tone) 28%, var(--border));
+  border-left: 4px solid var(--kom-tone);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--kom-tone) 6%, var(--surface));
+  transition: opacity 0.2s ease;
+}
+.kom-lane-number {
+  color: var(--text-dim);
+  font: 600 11px/1 var(--mono);
+}
+.kom-lane-card h3 {
+  margin: 7px 0;
+  color: var(--text);
+  font: 650 21px/1.2 var(--sans);
+}
+.kom-lane-card .kom-stage-body {
+  margin: 0 0 6px;
+  font: 400 12px/1.35 var(--sans);
+}
+.kom-lane-cadence,
+.kom-lane-decider {
+  color: var(--text-dim);
+  font: 400 13px/1.35 var(--sans);
+}
+.kom-lane-decider {
+  margin-top: 3px;
+}
+.kom-lane-wires {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow: visible;
+}
+.kom-lane-edge {
+  color: var(--text-dim);
+  transition: opacity 0.2s ease;
+}
+.kom-lane-edge > path {
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.kom-lane-edge.is-feedback {
+  color: var(--violet);
+}
+.kom-lane-edge.is-feedback > path {
+  stroke-dasharray: 6 5;
+  stroke-linecap: round;
+}
+.kom-lane-edge circle {
+  r: 14px;
+  fill: var(--bg);
+  stroke: currentcolor;
+  stroke-width: 1.5;
+}
+.kom-lane-edge text {
+  fill: currentcolor;
+  font: 650 13px var(--mono);
+}
+.kom-lane-edge.active {
+  color: var(--accent);
+}
+.kom-lane-key {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 24px;
+  margin-top: 14px;
+}
+.kom-lane-key-item {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--text);
+}
+.kom-lane-key-number {
+  color: var(--accent);
+  font: 600 11px var(--mono);
+}
+.kom-lane-key-item strong {
+  font-size: 13px;
+}
+.kom-lane-key-item small {
+  display: block;
+  margin: 3px 0 0;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+.kom-program[data-operating-layout="progression"] .kom-stages {
+  display: block;
+  overflow-x: auto;
+}
+.kom-progress-phases {
+  --kom-progress-rows: 5;
+
+  display: grid;
+  grid-template-columns: repeat(var(--kom-columns), minmax(180px, 1fr));
+  gap: calc(6px * var(--content-space-scale)) calc(36px * var(--content-space-scale));
+}
+.kom-progress-phase {
+  position: relative;
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span var(--kom-progress-rows);
+  min-width: 0;
+  transition: opacity 0.2s ease;
+}
+.kom-progress-phase[data-next-handoff]::after {
+  content: "→";
+  position: absolute;
+  top: 55%;
+  right: calc(-28px * var(--content-space-scale));
+  color: var(--text-dim);
+  font: 500 24px var(--sans);
+}
+.kom-progress-heading {
+  padding: 0 8px 14px;
+  text-align: center;
+}
+.kom-progress-index {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 auto 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  color: var(--text-dim);
+  background: var(--surface);
+  font: 600 14px var(--mono);
+}
+.kom-progress-heading h3 {
+  margin: 0;
+  color: var(--text);
+  font: 650 21px/1.2 var(--sans);
+}
+.kom-progress-purpose {
+  margin: 8px 0 0;
+  color: var(--text-dim);
+  font: 400 13px/1.4 var(--sans);
+}
+.kom-progress-heading .kom-stage-body {
+  margin: 8px 0 0;
+  font-size: 12px;
+}
+.kom-progress-cell,
+.kom-progress-state {
+  --kom-status: var(--text-faint);
+}
+.kom-progress-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  min-height: 60px;
+  padding: calc(10px * var(--content-space-scale)) 14px;
+  border: 1px solid color-mix(in srgb, var(--kom-status) 28%, var(--border));
+  border-left: 4px solid var(--kom-status);
+  border-radius: 4px;
+  color: var(--text);
+  background: color-mix(in srgb, var(--kom-status) 9%, var(--surface));
+}
+.kom-progress-cell strong {
+  font: 600 15px/1.25 var(--sans);
+}
+.kom-progress-cell span {
+  color: color-mix(in srgb, var(--kom-status) 72%, var(--text));
+  font: 500 11px/1.3 var(--sans);
+}
+.kom-progress-empty {
+  min-height: 60px;
+}
+.kom-progress-horizons {
+  display: grid;
+  grid-template-columns: repeat(var(--kom-columns), minmax(180px, 1fr));
+  grid-auto-flow: row dense;
+  gap: 18px calc(36px * var(--content-space-scale));
+  margin-top: 24px;
+}
+.kom-progress-horizon {
+  position: relative;
+  padding-top: 10px;
+  border-top: 1px solid var(--text-faint);
+  color: var(--text-dim);
+  text-align: center;
+  font: 500 14px/1.3 var(--sans);
+}
+.kom-progress-horizon strong {
+  display: block;
+  color: var(--text);
+  font-weight: 600;
+}
+.kom-progress-horizon-owner {
+  display: block;
+  margin-top: 6px;
+  font: 400 13px/1.4 var(--sans);
+}
+.kom-progress-horizon::before,
+.kom-progress-horizon::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  height: 7px;
+  border-left: 1px solid var(--text-faint);
+}
+.kom-progress-horizon::before {
+  left: 0;
+}
+.kom-progress-horizon::after {
+  right: 0;
+}
+.kom-progress-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 28px;
+  margin-top: 24px;
+}
+.kom-progress-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-dim);
+  font: 500 12px var(--sans);
+}
+.kom-progress-state::before {
+  content: "";
+  box-sizing: border-box;
+  width: 14px;
+  height: 12px;
+  border: 1px solid color-mix(in srgb, var(--kom-status) 28%, var(--border));
+  border-left: 3px solid var(--kom-status);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--kom-status) 9%, var(--surface));
+}
+.kom-progress-caption {
+  margin: 10px 0 0;
+  color: var(--text-dim);
+  text-align: center;
+  font: 400 12px/1.4 var(--sans);
+}
+.kom-progress-handoffs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin-top: 20px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.kom-progress-handoff {
+  color: var(--text-dim);
+}
+.kom-progress-handoff strong {
+  font: 500 12px/1.4 var(--sans);
+}
+.kom-progress-handoff .kom-stage-body {
+  display: block;
+  margin: 4px 0 0;
+  font-size: 11px;
+}
+.kom-progress-handoff.active {
+  color: var(--accent);
+}
+.kom-program-board.is-walking .kom-progress-phase:not(.active) {
+  opacity: 0.3;
+}
+
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progression {
+  --kom-progress-gutter: clamp(28px, 3vw, 48px);
+
+  overflow: visible;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-phases {
+  grid-template-columns: repeat(var(--kom-columns), minmax(0, 1fr));
+  gap: calc(8px * var(--content-space-scale)) var(--kom-progress-gutter);
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-phase {
+  scroll-margin-top: 80px;
+  padding: 16px 12px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--text) 2.5%, var(--bg));
+}
+.pr-stage
+  .kom-program[data-operating-layout="progression"]
+  .kom-progress-phase[data-next-handoff]::after {
+  right: calc(var(--kom-progress-gutter) / -2 - 9px);
+  color: var(--text-faint);
+  font-size: 22px;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-heading {
+  margin-bottom: 6px;
+  padding: 0 4px 14px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-index {
+  width: 30px;
+  height: 30px;
+  margin: 0 0 10px;
+  font-size: 13px;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-heading h3 {
+  font-size: clamp(22px, 1.55vw, 27px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  overflow-wrap: anywhere;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-purpose {
+  display: block;
+  margin-top: 6px;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-heading .kom-stage-body {
+  display: none;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-cell {
+  min-height: 58px;
+  gap: 2px;
+  padding: calc(7px * var(--content-space-scale)) 16px;
+  background: color-mix(in srgb, var(--kom-status) 9%, var(--bg));
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-cell strong {
+  font-size: clamp(20px, 1.25vw, 24px);
+  font-weight: 500;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-cell > span {
+  font-size: clamp(14px, 0.9vw, 17px);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-empty {
+  min-height: 58px;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-horizons {
+  grid-template-columns: repeat(var(--kom-columns), minmax(0, 1fr));
+  gap: 14px var(--kom-progress-gutter, 36px);
+  margin-top: 22px;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-horizon {
+  padding-top: 8px;
+  font-size: 17px;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-horizon-owner {
+  margin-top: 4px;
+  font-size: 15px;
+}
+.kom-progress-horizon-range {
+  display: none;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-legend {
+  gap: 8px 28px;
+  margin-top: 22px;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-state {
+  font-size: 14px;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-state::before {
+  width: 18px;
+  height: 14px;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-caption,
+.pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-handoffs {
+  display: none;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] > .kdf-walk {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 16px;
+  min-width: 0;
+  margin-top: 16px;
+  padding-top: 12px;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kdf-controls {
+  display: none;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kdf-annotation strong {
+  font-size: 18px;
+}
+.pr-stage .kom-program[data-operating-layout="progression"] .kdf-annotation p {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+@media (width <= 1100px) {
+  .pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-phases {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-phase:nth-child(n + 3) {
+    margin-top: 24px;
+  }
+  .pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-phase::after {
+    display: none;
+  }
+  .pr-stage
+    .kom-program[data-operating-layout="progression"]
+    .kom-progress-heading
+    .kom-progress-purpose {
+    display: block;
+    font-size: 16px;
+    line-height: 1.35;
+  }
+  .pr-stage
+    .kom-program[data-operating-layout="progression"]
+    .kom-progress-heading
+    .kom-stage-body {
+    display: block;
+    font-size: 15px;
+  }
+  .pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-horizons {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-horizon {
+    flex: 1 1 260px;
+  }
+  .pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-horizon-range {
+    display: block;
+    margin-top: 5px;
+    font-size: 14px;
+  }
+  body.presenting .pr-stage:has(> .kom-program[data-operating-layout="progression"]) > .pr-title {
+    position: sticky;
+    z-index: 6;
+    top: 0;
+    padding: 8px 0;
+    background: var(--bg);
+    font-size: 28px;
+  }
+}
+
+@media (width <= 640px) {
+  body.presenting .pr-slide:has(> .pr-stage > .kom-program[data-operating-layout="progression"]) {
+    padding-inline: 16px;
+  }
+  body.presenting
+    .pr-slide[data-layout]
+    .pr-stage:has(> .kom-program[data-operating-layout="progression"]) {
+    width: calc(100vw - 32px);
+  }
+  .pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-phases {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pr-stage .kom-program[data-operating-layout="progression"] .kom-progress-phase:nth-child(n + 2) {
+    margin-top: 24px;
+  }
+}
+
+.kom-program[data-operating-layout="gates"] .kom-stages {
+  gap: calc(28px * var(--content-space-scale));
+  align-items: stretch;
+}
+.kom-gate-phase {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--kom-tone);
+  border-radius: 6px;
+  background: var(--surface);
+  transition: opacity 0.2s ease;
+}
+.kom-gate-phase:not(:last-child)::after {
+  content: "→";
+  position: absolute;
+  top: 52px;
+  right: calc(-22px * var(--content-space-scale));
+  color: var(--text-dim);
+  font: 500 20px var(--sans);
+}
+.kom-gate-heading {
+  padding: calc(18px * var(--content-space-scale));
+  min-height: 176px;
+  background: color-mix(in srgb, var(--kom-tone) 9%, var(--surface));
+  border-bottom: 1px solid color-mix(in srgb, var(--kom-tone) 30%, var(--border));
+}
+.kom-gate-number {
+  color: var(--kom-tone);
+  font: 650 12px var(--mono);
+}
+.kom-gate-heading h3 {
+  margin: 10px 0;
+  font: 650 clamp(24px, 2.2vw, 34px)/1.12 var(--sans);
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+.kom-gate-audience {
+  margin: 0;
+  color: var(--text);
+  font: 500 14px/1.4 var(--sans);
+}
+.kom-gate-owner {
+  margin: 8px 0 0;
+  color: var(--text-dim);
+  font: 400 12px/1.4 var(--sans);
+}
+.kom-gate-panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: calc(18px * var(--content-space-scale));
+}
+.kom-gate-panel h4 {
+  margin: 8px 0 16px;
+  color: var(--text);
+  font: 650 18px/1.25 var(--sans);
+}
+.kom-gate-criteria {
+  margin: 0 0 20px;
+  padding: 0 0 0 20px;
+  color: var(--text-dim);
+  font: 500 12px var(--mono);
+}
+.kom-gate-criteria li {
+  padding: 0 0 calc(14px * var(--content-space-scale)) 4px;
+}
+.kom-gate-criteria strong {
+  color: var(--text);
+  font: 600 15px/1.35 var(--sans);
+}
+.kom-gate-criteria .kom-stage-body {
+  margin: 5px 0 0;
+  color: var(--text-dim);
+  font: 400 13px/1.4 var(--sans);
+}
+.kom-gate-decision {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.kom-gate-decision > strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 14px;
+}
+.kom-gate-hold {
+  margin: 10px 0 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--warning);
+  color: var(--text-dim);
+  font: 400 12px/1.45 var(--sans);
+}
+.kom-gate-ongoing {
+  background: color-mix(in srgb, var(--kom-tone) 4%, var(--surface));
+}
+.kom-gate-commitment {
+  margin: 18px 0;
+  color: var(--text);
+  font: 500 20px/1.4 var(--sans);
+}
+.kom-gate-review {
+  margin-top: auto;
+  color: var(--text-dim);
+  font: 500 14px/1.4 var(--sans);
+}
+.kom-gate-panel.active {
+  box-shadow: inset 0 0 0 2px var(--kom-tone);
+}
+.kom-program-board.is-walking :is(.kom-lane-card, .kom-lane-edge, .kom-gate-phase):not(.active) {
+  opacity: 0.3;
+}
+
+@media (width <= 760px) {
+  .kom-stages {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .kom-responsibility {
+    min-height: 0;
+    margin-bottom: calc(20px * var(--content-space-scale));
+  }
+  .kom-program[data-operating-layout="roles"] .kom-stage {
+    grid-template-columns: 1fr 1fr;
+  }
+  .kom-role-head {
+    display: none;
+  }
+  .kom-program[data-operating-layout="roles"] .kom-field-label {
+    display: block;
+  }
+  .kom-gate-phase:not(:last-child)::after {
+    content: "↓";
+    top: auto;
+    bottom: -26px;
+    right: 50%;
+  }
+  .kom-lane-key {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kom-decision-right {
+  display: block;
+  margin-top: calc(8px * var(--content-space-scale));
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.kom-handoff .kom-receiver {
+  font-size: 13px;
+  color: var(--text);
+}
+.kom-owner .kom-stage-body {
+  display: block;
+  font-size: 14px;
+  margin: calc(8px * var(--content-space-scale)) 0 0;
+}
+.kom-program[data-operating-detail="minimal"] .kom-owner .kom-stage-body {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kom-stage,
+  .kom-lane-card,
+  .kom-lane-edge,
+  .kom-progress-phase,
+  .kom-gate-phase {
+    transition: none;
+  }
+}
+
+/* Relationship-only cards reserve room for names, not hidden schema rows. */
+.kerd[data-layout="relationships"] > .kerd-canvas {
+  min-height: 0;
+}
+.kerd[data-layout="relationships"] .kerd-entity {
+  justify-content: center;
+}
+.kerd[data-layout="relationships"] .kerd-head {
+  border-bottom: 0;
+  white-space: normal;
+  text-overflow: clip;
+  background: transparent;
+}
+
+.kseq-message-label {
+  fill: var(--text);
+  stroke: var(--surface);
+  stroke-width: 6px;
+  paint-order: stroke fill;
+  stroke-linejoin: round;
+  font: 600 14.4px var(--sans);
+}
+.kseq-parts .kdf-edge-marker {
+  display: none;
+}
+
+/* The path description leads; schema notation is an optional reference. */
+.kerd .kerd-footer {
+  grid-template-columns: minmax(0, 1fr);
+  gap: calc(12px * var(--content-space-scale));
+}
+.kerd .kerd-footer > .kdf-walk {
+  grid-row: 1;
+}
+.kerd-reference {
+  min-width: 0;
+  border-top: 1px solid var(--border);
+}
+.kerd-reference > summary {
+  display: flex;
+  justify-content: space-between;
+  padding: calc(12px * var(--content-space-scale)) 0;
+  list-style: none;
+  color: var(--text-dim);
+  font: 400 13px/1.4 var(--sans);
+  cursor: pointer;
+}
+.kerd-reference > summary::-webkit-details-marker {
+  display: none;
+}
+.kerd-reference > summary::after {
+  content: "+";
+}
+.kerd-reference[open] > summary::after {
+  content: "−";
+}
+.kerd-reference .kdf-legend-item {
+  padding: calc(8px * var(--content-space-scale));
+  border-top: 1px solid var(--border);
+}
+.kerd-reference .kerd-relation-endpoints {
+  color: var(--text);
+  font: 500 14px/1.4 var(--sans);
+}
+.kerd-reference .kerd-cardinality {
+  color: var(--text-dim);
+  font-weight: 400;
+}
+.kerd-reference :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.kcs[data-layout="briefing"] .kstk-lane > .kstk-handoff {
+  display: flex;
+  margin: 0 0 calc(16px * var(--content-space-scale));
+}
+.kseq[data-layout="briefing"] {
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+@media (width <= 720px) {
+  .kcs[data-layout="briefing"] .kstk-canvas.kstk-map {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.kstk-change-briefing {
+  border-top: 1px solid var(--border-strong);
+}
+.kstk-change-head,
+.kstk-change-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.35fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: calc(24px * var(--content-space-scale));
+  padding: calc(12px * var(--content-space-scale));
+  border-bottom: 1px solid var(--border);
+}
+.kstk-change-head,
+.kstk-change-label,
+.kstk-change-context,
+.kstk-change-file {
+  color: var(--text-dim);
+  font: 0.75rem/1.45 var(--mono);
+}
+.kstk-change-label {
+  text-transform: capitalize;
+  align-self: center;
+}
+.kstk-change-row[data-change="added"] > .kstk-change-label {
+  color: var(--success);
+}
+.kstk-change-row[data-change="removed"] > .kstk-change-label {
+  color: var(--error);
+}
+.kstk-change-row[data-change="changed"] > .kstk-change-label {
+  color: var(--accent);
+}
+.kstk-change-cell {
+  min-width: 0;
+}
+.kstk-change-context,
+.kstk-change-file {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.kstk-change-context {
+  margin-bottom: calc(8px * var(--content-space-scale));
+}
+.kstk-change-row.dim {
+  opacity: 0.3;
+}
+.kstk-change-row.active {
+  box-shadow: inset 3px 0 var(--accent);
+}
+.pr-stage .kcs[data-layout="briefing"] > .kstk-brief-calls,
+.pr-stage .kcs[data-layout="briefing"] .kstk-footer > .kdf-legend {
+  display: none;
+}
+
+@media (width <= 640px) {
+  .kstk-change-head,
+  .kstk-change-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .kstk-change-head > :first-child,
+  .kstk-change-label {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Stack outline for a journey: outcomes as a numbered list, grouped by
+   boundary. One row per outcome; the walkthrough lights one row at a time. */
+.kso {
+  --kso-rail: 34px;
+
+  margin: calc(28px * var(--content-space-scale)) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.kso-boundary {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: calc(22px * var(--content-space-scale));
+  padding: 0 0 8px calc(var(--kso-rail) + 14px);
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--text);
+  font: 700 12px/1.3 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.kso-boundary:first-child {
+  margin-top: 0;
+}
+.kso-boundary small {
+  color: var(--text-dim);
+  font: 400 13px/1.3 var(--sans);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.kso-stop {
+  position: relative;
+  display: grid;
+  grid-template-columns: var(--kso-rail) minmax(0, 1fr) auto;
+  gap: 0 14px;
+  align-items: start;
+  padding: calc(14px * var(--content-space-scale)) 0;
+  border-bottom: 1px solid var(--border);
+  transition: opacity 0.2s ease;
+}
+.kso-stop::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--kso-rail) / 2 - 1px);
+  width: 2px;
+  background: var(--border);
+}
+.kso-ordinal {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: var(--kso-rail);
+  height: var(--kso-rail);
+  border: 1.5px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--text-dim);
+  font: 600 13px var(--mono);
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+.kso-copy {
+  min-width: 0;
+  padding-top: 5px;
+}
+.kso-label {
+  display: block;
+  color: var(--text);
+  font: 650 19px/1.2 var(--sans);
+  letter-spacing: -0.015em;
+}
+.kso-calls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  margin-top: 8px;
+}
+.kso-call {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  color: var(--text-dim);
+  font: 400 13px/1.4 var(--sans);
+}
+.kso-call code {
+  color: var(--text);
+  font: 600 13px/1.4 var(--mono);
+}
+.kso-call.async code::after {
+  content: " async";
+  color: var(--violet);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.kso-guards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-top: 10px;
+}
+.kso-effects {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  padding-top: 6px;
+}
+.kso-return {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: calc(18px * var(--content-space-scale));
+  padding-left: calc(var(--kso-rail) + 14px);
+  color: var(--text-dim);
+  font: 500 14px/1.3 var(--sans);
+  transition: color 0.2s ease;
+}
+.kso-return-mark {
+  color: var(--accent);
+  font-size: 18px;
+}
+.kso.walking .kso-stop.future {
+  opacity: 0.38;
+}
+.kso.walking .kso-stop.past .kso-ordinal {
+  border-color: var(--text);
+  color: var(--text);
+}
+.kso-stop.active .kso-ordinal {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+.kso-stop.active .kso-label {
+  color: var(--accent);
+}
+.kso-return.active {
+  color: var(--accent);
+}
+.pr-stage .kso {
+  margin-top: 0;
+}
+.pr-stage .kso-boundary {
+  margin-top: 2px;
+  padding-bottom: 3px;
+  border-bottom: 0;
+  font-size: 12px;
+}
+.pr-stage .kso-boundary small {
+  font-size: 14px;
+}
+.pr-stage .kso-stop {
+  grid-template-columns: var(--kso-rail) minmax(0, 1fr) minmax(0, 34%);
+  padding: 6px 0;
+}
+.pr-stage .kso-effects {
+  flex-flow: row wrap;
+  justify-content: flex-end;
+  padding-top: 8px;
+}
+.pr-stage .kso-copy {
+  padding-top: 4px;
+}
+.pr-stage .kso-calls {
+  margin-top: 5px;
+}
+.pr-stage .kso-guards {
+  margin-top: 7px;
+}
+.pr-stage .kso-label {
+  font-size: 21px;
+}
+.pr-stage .kso-return {
+  margin-top: 4px;
+}
+.pr-stage .kcs-brief-journey > .kdf-walk {
+  margin-top: 6px;
+  padding-top: 8px;
+}
+.pr-stage .kcs-brief-journey .kdf-controls {
+  display: none;
+}
+.pr-stage .kcs-brief-journey .kdf-annotation {
+  min-height: 0;
+}
+.pr-stage .kcs-brief-journey .kdf-annotation p {
+  margin-top: 2px;
+}
+.pr-stage .kso-call,
+.pr-stage .kso-call code {
+  font-size: 15px;
+}
+.pr-stage .kso-return {
+  font-size: 16px;
+}
+.pr-stage .kso .kstk-chip,
+.pr-stage .kso .kstk-guard {
+  font-size: 13px;
+}
+
+@media (width <= 700px) {
+  .kso-stop {
+    grid-template-columns: var(--kso-rail) minmax(0, 1fr);
+  }
+  .kso-effects {
+    grid-column: 2;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    padding-top: 10px;
+  }
+}
+
+/* Dense operating models in Present: tighter progression cells and phase
+   headings, and lane owners that wrap instead of clipping. */
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-phase {
+  padding: 10px 8px 8px;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-heading {
+  padding: 0 2px 8px;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-index {
+  width: 22px;
+  height: 22px;
+  margin-bottom: 6px;
+  font-size: 11px;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-heading
+  h3 {
+  font-size: clamp(17px, 1.2vw, 20px);
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-purpose {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-cell {
+  min-height: 0;
+  gap: 0;
+  padding: 5px 10px;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-cell
+  strong {
+  font-size: 15px;
+  line-height: 1.25;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-cell
+  > span {
+  font-size: 12px;
+  line-height: 1.2;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-empty {
+  min-height: 0;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-horizons {
+  margin-top: 12px;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-horizon {
+  font-size: 14px;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-legend {
+  margin-top: 12px;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="progression"]
+  .kom-progress-state {
+  font-size: 13px;
+}
+.pr-stage .kom-program[data-kom-density="dense"][data-operating-layout="lanes"] .kom-lane-owner {
+  gap: 4px;
+  padding: 10px 10px 10px 14px;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="lanes"]
+  .kom-lane-owner
+  strong {
+  font-size: 15px;
+  line-height: 1.2;
+}
+.pr-stage .kom-program[data-kom-density="dense"][data-operating-layout="lanes"] .kom-lane-card {
+  padding: 6px 12px 6px 14px;
+}
+.pr-stage .kom-program[data-kom-density="dense"][data-operating-layout="lanes"] .kom-lane-number {
+  font-size: 10px;
+}
+.pr-stage .kom-program[data-kom-density="dense"][data-operating-layout="lanes"] .kom-stage-body,
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="lanes"]
+  .kom-lane-card
+  small {
+  font-size: 12px;
+  line-height: 1.2;
+}
+.pr-stage .kom-program[data-kom-density="dense"][data-operating-layout="lanes"] .kom-lane-key {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 4px 14px;
+  margin-top: 8px;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="lanes"]
+  .kom-lane-key-number {
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+}
+.pr-stage
+  .kom-program[data-kom-density="dense"][data-operating-layout="lanes"]
+  .kom-lane-key-item
+  strong {
+  font-size: 13px;
+}
+.pr-stage .kom-program[data-kom-density="dense"][data-operating-layout="lanes"] > .kdf-walk {
+  margin-top: 8px;
+  padding-top: 8px;
+}
+.pr-stage .kom-program[data-kom-density="dense"][data-operating-layout="lanes"] .kom-lane-card h3 {
+  font-size: 15px;
+  line-height: 1.25;
+}

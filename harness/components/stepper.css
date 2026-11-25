@@ -1,0 +1,195 @@
+/* component: stepper — one concept per step; dots + prev/next */
+.kst {
+  margin-top: calc(8px * var(--content-space-scale));
+}
+
+.kst-rail {
+  display: flex;
+  align-items: center;
+  gap: calc(14px * var(--content-space-scale));
+  flex-wrap: wrap;
+  margin-bottom: calc(28px * var(--content-space-scale));
+}
+.kst-dot {
+  appearance: none;
+  border: 1px solid var(--border-strong);
+  background: var(--bg);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.kst-dot-title {
+  display: none;
+}
+.kst-dot:hover {
+  border-color: var(--text-dim);
+  color: var(--text);
+}
+.kst-dot.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-dim);
+}
+.kst-dot.done {
+  border-color: var(--success);
+  color: var(--success);
+}
+.kst-nav {
+  margin-left: auto;
+  display: inline-flex;
+  gap: calc(6px * var(--content-space-scale));
+}
+.kst-nav button {
+  appearance: none;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-dim);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: grid;
+  place-items: center;
+  transition: all 0.25s ease;
+}
+.kst-nav button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.kst-nav button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.kst-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: calc(44px * var(--content-space-scale));
+  align-items: start;
+  min-height: 180px;
+}
+.kst-panel > * {
+  min-width: 0;
+}
+.kst-panel.no-code {
+  grid-template-columns: 1fr;
+}
+.kst-prose .kst-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: calc(10px * var(--content-space-scale));
+  display: block;
+}
+.kst-prose h4 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text);
+  line-height: 1.35;
+}
+.kst-prose h4 code {
+  font-family: var(--mono);
+  font-size: 0.86em;
+  color: var(--accent);
+}
+.kst-prose p {
+  font-size: 0.92rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.kst-prose p em {
+  color: var(--text);
+  font-style: normal;
+}
+.kst-prose p code {
+  font-family: var(--mono);
+  font-size: 0.85em;
+  color: var(--accent);
+}
+.kst .code-block {
+  max-width: none;
+  margin-top: 0;
+}
+
+@media (width <= 900px) {
+  .kst-panel {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+.pr-stage .kst-panel {
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+}
+.pr-stage .kst-panel.no-code {
+  grid-template-columns: 1fr;
+}
+
+/* Overview: the process stays visible beside the selected step detail. */
+.kst[data-layout="overview"] {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.68fr) minmax(0, 1.32fr);
+  gap: calc(42px * var(--content-space-scale));
+  align-items: start;
+}
+.kst[data-layout="overview"] .kst-rail {
+  display: grid;
+  gap: 0;
+  margin-bottom: 0;
+}
+.kst[data-layout="overview"] .kst-dot {
+  width: 100%;
+  height: auto;
+  min-height: calc(52px * var(--content-space-scale));
+  grid-template-columns: 34px minmax(0, 1fr);
+  justify-items: start;
+  gap: calc(12px * var(--content-space-scale));
+  padding: calc(10px * var(--content-space-scale)) calc(12px * var(--content-space-scale));
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+.kst[data-layout="overview"] .kst-dot.active {
+  border-color: var(--border);
+  box-shadow: inset 3px 0 var(--accent);
+}
+.kst[data-layout="overview"] .kst-dot-title {
+  display: block;
+  overflow: hidden;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 650;
+  letter-spacing: normal;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: normal;
+}
+.kst[data-layout="overview"] .kst-nav {
+  margin: calc(18px * var(--content-space-scale)) 0 0;
+}
+.kst[data-layout="overview"] .kst-panel {
+  gap: calc(30px * var(--content-space-scale));
+}
+
+@media (width <= 760px) {
+  .kst[data-layout="overview"] {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pr-stage .kst[data-layout="overview"] {
+  grid-template-columns: minmax(260px, 0.7fr) minmax(0, 1.3fr);
+}

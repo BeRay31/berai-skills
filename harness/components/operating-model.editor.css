@@ -1,0 +1,451 @@
+.st-progression-editing {
+  --st-progression-action: #2864dc;
+
+  color-scheme: light;
+}
+:root:not([data-theme="light"]) .st-progression-editing {
+  --st-progression-action: #8fb4ff;
+
+  color-scheme: dark;
+}
+.st-progression-target {
+  position: relative;
+}
+.st-progression-text,
+.st-progression-state-label {
+  width: fit-content;
+  max-width: 100%;
+  border-bottom: 1px dotted transparent;
+}
+.st-progression-text {
+  cursor: text;
+}
+.st-progression-state-label {
+  cursor: pointer;
+}
+.st-progression-text:hover,
+.st-progression-state-label:hover {
+  border-bottom-color: currentcolor;
+}
+.st-progression-text:focus-visible,
+.st-progression-state-label:focus-visible {
+  outline: 2px dotted var(--st-progression-action);
+  outline-offset: 3px;
+}
+.kom-progress-heading .st-progression-text,
+.kom-progress-horizon .st-progression-text {
+  margin-inline: auto;
+}
+.st-progression-editing .st-progression-hit {
+  appearance: none;
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.st-progression-glyph {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  fill: none;
+  stroke: currentcolor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.st-progression-hit:hover {
+  background: color-mix(in srgb, var(--st-progression-action) 8%, transparent);
+}
+.st-progression-editing .st-progression-hit:focus-visible,
+.st-progression-selected > .st-progression-hit {
+  outline: 2px solid var(--st-progression-action);
+  outline-offset: 2px;
+}
+.st-progression-editing .kom-progress-empty {
+  min-height: 60px;
+  border: 2px dotted var(--st-progression-action);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--st-progression-action) 5%, transparent);
+}
+.st-progression-editing .st-progression-gap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--st-progression-action);
+  font: 600 11px/1.3 var(--sans);
+}
+.st-progression-gap > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.st-progression-gap > .st-progression-glyph {
+  position: static;
+  opacity: 0.7;
+}
+.st-progression-editing .kom-program-board.is-walking .kom-progress-phase {
+  opacity: 1;
+}
+.st-progression-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.st-progression-editing-label {
+  color: var(--text-dim);
+  font: 600 11px/1.3 var(--sans);
+}
+.st-progression-insert {
+  display: flex;
+  gap: 12px;
+}
+.st-progression-editing .st-progression-add {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 2px dotted var(--st-progression-action);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--st-progression-action) 5%, transparent);
+  color: var(--st-progression-action);
+  font: 600 12px/1.3 var(--sans);
+  cursor: pointer;
+}
+.st-progression-editing .st-progression-add:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--st-progression-action) 12%, transparent);
+}
+.st-progression-editing .st-progression-add:focus-visible {
+  outline: 2px solid var(--st-progression-action);
+  outline-offset: 2px;
+}
+.st-progression-editing .st-progression-add:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.st-progression-editing .kom-progress-heading,
+.st-progression-editing .kom-progress-horizon {
+  border-radius: 4px;
+  outline: 1px dotted transparent;
+  outline-offset: 4px;
+  transition: outline-color 0.15s ease;
+}
+.st-progression-editing .kom-progress-heading:hover,
+.st-progression-editing .kom-progress-horizon:hover,
+.st-progression-editing .kom-progress-heading:focus-within,
+.st-progression-editing .kom-progress-horizon:focus-within {
+  outline-color: var(--st-progression-action);
+}
+.st-progression-editing .st-progression-settings {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 28px;
+  margin-top: 8px;
+  padding: 2px 10px;
+  border: 1px dotted var(--st-progression-action);
+  border-radius: 100px;
+  background: transparent;
+  color: var(--st-progression-action);
+  font: 600 11px/1.3 var(--sans);
+  cursor: pointer;
+}
+.st-progression-editing .st-progression-settings::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentcolor;
+  box-shadow:
+    -6px 0 0 currentcolor,
+    6px 0 0 currentcolor;
+  margin-inline: 6px;
+}
+.st-progression-editing .st-progression-settings:hover {
+  background: color-mix(in srgb, var(--st-progression-action) 10%, transparent);
+}
+.st-progression-editing .st-progression-settings:focus-visible {
+  outline: 2px solid var(--st-progression-action);
+  outline-offset: 2px;
+}
+.st-progression-editing .kom-progress-horizon .st-progression-settings {
+  margin-top: 6px;
+}
+.st-progression-editing .kom-progress-state {
+  min-height: 36px;
+  gap: 14px;
+}
+.st-progression-editing .kom-progress-state::before {
+  width: 20px;
+  height: 16px;
+  border-radius: 3px;
+}
+.st-progression-color {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  left: -14px;
+  width: 44px;
+  height: 44px;
+  margin-top: -22px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.st-progression-editing .kom-progress-state:has(> .st-progression-color:hover)::before,
+.st-progression-editing .kom-progress-state:has(> .st-progression-color:focus-visible)::before {
+  outline: 2px solid var(--st-progression-action);
+  outline-offset: 3px;
+}
+.st-progression-editing .st-progression-hit[hidden] {
+  display: none;
+}
+.st-progression-selected {
+  z-index: 4;
+  outline: 2px solid var(--st-progression-action);
+  outline-offset: 2px;
+}
+.st-progression-inline-form {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px 8px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 8px 12px;
+}
+.st-progression-inline-form input,
+.st-progression-inline-form select,
+.st-progression-inline-submit,
+.st-progression-inline-text {
+  appearance: none;
+  box-sizing: border-box;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+.st-progression-inline-name {
+  grid-column: 1;
+  grid-row: 1;
+  width: 100%;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--border-strong);
+  font: 600 14px/1.25 var(--sans);
+}
+.st-progression-inline-name::placeholder {
+  color: var(--text-faint);
+  font-weight: 400;
+}
+.st-progression-inline-state {
+  grid-column: 1;
+  grid-row: 2;
+  width: 100%;
+  padding: 0 20px 0 4px;
+  border-bottom: 1px solid transparent;
+  color: var(--text-dim);
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentcolor 50%),
+    linear-gradient(135deg, currentcolor 50%, transparent 50%);
+  background-position:
+    calc(100% - 8px) 50%,
+    calc(100% - 4px) 50%;
+  background-size: 4px 4px;
+  background-repeat: no-repeat;
+  font: 400 11px/1.3 var(--sans);
+  cursor: pointer;
+}
+.st-progression-inline-name:hover,
+.st-progression-inline-state:hover {
+  border-bottom-color: var(--st-progression-action);
+}
+.st-progression-inline-form .st-progression-inline-submit {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  border-left: 1px dotted var(--border-strong);
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.st-progression-inline-submit:hover {
+  color: var(--st-progression-action);
+}
+.st-progression-inline-text {
+  position: absolute;
+  z-index: 4;
+  border-bottom: 1px solid currentcolor;
+  text-align: inherit;
+}
+.st-progression-editing .st-progression-inline-text:focus,
+.st-progression-editing .st-progression-inline-form input:focus,
+.st-progression-editing .st-progression-inline-form select:focus {
+  outline: none;
+  border-bottom: 1px solid var(--st-progression-action);
+}
+.st-progression-drafting {
+  outline: 2px solid var(--st-progression-action);
+  outline-offset: 2px;
+}
+.st-progression-insertion .st-progression-hit:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.st-progression-editing .kom-progress-cell {
+  touch-action: none;
+  cursor: grab;
+}
+.st-progression-drag-source {
+  opacity: 0.88;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--bg) 30%, transparent);
+  will-change: transform;
+}
+.st-progression-editing.st-progression-dragging,
+.st-progression-editing.st-progression-dragging .st-progression-hit {
+  cursor: grabbing;
+}
+.st-progression-editing.st-progression-drop-invalid,
+.st-progression-editing.st-progression-drop-invalid .st-progression-hit {
+  cursor: not-allowed;
+}
+.st-progression-drop-target .st-progression-drop-slot {
+  outline: 2px solid var(--st-progression-action);
+  outline-offset: 2px;
+  background: color-mix(in srgb, var(--st-progression-action) 10%, var(--surface));
+}
+.st-progression-drop-blocked .st-progression-drop-slot {
+  outline: 2px solid var(--warning);
+  outline-offset: 2px;
+}
+.st-progression-drag-status {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-dim);
+  font: 500 11px/1.3 var(--sans);
+}
+.st-progression-drop-invalid .st-progression-drag-status {
+  color: var(--warning);
+}
+.st-progression-popover {
+  position: fixed;
+  z-index: 520;
+  width: min(340px, calc(100vw - 32px));
+  overflow: auto;
+}
+.st-progression-popover .st-progression-popover-close {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  font-size: 20px;
+}
+.st-progression-popover .st-progression-form {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.st-progression-state-picker {
+  display: grid;
+  gap: 4px;
+}
+.st-progression-popover .st-progression-state-choice {
+  --kom-status: var(--text-faint);
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+.st-progression-state-choice::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  flex: 0 0 12px;
+  border-radius: 2px;
+  background: var(--kom-status);
+}
+.st-progression-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid color-mix(in srgb, currentcolor 18%, transparent);
+}
+.st-progression-field {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+}
+.st-progression-field textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+.st-progression-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.st-progression-form-context {
+  margin: -10px 0 0;
+  font-size: 12px;
+}
+.st-progression-remove-area {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in srgb, currentcolor 18%, transparent);
+}
+.st-progression-form .st-progression-remove {
+  min-height: 44px;
+  padding: 0;
+  font-size: 12px;
+  text-align: left;
+}
+.st-progression-form .st-progression-remove:hover:not(:disabled) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.st-progression-remove-area p {
+  margin: 4px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .st-progression-hit,
+  .st-progression-hit > .st-progression-glyph {
+    transition: none;
+  }
+}

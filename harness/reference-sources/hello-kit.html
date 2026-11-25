@@ -1,0 +1,112 @@
+<!-- Reference source: the smallest complete content source.
+     Assemble with (from the repo root):
+     python3 .factory/skills/explainer/assemble.py .factory/skills/explainer/reference-sources/hello-kit.html --out /tmp/hello-kit-explainer.html -->
+
+<p style="font:15px/1.6 -apple-system,sans-serif;max-width:640px;margin:40px auto;padding:18px 22px;border:1px solid #b45309;color:#78350f;background:#fffbeb">
+  <strong>Note:</strong> this is an <code>/explainer</code> content source, not a finished page —
+  assemble it first (see <code>.factory/skills/explainer/README.md</code>):<br>
+  <code>python3 .factory/skills/explainer/assemble.py .factory/skills/explainer/reference-sources/hello-kit.html --out /tmp/hello-kit-explainer.html</code>
+</p>
+
+<script type="application/json" data-slot="meta">
+{
+  "title": "Hello, kit — a worked example",
+  "style": "keynote",
+  "components": ["section", "flow", "table"],
+  "thesis": "A minimal explainer proving the kit pipeline: four slots in, one self-contained HTML out.",
+  "slides": [
+    {"kicker": "Hello", "title": "Built from four slots", "point": "meta + content + page-css + page-js assemble into one file"},
+    {"kicker": "01 · Pipeline", "title": "How assembly works", "point": "the flow component draws the pipeline from data"},
+    {"kicker": "02 · Parts", "title": "What the kit ships", "point": "substrate and components come from files, not generation"},
+    {"kicker": "03 · Difference", "point": "before/after the kit, as a component"}
+  ],
+  "facts": [
+    "Assembled by python3 (stdlib only) — works on any Mac",
+    "Output is a single self-contained HTML: inline CSS/JS, vendored Motion, no CDN"
+  ],
+  "links": []
+}
+</script>
+
+<template data-slot="content">
+<section id="top" class="artifact"></section>
+
+<section id="pipeline">
+  <div class="reveal" id="pipeHead">
+    <span class="eyebrow">01 · Pipeline</span>
+    <h2 class="sec-title">Source in, <em>one file</em> out</h2>
+  </div>
+  <figure class="reveal reveal-delay-1 artifact" id="pipeFlow" aria-label="assembly pipeline"></figure>
+</section>
+
+<section id="parts">
+  <div class="reveal" id="partsHead">
+    <span class="eyebrow">02 · Parts</span>
+    <h2 class="sec-title">What the kit ships</h2>
+  </div>
+  <div class="reveal reveal-delay-1 artifact" id="partsTable"></div>
+</section>
+
+<section id="difference">
+  <div class="reveal" id="diffHead">
+    <span class="eyebrow">03 · Difference</span>
+    <h2 class="sec-title">Why assemble instead of generate</h2>
+  </div>
+  <div class="reveal reveal-delay-1 artifact" id="diffTable"></div>
+</section>
+
+<p class="muted-note reveal" style="max-width:1100px;margin:0 auto 90px;padding:0 clamp(24px,5vw,80px)">That is the whole example — four slots, three components, one shareable file.</p>
+</template>
+
+<style data-slot="page-css">
+/* nothing topic-specific needed — the kit covers this page */
+</style>
+
+<script data-slot="page-js">
+var opening = renderSection('#top', {
+  mode: 'cover',
+  pattern: 'arcs',
+  kicker: 'EXPLAINER KIT · WORKED EXAMPLE',
+  title: 'Built from four slots',
+  sub: 'The source provides the story. The kit supplies the presentation system.',
+  ariaLabel: 'Explainer kit worked example: built from four slots'
+});
+
+var pipeFlow = renderFlow('#pipeFlow', {
+  ariaLabel: 'assembly pipeline',
+  caption: 'four slots + the kit = <b>one self-contained page</b>',
+  items: [
+    {type:'station', kind:'accent', when:'YOU WRITE', label:'content source', sub:'four authored slots'},
+    {type:'station', when:'THE KIT ADDS', label:'substrate', sub:'shared presentation kit'},
+    {type:'gate', when:'ASSEMBLE.PY', label:'splice + stamp', sub:'python3, stdlib only',
+     outcomes:[{tone:'ok', text:'✓ single .html'}, {tone:'ok', text:'✓ source embedded'}]},
+    {type:'station', kind:'ok', check:true, sub:'share it'}
+  ]
+});
+
+var partsTable = renderTable('#partsTable', { mode: 'rows', numbered: true, groups: [{
+  rows: [
+    {title:'Styles', sub:'keynote · playful — same token contract'},
+    {title:'Present mode', sub:'fixed: scroll anchoring, resume, deep links'},
+    {title:'Zoom', sub:'every <code>data-zoom</code> diagram expands full-viewport'},
+    {title:'Components', sub:'table, tree, chart, stepper, flow, architecture, loop'},
+    {title:'Motion', sub:'vendored and pinned; CSS fallback; honours reduced motion'}
+  ]
+}]});
+
+var diffTable = renderTable('#diffTable', {
+  mode: 'before-after',
+  rows: [
+    {title:'Boilerplate', before:'~180 lines regenerated token by token, every run', after:'spliced from files, byte-identical every time'},
+    {title:'Present mode', before:'re-implemented per page; bugs drift in', after:'one fixed implementation, verified once'},
+    {title:'Author effort', before:'everything', after:'topic content only'}
+  ]
+});
+
+initPresent([
+  {pick:['#top'], layout:'cover', steps:opening},
+  {kicker:'01 · Pipeline', pick:['#pipeHead','#pipeFlow'], layout:'diagram', steps:{count:pipeFlow.count, go:pipeFlow.go}},
+  {kicker:'02 · Parts', pick:['#partsHead','#partsTable'], steps:{count:partsTable.count, go:partsTable.go}},
+  {kicker:'03 · Difference', pick:['#diffHead','#diffTable'], steps:{count:diffTable.count, go:diffTable.go}}
+]);
+</script>
