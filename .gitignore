@@ -1,0 +1,6 @@
+.agents/config.local.yaml
+.agents/lock.local.yaml
+.DS_Store
+.claude
+.agents
+.explainers
