@@ -9,7 +9,11 @@ A collection of skills for coding agents. Each directory has a `SKILL.md` with i
 | [argus](argus/SKILL.md) | Search code across repositories, trace pull requests and failing pipelines, and look up issues using the read-only `argus` CLI. |
 | [grill-me](grill-me/SKILL.md) | Stress-test a plan one decision at a time. The agent checks the codebase for answers before asking the next question. |
 | [ponytail](ponytail/SKILL.md) | Before writing code, look for an existing implementation, standard library feature, or smaller change that solves the problem. |
-| [frontend-design](frontend-design/SKILL.md) | Build or style a web interface with deliberate choices about typography, layout, color, and motion. |
+| [receiving-code-review](receiving-code-review/SKILL.md) | Evaluate review comments against the current change, verify fixes, and draft evidence-backed replies. |
+| [using-git-worktrees](using-git-worktrees/SKILL.md) | Find or create an isolated checkout for a task and preserve existing branches and local work. |
+| [build-frontend-feature](build-frontend-feature/SKILL.md) | Build a web feature from its entry point to the rendered outcome, using the host’s framework, data flow, and design system. |
+| [nir-frontend](nir-frontend/SKILL.md) | Extend the frontend baseline for NIR storefront and staff workflows, including app-specific routing, permissions, and shared `nir-ui` components. Requires `build-frontend-feature`. |
+| [build-backend-feature](build-backend-feature/SKILL.md) | Build an endpoint, job, or provider integration in an existing backend. Trace a comparable feature, resolve open decisions, and verify the result through the real entry point and database. |
 | [explainer](harness/SKILL.md) | Turn a technical change or design decision into a standalone interactive HTML presentation. Open Studio to browse and edit existing explainers. |
 | [capture-review-evidence](capture-review-evidence/SKILL.md) | Capture the same scenario before and after a CLI, terminal UI, web, or architecture change so reviewers can compare the results. |
 | [create-merge-request](create-merge-request/SKILL.md) | Open a GitHub pull request or GitLab merge request with a description based on the diff, review evidence, and verification results. |
