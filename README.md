@@ -72,7 +72,10 @@ The agent should ask one question at a time and give its recommended answer.
 | [build-backend-feature](build-backend-feature/SKILL.md) | Build an endpoint, job, or provider integration in an existing backend. Trace a comparable feature, resolve open decisions, and verify the result through the real entry point and database. |
 | [explainer](explainer/SKILL.md) | Turn a technical change or design decision into a standalone interactive HTML presentation. Open Studio to browse and edit existing explainers. |
 | [capture-review-evidence](capture-review-evidence/SKILL.md) | Capture the same scenario before and after a CLI, terminal UI, web, or architecture change so reviewers can compare the results. |
-| [create-merge-request](create-merge-request/SKILL.md) | Open a GitHub pull request or GitLab merge request with a description based on the diff, review evidence, and verification results. Requires `capture-review-evidence`, the separate `repo-info` skill, and an authenticated `gh` (GitHub) or `glab` (GitLab). |
+| [repo-info](repo-info/SKILL.md) | Inspect GitHub pull requests or GitLab merge requests, check CI status, and read failed job logs with `gh` or `glab`. |
+| [create-merge-request](create-merge-request/SKILL.md) | Open a GitHub pull request or GitLab merge request with a description based on the diff, review evidence, and verification results. Requires `capture-review-evidence`, `repo-info`, and an authenticated `gh` (GitHub) or `glab` (GitLab). |
+| [resolve-merge-conflict](resolve-merge-conflict/SKILL.md) | Rebase a conflicted GitLab merge request onto its target branch, resolve conflicts, and update the MR using `glab`. |
+| [slop-slicer](slop-slicer/SKILL.md) | Split a large change into a stack of reviewable merge requests and verify each commit independently. |
 
 ## Build the explainer example from a local checkout
 
